@@ -19,7 +19,7 @@
 
         body {
             font-family: 'Assistant', sans-serif;
-            background-color: #F0F4F8; /* Light blue-gray background */
+            background-color: #F0F4F8;
         }
         
         .theme-ocean {
@@ -212,12 +212,18 @@
     <!-- Tomorrow Message Modal -->
     <div id="tomorrow-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 transition-opacity duration-300 opacity-0">
         <div id="modal-content" class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center transform scale-95 transition-all duration-300">
+            <h3 class="text-2xl font-bold header-text mb-4">✨ מסר למחר ✨</h3>
+            <p id="modal-message-text" class="text-lg text-gray-600 mb-6"></p>
+            <button id="close-modal-btn" class="btn-primary font-bold py-2 px-6 rounded-full text-lg">הבנתי, תודה!</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- CONFIG & STATE ---
-        // 1. הדבק כאן את הגדרות ה-Firebase שלך!
-        // תוכל למצוא אותן בהגדרות הפרויקט ב-Firebase Console
         const firebaseConfig = {
             apiKey: "AIzaSyDFYvzKavhrf4bnoFI0GckLk-dO40_ftJ4",
             authDomain: "eliran-apps.firebaseapp.com",
@@ -229,6 +235,7 @@
         };
         
         let app, auth, db, userId, entriesUnsubscribe;
+        let isFirebaseReady = false;
         let userEntries = {};
         let selectedImageBase64 = null;
         let calendarDate = dayjs();
@@ -293,9 +300,9 @@
         }
 
         async function initializeAppAndAuth() {
-            if (!firebaseConfig || !firebaseConfig.apiKey || firebaseConfig.apiKey === "AIza...") {
-                 console.error("Firebase config is not available or is a placeholder. Please add your own Firebase project configuration.");
-                 alert("נראה שחסרה תצורת Firebase. יש לעדכן את פרטי הפרויקט בקוד כדי להפעיל את האפליקציה.");
+            if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.projectId) {
+                 console.error("Firebase config is incomplete. Please ensure it's correctly configured.");
+                 showToast("שגיאה: תצורת Firebase אינה מלאה.");
                  return;
             }
             try {
@@ -306,23 +313,19 @@
                 onAuthStateChanged(auth, user => {
                     if (user) {
                         userId = user.uid;
+                        isFirebaseReady = true;
+                        console.log("Firebase is ready. User ID:", userId);
                         loadUserSettings();
                         loadTodayEntry();
                         listenToEntries();
                     } else {
+                        isFirebaseReady = false;
                         signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
                     }
                 });
             } catch (error) {
                 console.error("Error initializing Firebase:", error);
-            }
-        }
-
-        async function signIn() {
-            try {
-                await signInAnonymously(auth);
-            } catch (error) {
-                console.error("Authentication failed:", error);
+                showToast("שגיאה באתחול החיבור למסד הנתונים.");
             }
         }
 
@@ -335,17 +338,20 @@
         }
 
         async function saveTheme(themeName) {
-            if (!userId) return;
+            if (!isFirebaseReady) return;
             try {
                 const userDocRef = doc(db, 'goodDiaryUsers', userId);
                 await setDoc(userDocRef, { settings: { theme: themeName } }, { merge: true });
             } catch (error) {
                 console.error("Error saving theme:", error);
+                 if (error.code === 'permission-denied') {
+                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
+                }
             }
         }
 
         async function loadUserSettings() {
-            if (!userId) return;
+            if (!isFirebaseReady) return;
             try {
                 const userDocRef = doc(db, 'goodDiaryUsers', userId);
                 const docSnap = await getDoc(userDocRef);
@@ -354,6 +360,9 @@
                 }
             } catch (error) {
                 console.error("Error loading user settings:", error);
+                if (error.code === 'permission-denied') {
+                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
+                }
             }
         }
         
@@ -376,9 +385,18 @@
         function showToast(message) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
+            
+            if (message.includes("שגיאה")) {
+                toast.classList.remove('bg-green-500');
+                toast.classList.add('bg-red-500');
+            } else {
+                toast.classList.remove('bg-red-500');
+                toast.classList.add('bg-green-500');
+            }
+
             toastMessage.textContent = message;
             toast.classList.add('show');
-            setTimeout(() => { toast.classList.remove('show'); }, 3000);
+            setTimeout(() => { toast.classList.remove('show'); }, 4000);
         }
 
         function showTomorrowMessage() {
@@ -414,7 +432,7 @@
 
         // --- DATA HANDLING ---
         async function loadTodayEntry() {
-            if (!userId) return;
+            if (!isFirebaseReady) return;
             const todayStr = dayjs().format('YYYY-MM-DD');
             try {
                 const docRef = doc(db, 'goodDiaryUsers', userId, 'entries', todayStr);
@@ -434,22 +452,30 @@
                 }
             } catch (error) {
                 console.error("Error loading today's entry:", error);
+                 if (error.code === 'permission-denied') {
+                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
+                }
             }
         }
 
         function listenToEntries() {
             if (entriesUnsubscribe) entriesUnsubscribe();
-            if (!userId) return;
+            if (!isFirebaseReady) return;
             const entriesCol = collection(db, 'goodDiaryUsers', userId, 'entries');
             entriesUnsubscribe = onSnapshot(entriesCol, (snapshot) => {
                 userEntries = {};
                 snapshot.forEach(doc => { userEntries[doc.id] = doc.data(); });
                 if (!historyView.classList.contains('hidden')) { renderCalendar(); }
-            }, (error) => { console.error("Error listening to entries:", error); });
+            }, (error) => { 
+                console.error("Error listening to entries:", error);
+                 if (error.code === 'permission-denied') {
+                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
+                }
+            });
         }
 
         async function saveEntry() {
-            if (!userId) { showToast("יש להתחבר כדי לשמור."); return; }
+            if (!isFirebaseReady) { showToast("שגיאה: החיבור למסד הנתונים עדיין לא מוכן."); return; }
             const todayStr = dayjs().format('YYYY-MM-DD');
             const entryData = {
                 goodThings: goodThingsEl.value,
@@ -468,7 +494,11 @@
                 clearJournalForm();
             } catch (error) {
                 console.error("Error saving entry:", error);
-                showToast("אירעה שגיאה בשמירת הנתונים.");
+                if (error.code === 'permission-denied') {
+                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
+                } else {
+                    showToast("אירעה שגיאה בשמירת הנתונים.");
+                }
             } finally {
                 saveButton.disabled = false;
                 saveButton.textContent = "שמור את היום הטוב שלי";
