@@ -212,20 +212,21 @@
     <!-- Tomorrow Message Modal -->
     <div id="tomorrow-modal" class="hidden fixed inset-0 bg-black bg-opacity-60 flex items-center justify-center z-50 p-4 transition-opacity duration-300 opacity-0">
         <div id="modal-content" class="bg-white rounded-2xl shadow-2xl p-6 sm:p-8 max-w-md w-full text-center transform scale-95 transition-all duration-300">
-            <h2 class="text-3xl font-bold header-text mb-4">מסר לקראת מחר</h2>
-            <p id="modal-message-text" class="text-xl text-gray-600 mb-6 min-h-[6rem] flex items-center justify-center"></p>
-            <button id="close-modal-btn" class="btn-primary font-bold py-2 px-6 rounded-full text-lg">הבנתי, תודה!</button>
-        </div>
-    </div>
-
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- CONFIG & STATE ---
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'good-diary-app';
+        // 1. הדבק כאן את הגדרות ה-Firebase שלך!
+        // תוכל למצוא אותן בהגדרות הפרויקט ב-Firebase Console
+        const firebaseConfig = {
+            apiKey: "AIzaSyDFYvzKavhrf4bnoFI0GckLk-dO40_ftJ4",
+            authDomain: "eliran-apps.firebaseapp.com",
+            projectId: "eliran-apps",
+            storageBucket: "eliran-apps.firebasestorage.app",
+            messagingSenderId: "383762752947",
+            appId: "1:383762752947:web:24fd294ce0cea858f557c6",
+            measurementId: "G-1NYMZVXBMP"
+        };
         
         let app, auth, db, userId, entriesUnsubscribe;
         let userEntries = {};
@@ -292,8 +293,9 @@
         }
 
         async function initializeAppAndAuth() {
-            if (Object.keys(firebaseConfig).length === 0) {
-                 console.error("Firebase config is not available.");
+            if (!firebaseConfig || !firebaseConfig.apiKey || firebaseConfig.apiKey === "AIza...") {
+                 console.error("Firebase config is not available or is a placeholder. Please add your own Firebase project configuration.");
+                 alert("נראה שחסרה תצורת Firebase. יש לעדכן את פרטי הפרויקט בקוד כדי להפעיל את האפליקציה.");
                  return;
             }
             try {
@@ -308,7 +310,7 @@
                         loadTodayEntry();
                         listenToEntries();
                     } else {
-                        signIn();
+                        signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
                     }
                 });
             } catch (error) {
@@ -318,11 +320,7 @@
 
         async function signIn() {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                await signInAnonymously(auth);
             } catch (error) {
                 console.error("Authentication failed:", error);
             }
@@ -339,7 +337,7 @@
         async function saveTheme(themeName) {
             if (!userId) return;
             try {
-                const userDocRef = doc(db, 'artifacts', appId, 'users', userId);
+                const userDocRef = doc(db, 'goodDiaryUsers', userId);
                 await setDoc(userDocRef, { settings: { theme: themeName } }, { merge: true });
             } catch (error) {
                 console.error("Error saving theme:", error);
@@ -349,7 +347,7 @@
         async function loadUserSettings() {
             if (!userId) return;
             try {
-                const userDocRef = doc(db, 'artifacts', appId, 'users', userId);
+                const userDocRef = doc(db, 'goodDiaryUsers', userId);
                 const docSnap = await getDoc(userDocRef);
                 if (docSnap.exists() && docSnap.data().settings && docSnap.data().settings.theme) {
                     applyTheme(docSnap.data().settings.theme);
@@ -378,6 +376,7 @@
         function showToast(message) {
             const toast = document.getElementById('toast');
             const toastMessage = document.getElementById('toast-message');
+            toastMessage.textContent = message;
             toast.classList.add('show');
             setTimeout(() => { toast.classList.remove('show'); }, 3000);
         }
@@ -402,12 +401,23 @@
             }, 300); 
         }
 
+        function clearJournalForm() {
+            goodThingsEl.value = '';
+            successesEl.value = '';
+            gratitudeEl.value = '';
+            selectedImageBase64 = null;
+            imagePreview.src = '';
+            imagePreview.classList.add('hidden');
+            removeImageBtn.classList.add('hidden');
+            imageUpload.value = '';
+        }
+
         // --- DATA HANDLING ---
         async function loadTodayEntry() {
             if (!userId) return;
             const todayStr = dayjs().format('YYYY-MM-DD');
             try {
-                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'entries', todayStr);
+                const docRef = doc(db, 'goodDiaryUsers', userId, 'entries', todayStr);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
@@ -430,7 +440,7 @@
         function listenToEntries() {
             if (entriesUnsubscribe) entriesUnsubscribe();
             if (!userId) return;
-            const entriesCol = collection(db, 'artifacts', appId, 'users', userId, 'entries');
+            const entriesCol = collection(db, 'goodDiaryUsers', userId, 'entries');
             entriesUnsubscribe = onSnapshot(entriesCol, (snapshot) => {
                 userEntries = {};
                 snapshot.forEach(doc => { userEntries[doc.id] = doc.data(); });
@@ -452,9 +462,10 @@
             saveButton.disabled = true;
             saveButton.textContent = "שומר...";
             try {
-                const docRef = doc(db, 'artifacts', appId, 'users', userId, 'entries', todayStr);
+                const docRef = doc(db, 'goodDiaryUsers', userId, 'entries', todayStr);
                 await setDoc(docRef, entryData, { merge: true });
-                showToast("היום שלך נשמר בהצלחה! כל הכבוד!");
+                showToast("היום הטוב שלך נשמר");
+                clearJournalForm();
             } catch (error) {
                 console.error("Error saving entry:", error);
                 showToast("אירעה שגיאה בשמירת הנתונים.");
@@ -582,4 +593,3 @@
 
 </body>
 </html>
-
