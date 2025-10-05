@@ -15,11 +15,16 @@
             --primary-color: #3182CE;
             --primary-hover-color: #2B6CB0;
             --header-color: #3182CE;
+            --text-color: #2D3748;
+            --subtle-text-color: #718096;
+            --border-color: #BEE3F8;
+            --textarea-bg: rgba(255, 255, 255, 0.7);
         }
 
         body {
             font-family: 'Assistant', sans-serif;
             background-color: #F0F4F8;
+            color: var(--text-color);
         }
         
         .theme-ocean {
@@ -37,27 +42,71 @@
             --primary-hover-color: #E65100;
             --header-color: #F57C00;
         }
+        
+        .theme-forest {
+            --bg-gradient-start: #F0FFF4;
+            --bg-gradient-end: #E6FFFA;
+            --primary-color: #38A169;
+            --primary-hover-color: #2F855A;
+            --header-color: #276749;
+        }
+
+        .theme-galaxy {
+            --bg-gradient-start: #1A202C;
+            --bg-gradient-end: #0D1117;
+            --primary-color: #9F7AEA;
+            --primary-hover-color: #805AD5;
+            --header-color: #C4B5FD;
+            --text-color: #E2E8F0;
+            --subtle-text-color: #A0AEC0;
+            --border-color: #4A5568;
+            --textarea-bg: rgba(45, 55, 72, 0.7);
+        }
+
+        body.theme-galaxy {
+          background-color: #0D1117;
+          background-image:
+            radial-gradient(1px 1px at 20px 30px, #eee, transparent),
+            radial-gradient(1px 1px at 40px 70px, #fff, transparent),
+            radial-gradient(1px 1px at 50px 160px, #ddd, transparent),
+            radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+            radial-gradient(2px 2px at 130px 80px, #fff, transparent),
+            radial-gradient(2px 2px at 160px 120px, #ddd, transparent);
+          background-repeat: repeat;
+          background-size: 200px 200px;
+        }
 
         .main-container {
             background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-end) 100%);
         }
         .journal-textarea {
-            background-color: rgba(255, 255, 255, 0.7);
-            border: 1px solid #BEE3F8;
+            background-color: var(--textarea-bg);
+            border: 1px solid var(--border-color);
+            color: var(--text-color);
             transition: all 0.3s ease;
         }
+        .journal-textarea::placeholder {
+            color: var(--subtle-text-color);
+            opacity: 0.8;
+        }
         .journal-textarea:focus {
-            background-color: #fff;
+            background-color: color-mix(in srgb, var(--textarea-bg) 50%, white);
             border-color: var(--primary-color);
             box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 50%, transparent);
         }
         .header-text {
              color: var(--header-color);
         }
+        .subtle-text {
+            color: var(--subtle-text-color);
+        }
         .btn-primary {
             background-color: var(--primary-color);
             color: white;
             transition: background-color 0.3s ease;
+        }
+        .theme-galaxy .btn-primary {
+             color: #1A202C;
         }
         .btn-primary:hover {
             background-color: var(--primary-hover-color);
@@ -67,15 +116,22 @@
             color: #2D3748;
             transition: background-color 0.3s ease;
         }
+        .theme-galaxy .btn-secondary {
+             background-color: #2D3748;
+             color: #E2E8F0;
+        }
         .btn-secondary:hover {
             background-color: #CBD5E0;
+        }
+        .theme-galaxy .btn-secondary:hover {
+            background-color: #4A5568;
         }
         .calendar-day {
             transition: all 0.2s ease-in-out;
         }
         .calendar-day:hover {
             transform: scale(1.05);
-            background-color: #BEE3F8;
+            background-color: var(--border-color);
         }
         .has-entry {
             background-color: #68D391;
@@ -83,10 +139,16 @@
             border-radius: 50%;
             font-weight: bold;
         }
+        .theme-galaxy .has-entry {
+            color: #1A202C;
+        }
         .selected-day {
             background-color: var(--primary-color);
             color: white;
             border-radius: 50%;
+        }
+        .theme-galaxy .selected-day {
+             color: #1A202C;
         }
         .toast-notification {
             transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
@@ -100,6 +162,25 @@
         .settings-panel {
             transition: opacity 0.3s, transform 0.3s;
         }
+
+        /* Galaxy Theme Overrides */
+        body.theme-galaxy #journal-view label.font-semibold,
+        body.theme-galaxy #journal-date-display,
+        body.theme-galaxy #calendar-month-year,
+        body.theme-galaxy #entry-date {
+            color: #FFFFFF;
+        }
+        body.theme-galaxy nav { background-color: rgba(26, 32, 44, 0.7); backdrop-filter: blur(5px); border: 1px solid #4A5568; }
+        body.theme-galaxy #history-entry-display,
+        body.theme-galaxy #modal-content { background-color: #1A202C; }
+        body.theme-galaxy #settings-panel { background-color: #2D3748; }
+        body.theme-galaxy .theme-btn { color: var(--text-color); }
+        body.theme-galaxy .theme-btn:hover { background-color: #4A5568; }
+        body.theme-galaxy .bg-yellow-100 { background-color: rgba(74, 85, 104, 0.5); border-color: var(--primary-color); color: var(--text-color); }
+        body.theme-galaxy label[for="image-upload"] { background-color: #2D3748; border-color: #4A5568; color: var(--text-color); }
+        body.theme-galaxy #entry-content .text-green-600 { color: #68D391; }
+        body.theme-galaxy #entry-content .text-blue-600 { color: #63B3ED; }
+        body.theme-galaxy #entry-content .text-pink-500 { color: #ED64A6; }
     </style>
 </head>
 <body class="text-gray-800">
@@ -108,20 +189,19 @@
         <!-- Header -->
         <header class="text-center mb-6 relative">
             <h1 class="text-4xl sm:text-5xl font-bold header-text">יומן הטוב שלי</h1>
-            <p class="text-lg text-gray-500">המקום לטפח חשיבה חיובית, ערך עצמי והודיה</p>
+            <p class="text-lg subtle-text">המקום לטפח חשיבה חיובית, ערך עצמי והודיה</p>
              <!-- Settings Button and Panel -->
             <div class="absolute top-0 left-0">
                 <button id="settings-btn" class="p-2 rounded-full hover:bg-gray-200 transition">
-                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
+                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </button>
                 <div id="settings-panel" class="settings-panel hidden absolute left-0 mt-2 w-40 bg-white rounded-lg shadow-xl p-2 z-10 opacity-0 transform -translate-y-2">
                     <h4 class="text-sm font-bold text-gray-600 px-2 pb-1 text-right">ערכת צבעים</h4>
                     <button class="theme-btn w-full text-right p-2 hover:bg-gray-100 rounded" data-theme="default">🔵 ברירת מחדל</button>
                     <button class="theme-btn w-full text-right p-2 hover:bg-gray-100 rounded" data-theme="ocean">🌊 אוקיינוס</button>
                     <button class="theme-btn w-full text-right p-2 hover:bg-gray-100 rounded" data-theme="sunset">🌅 שקיעה</button>
+                    <button class="theme-btn w-full text-right p-2 hover:bg-gray-100 rounded" data-theme="forest">🌲 יער</button>
+                    <button class="theme-btn w-full text-right p-2 hover:bg-gray-100 rounded" data-theme="galaxy">🌌 גלקסיה</button>
                 </div>
             </div>
         </header>
@@ -137,7 +217,7 @@
             <!-- Journal View -->
             <div id="journal-view">
                 <div class="text-center mb-6">
-                    <p class="text-xl font-semibold text-gray-700" id="current-date"></p>
+                    <p class="text-xl font-semibold" id="journal-date-display"></p>
                 </div>
 
                 <!-- Inspiration Corner -->
@@ -148,7 +228,7 @@
 
                 <!-- Daily Photo Section -->
                 <div class="mb-6">
-                     <label class="block text-xl font-semibold text-gray-700 mb-2">📸 תמונת היום</label>
+                     <label class="block text-xl font-semibold mb-2">📸 תמונת היום</label>
                      <div class="mt-2 flex flex-col items-center">
                         <img id="image-preview" src="" class="hidden max-h-60 rounded-lg shadow mb-2"/>
                         <div id="image-controls" class="flex items-center gap-2">
@@ -164,23 +244,26 @@
                 <!-- Journal Sections -->
                 <div class="space-y-6">
                     <div>
-                        <label for="good-things" class="block text-xl font-semibold text-gray-700 mb-2">🌱 הדברים הטובים שקרו לי היום</label>
+                        <label for="good-things" class="block text-xl font-semibold mb-2">🌱 הדברים הטובים שקרו לי היום</label>
                         <textarea id="good-things" rows="5" class="journal-textarea w-full p-3 rounded-lg text-lg" placeholder="לדוגמה: שיחה טובה עם חבר, ארוחה טעימה, שיר יפה ששמעתי..."></textarea>
                     </div>
                     <div>
-                        <label for="successes" class="block text-xl font-semibold text-gray-700 mb-2">🏆 ההצלחות שלי להיום</label>
+                        <label for="successes" class="block text-xl font-semibold mb-2">🏆 ההצלחות שלי להיום</label>
                         <textarea id="successes" rows="3" class="journal-textarea w-full p-3 rounded-lg text-lg" placeholder="לדוגמה: סיימתי משימה חשובה בעבודה, עמדתי ביעד באימון..."></textarea>
                     </div>
                     <div>
-                        <label for="gratitude" class="block text-xl font-semibold text-gray-700 mb-2">💖 תודה על...</label>
+                        <label for="gratitude" class="block text-xl font-semibold mb-2">💖 תודה על...</label>
                         <textarea id="gratitude" rows="3" class="journal-textarea w-full p-3 rounded-lg text-lg" placeholder="לדוגמה: המשפחה שלי, הבריאות, קורת הגג שמעל ראשי..."></textarea>
                     </div>
                 </div>
 
-                <!-- Save Button -->
+                <!-- Action Buttons -->
                 <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4">
                     <button id="save-button" class="btn-primary font-bold py-3 px-8 rounded-full text-xl shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto">
                         שמור את היום הטוב שלי
+                    </button>
+                     <button id="back-to-today-btn" class="hidden btn-secondary font-bold py-3 px-6 rounded-full text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto">
+                        חזרה ליומן של היום
                     </button>
                     <button id="tomorrow-message-btn" class="btn-secondary font-bold py-3 px-6 rounded-full text-lg shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 w-full sm:w-auto">
                         ✨ מסר למחר
@@ -199,6 +282,7 @@
                 <div id="history-entry-display" class="bg-white p-6 rounded-lg shadow-inner hidden">
                     <h3 id="entry-date" class="text-xl font-bold mb-4"></h3>
                     <div id="entry-content" class="space-y-4 text-lg"></div>
+                    <div id="history-actions" class="mt-4"></div>
                 </div>
             </div>
         </main>
@@ -239,25 +323,10 @@
         let userEntries = {};
         let selectedImageBase64 = null;
         let calendarDate = dayjs();
+        let activeDate = dayjs().format('YYYY-MM-DD');
 
-        const tomorrowMessages = [
-            "מחר הוא דף חלק. צייר/י עליו יצירת מופת.",
-            "זכור/זכרי את ההצלחות של היום. הן הדלק שלך למחר.",
-            "האתגרים של מחר הם ההזדמנויות של מחרתיים. גש/י אליהם בסקרנות.",
-            "מחר מביא איתו אנרגיה חדשה. קבל/י אותה בזרועות פתוחות.",
-            "תכנן/י לעצמך רגע אחד של שמחה טהורה למחר. מגיע לך.",
-            "גם אם היום היה קשה, מחר השמש תזרח שוב. זו הבטחה.",
-            "הטוב שזרעת היום, יפרח מחר. המשך/המשיכי לזרוע טוב."
-        ];
-
-        const quotes = [
-            { text: "האושר תלוי בנו.", author: "אריסטו" },
-            { text: "כל יום הוא הזדמנות חדשה.", author: "סנקה" },
-            { text: "הכרת תודה הופכת את מה שיש לנו למספיק.", author: "מלודי ביטי" },
-            { text: "הצלחה היא סך המאמצים הקטנים, שחוזרים על עצמם יום יום.", author: "רוברט קולייר" },
-            { text: "האמינו שאתם יכולים, וכבר עברתם חצי מהדרך.", author: "תאודור רוזוולט" },
-            { text: "העתיד שייך לאלה המאמינים ביופיים של חלומותיהם.", author: "אלינור רוזוולט" }
-        ];
+        const tomorrowMessages = [ "מחר הוא דף חלק. צייר/י עליו יצירת מופת.", "זכור/זכרי את ההצלחות של היום. הן הדלק שלך למחר.", "האתגרים של מחר הם ההזדמנויות של מחרתיים. גש/י אליהם בסקרנות.", "מחר מביא איתו אנרגיה חדשה. קבל/י אותה בזרועות פתוחות.", "תכנן/י לעצמך רגע אחד של שמחה טהורה למחר. מגיע לך.", "גם אם היום היה קשה, מחר השמש תזרח שוב. זו הבטחה.", "הטוב שזרעת היום, יפרח מחר. המשך/המשיכי לזרוע טוב." ];
+        const quotes = [ { text: "האושר תלוי בנו.", author: "אריסטו" }, { text: "כל יום הוא הזדמנות חדשה.", author: "סנקה" }, { text: "הכרת תודה הופכת את מה שיש לנו למספיק.", author: "מלודי ביטי" }, { text: "הצלחה היא סך המאמצים הקטנים, שחוזרים על עצמם יום יום.", author: "רוברט קולייר" }, { text: "האמינו שאתם יכולים, וכבר עברתם חצי מהדרך.", author: "תאודור רוזוולט" }, { text: "העתיד שייך לאלה המאמינים ביופיים של חלומותיהם.", author: "אלינור רוזוולט" } ];
 
         // --- ELEMENTS ---
         const bodyEl = document.body;
@@ -283,11 +352,12 @@
         const modalContent = document.getElementById('modal-content');
         const modalMessageText = document.getElementById('modal-message-text');
         const closeModalBtn = document.getElementById('close-modal-btn');
+        const journalDateDisplay = document.getElementById('journal-date-display');
+        const backToTodayBtn = document.getElementById('back-to-today-btn');
 
         // --- INITIALIZATION ---
         function init() {
             dayjs.locale('he');
-            document.getElementById('current-date').textContent = dayjs().format('dddd, D MMMM YYYY');
             setRandomQuote();
             setupEventListeners();
             initializeAppAndAuth();
@@ -300,11 +370,6 @@
         }
 
         async function initializeAppAndAuth() {
-            if (!firebaseConfig || !firebaseConfig.apiKey || !firebaseConfig.projectId) {
-                 console.error("Firebase config is incomplete. Please ensure it's correctly configured.");
-                 showToast("שגיאה: תצורת Firebase אינה מלאה.");
-                 return;
-            }
             try {
                 app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
@@ -314,12 +379,11 @@
                     if (user) {
                         userId = user.uid;
                         isFirebaseReady = true;
-                        console.log("Firebase is ready. User ID:", userId);
                         loadUserSettings();
-                        loadTodayEntry();
                         listenToEntries();
+                        loadEntryForDate(activeDate); 
+                        updateJournalHeader();
                     } else {
-                        isFirebaseReady = false;
                         signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
                     }
                 });
@@ -331,7 +395,7 @@
 
         // --- SETTINGS & CUSTOMIZATION ---
         function applyTheme(themeName) {
-            bodyEl.classList.remove('theme-ocean', 'theme-sunset');
+            bodyEl.className = "text-gray-800";
             if (themeName !== 'default') {
                 bodyEl.classList.add(`theme-${themeName}`);
             }
@@ -342,12 +406,7 @@
             try {
                 const userDocRef = doc(db, 'goodDiaryUsers', userId);
                 await setDoc(userDocRef, { settings: { theme: themeName } }, { merge: true });
-            } catch (error) {
-                console.error("Error saving theme:", error);
-                 if (error.code === 'permission-denied') {
-                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
-                }
-            }
+            } catch (error) { console.error("Error saving theme:", error); }
         }
 
         async function loadUserSettings() {
@@ -357,13 +416,10 @@
                 const docSnap = await getDoc(userDocRef);
                 if (docSnap.exists() && docSnap.data().settings && docSnap.data().settings.theme) {
                     applyTheme(docSnap.data().settings.theme);
+                } else {
+                    applyTheme('default');
                 }
-            } catch (error) {
-                console.error("Error loading user settings:", error);
-                if (error.code === 'permission-denied') {
-                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
-                }
-            }
+            } catch (error) { console.error("Error loading user settings:", error); }
         }
         
         // --- UI & NAVIGATION ---
@@ -402,7 +458,6 @@
         function showTomorrowMessage() {
             const randomMessage = tomorrowMessages[Math.floor(Math.random() * tomorrowMessages.length)];
             modalMessageText.textContent = randomMessage;
-            
             tomorrowModal.classList.remove('hidden');
             requestAnimationFrame(() => {
                 tomorrowModal.classList.add('opacity-100');
@@ -413,10 +468,7 @@
         function hideTomorrowMessage() {
             tomorrowModal.classList.remove('opacity-100');
             modalContent.classList.add('scale-95');
-            
-            setTimeout(() => {
-                tomorrowModal.classList.add('hidden');
-            }, 300); 
+            setTimeout(() => { tomorrowModal.classList.add('hidden'); }, 300); 
         }
 
         function clearJournalForm() {
@@ -430,32 +482,51 @@
             imageUpload.value = '';
         }
 
-        // --- DATA HANDLING ---
-        async function loadTodayEntry() {
-            if (!isFirebaseReady) return;
+        function updateJournalHeader() {
             const todayStr = dayjs().format('YYYY-MM-DD');
+            journalDateDisplay.textContent = dayjs(activeDate).format('dddd, D MMMM YYYY');
+            
+            if (activeDate === todayStr) {
+                saveButton.textContent = "שמור את היום הטוב שלי";
+                backToTodayBtn.classList.add('hidden');
+                tomorrowMessageBtn.classList.remove('hidden');
+            } else {
+                saveButton.textContent = `עדכן את יומן ה-${dayjs(activeDate).format('D/M')}`;
+                backToTodayBtn.classList.remove('hidden');
+                tomorrowMessageBtn.classList.add('hidden');
+            }
+        }
+
+        // --- DATA HANDLING ---
+        async function loadEntryForDate(dateStr) {
+            clearJournalForm();
+            if (!isFirebaseReady) return;
             try {
-                const docRef = doc(db, 'goodDiaryUsers', userId, 'entries', todayStr);
+                const docRef = doc(db, 'goodDiaryUsers', userId, 'entries', dateStr);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
-                    const data = docSnap.data();
-                    goodThingsEl.value = data.goodThings || '';
-                    successesEl.value = data.successes || '';
-                    gratitudeEl.value = data.gratitude || '';
-                    if (data.imageBase64) {
-                        selectedImageBase64 = data.imageBase64;
-                        imagePreview.src = selectedImageBase64;
-                        imagePreview.classList.remove('hidden');
-                        removeImageBtn.classList.remove('hidden');
-                    }
+                    populateFormWithEntry(docSnap.data());
                 }
-            } catch (error) {
-                console.error("Error loading today's entry:", error);
-                 if (error.code === 'permission-denied') {
-                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
-                }
-            }
+            } catch (error) { console.error("Error loading entry:", error); }
+        }
+        
+        function populateFormWithEntry(entry) {
+             if (!entry) return;
+             goodThingsEl.value = entry.goodThings || '';
+             successesEl.value = entry.successes || '';
+             gratitudeEl.value = entry.gratitude || '';
+             if (entry.imageBase64) {
+                 selectedImageBase64 = entry.imageBase64;
+                 imagePreview.src = selectedImageBase64;
+                 imagePreview.classList.remove('hidden');
+                 removeImageBtn.classList.remove('hidden');
+             } else {
+                 selectedImageBase64 = null;
+                 imagePreview.src = '';
+                 imagePreview.classList.add('hidden');
+                 removeImageBtn.classList.add('hidden');
+             }
         }
 
         function listenToEntries() {
@@ -466,42 +537,35 @@
                 userEntries = {};
                 snapshot.forEach(doc => { userEntries[doc.id] = doc.data(); });
                 if (!historyView.classList.contains('hidden')) { renderCalendar(); }
-            }, (error) => { 
-                console.error("Error listening to entries:", error);
-                 if (error.code === 'permission-denied') {
-                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
-                }
-            });
+            }, (error) => { console.error("Error listening to entries:", error); });
         }
 
         async function saveEntry() {
             if (!isFirebaseReady) { showToast("שגיאה: החיבור למסד הנתונים עדיין לא מוכן."); return; }
-            const todayStr = dayjs().format('YYYY-MM-DD');
             const entryData = {
                 goodThings: goodThingsEl.value,
                 successes: successesEl.value,
                 gratitude: gratitudeEl.value,
                 imageBase64: selectedImageBase64,
-                date: todayStr,
+                date: activeDate,
             };
             
             saveButton.disabled = true;
             saveButton.textContent = "שומר...";
             try {
-                const docRef = doc(db, 'goodDiaryUsers', userId, 'entries', todayStr);
+                const docRef = doc(db, 'goodDiaryUsers', userId, 'entries', activeDate);
                 await setDoc(docRef, entryData, { merge: true });
-                showToast("היום הטוב שלך נשמר");
-                clearJournalForm();
+                showToast("היומן עודכן בהצלחה");
             } catch (error) {
                 console.error("Error saving entry:", error);
-                if (error.code === 'permission-denied') {
-                    showToast("שגיאת הרשאות. יש לעדכן חוקים ב-Firebase.");
+                if (error.code === 'invalid-argument' || (error.message && error.message.toLowerCase().includes('exceeds the maximum size'))) {
+                    showToast("שגיאה: התמונה גדולה מדי (מעל 1MB). נסה/י תמונה קטנה יותר.");
                 } else {
                     showToast("אירעה שגיאה בשמירת הנתונים.");
                 }
             } finally {
                 saveButton.disabled = false;
-                saveButton.textContent = "שמור את היום הטוב שלי";
+                updateJournalHeader();
             }
         }
 
@@ -514,7 +578,7 @@
             const dayNames = ['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'];
             dayNames.forEach(day => {
                 const dayEl = document.createElement('div');
-                dayEl.className = "font-bold text-gray-500";
+                dayEl.className = "font-bold subtle-text";
                 dayEl.textContent = day;
                 calendarGrid.appendChild(dayEl);
             });
@@ -537,6 +601,10 @@
             const dayNumber = dayjs(dateStr).date();
             const targetDayEl = Array.from(calendarGrid.children).find(el => el.textContent == dayNumber && !el.classList.contains('font-bold'));
             if(targetDayEl) targetDayEl.classList.add('selected-day');
+            
+            const historyActions = document.getElementById('history-actions');
+            historyActions.innerHTML = '';
+
             if (entry) {
                 document.getElementById('entry-date').textContent = `הסיכום שלי ליום ${displayDate}`;
                 let imageHTML = '';
@@ -548,9 +616,33 @@
                     <div class="border-b pb-2"><h4 class="font-semibold text-green-600">🌱 דברים טובים:</h4><p class="whitespace-pre-wrap">${entry.goodThings || 'לא צוין'}</p></div>
                     <div class="border-b pb-2"><h4 class="font-semibold text-blue-600">🏆 הצלחות:</h4><p class="whitespace-pre-wrap">${entry.successes || 'לא צוין'}</p></div>
                     <div><h4 class="font-semibold text-pink-500">💖 תודה על:</h4><p class="whitespace-pre-wrap">${entry.gratitude || 'לא צוין'}</p></div>`;
+                
+                const editButton = document.createElement('button');
+                editButton.textContent = '✏️ ערוך יומן';
+                editButton.className = 'btn-secondary font-bold py-2 px-4 rounded-full text-md';
+                editButton.onclick = () => {
+                    activeDate = dateStr;
+                    populateFormWithEntry(entry);
+                    updateJournalHeader();
+                    showView('journal');
+                };
+                historyActions.appendChild(editButton);
+
                 historyEntryDisplay.classList.remove('hidden');
             } else {
-                historyEntryDisplay.classList.add('hidden');
+                 document.getElementById('entry-date').textContent = `אין יומן שמור ליום ${displayDate}`;
+                 document.getElementById('entry-content').innerHTML = `<p class="text-center subtle-text">רוצה להוסיף יומן לתאריך זה?</p>`;
+                 const addButton = document.createElement('button');
+                 addButton.textContent = '✍️ הוסף יומן ליום זה';
+                 addButton.className = 'btn-primary font-bold py-2 px-4 rounded-full text-md';
+                 addButton.onclick = () => {
+                     activeDate = dateStr;
+                     clearJournalForm();
+                     updateJournalHeader();
+                     showView('journal');
+                 };
+                 historyActions.appendChild(addButton);
+                 historyEntryDisplay.classList.remove('hidden');
             }
         }
 
@@ -581,7 +673,7 @@
                 imagePreview.src = '';
                 imagePreview.classList.add('hidden');
                 removeImageBtn.classList.add('hidden');
-                imageUpload.value = ''; // Reset file input
+                imageUpload.value = '';
             });
 
             settingsBtn.addEventListener('click', (e) => {
@@ -610,10 +702,12 @@
 
             tomorrowMessageBtn.addEventListener('click', showTomorrowMessage);
             closeModalBtn.addEventListener('click', hideTomorrowMessage);
-            tomorrowModal.addEventListener('click', (e) => {
-                if (e.target === tomorrowModal) { 
-                    hideTomorrowMessage();
-                }
+            tomorrowModal.addEventListener('click', (e) => { if (e.target === tomorrowModal) { hideTomorrowMessage(); } });
+            
+            backToTodayBtn.addEventListener('click', () => {
+                activeDate = dayjs().format('YYYY-MM-DD');
+                loadEntryForDate(activeDate);
+                updateJournalHeader();
             });
         }
         
