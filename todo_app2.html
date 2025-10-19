@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ניהול משימות | דאשבורד</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Assistant', sans-serif;
+            scroll-behavior: smooth;
+        }
+        .task-completed {
+            text-decoration: line-through;
+            opacity: 0.5;
+        }
+        .hidden { display: none; }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .priority-high { border-right: 4px solid #ef4444; }
+        .priority-normal { border-right: 4px solid #3b82f6; }
+        .priority-low { border-right: 4px solid #22c55e; }
+        .progress-bar-bg { background-color: #e5e7eb; }
+        .progress-bar-fg { background-color: #3b82f6; }
+        .stat-card {
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .sortable-header {
+            cursor: pointer;
+            position: relative;
+        }
+        .sortable-header::after {
+            content: '↕';
+            position: absolute;
+            left: 5px;
+            opacity: 0.5;
+        }
+        .sortable-header.asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+        .sortable-header.desc::after {
+            content: '↓';
+            opacity: 1;
+        }
+        #task-table th, #task-table td {
+            padding: 12px 15px;
+            text-align: right;
+            border-bottom: 1px solid #e5e7eb; /* dark:border-gray-700 */
+        }
+        #task-table tbody tr:nth-child(even) {
+            background-color: #f9fafb; /* dark:bg-gray-800/50 */
+        }
+        .dark #task-table th, .dark #task-table td {
+             border-bottom: 1px solid #374151;
+        }
+        .dark #task-table tbody tr:nth-child(even) {
+            background-color: rgba(31, 41, 55, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+
+    <div id="loading-spinner" class="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center z-50">
+        <div class="text-center">
+            <svg class="animate-spin h-10 w-10 text-blue-600 mx-auto" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+            </svg>
+            <p class="mt-4 text-lg font-semibold">מתחבר ומסנכרן נתונים...</p>
+        </div>
+    </div>
+
+    <div class="container mx-auto max-w-6xl px-4 py-8">
+        
+        <header class="text-center mb-8">
+            <h1 id="greeting-header" class="text-4xl font-bold text-blue-600 dark:text-blue-400"></h1>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">הדאשבורד שלך לפרודוקטיביות</p>
+        </header>
+
+        <!-- דאשבורד סטטיסטיקות -->
+        <div id="dashboard" class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg text-center">
+             <h2 class="text-2xl font-bold mb-2 text-blue-800 dark:text-blue-200">משימות פתוחות</h2>
+             <p id="open-tasks-count" class="text-6xl font-bold text-blue-600 dark:text-blue-400">0</p>
+        </div>
+
+        <!-- טופס הוספת משימה -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+            <form id="add-task-form">
+                <h2 class="text-2xl font-semibold mb-4">הוספת משימה חדשה</h2>
+                <input type="text" id="task-input" placeholder="לדוגמה: להכין מצגת למחר" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <input type="text" id="tags-input" placeholder="הוסף תגיות (מופרדות בפסיק)" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                    <div class="flex items-center gap-4">
+                        <select id="priority-input" class="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                            <option value="low">עדיפות נמוכה</option>
+                            <option value="normal" selected>עדיפות רגילה</option>
+                            <option value="high">עדיפות גבוהה</option>
+                        </select>
+                        <div class="flex items-center gap-2">
+                            <input type="radio" id="category-business" name="category" value="business" class="form-radio text-blue-600" checked><label for="category-business">עסק 💼</label>
+                            <input type="radio" id="category-personal" name="category" value="personal" class="form-radio text-purple-600"><label for="category-personal">אישי 🏠</label>
+                        </div>
+                    </div>
+                    <button type="button" id="add-date-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">+ הוסף תאריך יעד</button>
+                </div>
+                 <div id="due-date-container" class="hidden mt-4 flex items-center gap-2">
+                    <input type="date" id="due-date-input" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                    <button type="button" id="remove-date-btn" class="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded-full" title="הסר תאריך">✖</button>
+                </div>
+                <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף משימה</button>
+            </form>
+        </div>
+
+        <!-- אזור סינון ותצוגה -->
+        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                <div id="view-switcher" class="flex p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                    <button data-view="cards" class="view-btn bg-white dark:bg-gray-800 text-blue-600 py-2 px-5 rounded-full font-semibold shadow">כרטיסים</button>
+                    <button data-view="table" class="view-btn py-2 px-5 rounded-full font-semibold text-gray-600 dark:text-gray-300">טבלה</button>
+                </div>
+                <div class="flex justify-center gap-2 flex-wrap" id="filter-buttons">
+                    <button data-filter="active" class="filter-btn bg-blue-600 text-white py-2 px-5 rounded-full font-semibold">פעילות</button>
+                    <button data-filter="business" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">עסק</button>
+                    <button data-filter="personal" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">אישי</button>
+                    <button data-filter="completed" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">הושלמו ✅</button>
+                </div>
+            </div>
+            <div id="tag-filter-container" class="flex justify-center gap-2 flex-wrap border-t border-gray-200 dark:border-gray-700 pt-4"></div>
+        </div>
+
+        <!-- אזור תוכן -->
+        <div id="task-list-container" class="space-y-4"></div>
+        <div id="task-table-container" class="hidden bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg overflow-x-auto">
+            <table id="task-table" class="w-full">
+                <thead>
+                    <tr>
+                        <th class="sortable-header" data-sort="text">משימה</th>
+                        <th class="sortable-header" data-sort="status">סטטוס</th>
+                        <th class="sortable-header" data-sort="priority">עדיפות</th>
+                        <th class="sortable-header" data-sort="category">קטגוריה</th>
+                        <th class="sortable-header" data-sort="dueDate">תאריך יעד</th>
+                        <th class="sortable-header" data-sort="createdAt">תאריך יצירה</th>
+                        <th>תגיות</th>
+                        <th>פעולות</th>
+                    </tr>
+                </thead>
+                <tbody id="task-table-body"></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- חלון עריכת משימה (Modal) -->
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md">
+            <h2 class="text-2xl font-semibold mb-4">עריכת משימה</h2>
+            <form id="edit-task-form">
+                <input type="hidden" id="edit-task-id">
+                <input type="text" id="edit-task-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                <input type="text" id="edit-tags-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                <input type="date" id="edit-due-date-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                <select id="edit-priority-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    <option value="low">עדיפות נמוכה</option>
+                    <option value="normal">עדיפות רגילה</option>
+                    <option value="high">עדיפות גבוהה</option>
+                </select>
+                <div class="flex justify-end gap-4">
+                    <button type="button" id="cancel-edit-btn" class="bg-gray-300 dark:bg-gray-600 py-2 px-4 rounded-md">ביטול</button>
+                    <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md">שמור שינויים</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+<script type="module">
+    // --- Firebase SDK Imports ---
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // --- DOM Elements ---
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const greetingHeader = document.getElementById('greeting-header');
+    const addTaskForm = document.getElementById('add-task-form');
+    const taskInput = document.getElementById('task-input');
+    const dueDateInput = document.getElementById('due-date-input');
+    const tagsInput = document.getElementById('tags-input');
+    const priorityInput = document.getElementById('priority-input');
+    const filterButtonsContainer = document.getElementById('filter-buttons');
+    const addDateBtn = document.getElementById('add-date-btn');
+    const removeDateBtn = document.getElementById('remove-date-btn');
+    const dueDateContainer = document.getElementById('due-date-container');
+    const taskListContainer = document.getElementById('task-list-container');
+    const taskTableContainer = document.getElementById('task-table-container');
+    const taskTableBody = document.getElementById('task-table-body');
+    const viewSwitcher = document.getElementById('view-switcher');
+    const tagFilterContainer = document.getElementById('tag-filter-container');
+    const editModal = document.getElementById('edit-modal');
+    const editTaskForm = document.getElementById('edit-task-form');
+    const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    
+    // --- App State ---
+    let tasks = [];
+    let currentViewFilter = 'active';
+    let currentTagFilter = null;
+    let currentLayout = 'cards'; // 'cards' or 'table'
+    let currentSort = { key: 'priority', direction: 'asc' }; // For table sorting
+    let db, auth, tasksCollectionRef, unsubscribeFromTasks;
+    let subtaskListeners = {};
+
+    // --- Helper Functions ---
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        const name = "אלירן";
+        if (hour >= 5 && hour < 12) return `בוקר טוב, ${name}`;
+        if (hour >= 12 && hour < 18) return `צהריים טובים, ${name}`;
+        if (hour >= 18 && hour < 22) return `ערב טוב, ${name}`;
+        return `לילה טוב, ${name}`;
+    };
+    const formatTimestamp = (timestamp) => {
+        if (!timestamp) return '---';
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    };
+
+    // --- Firebase Initialization ---
+    async function initializeFirebase() {
+        greetingHeader.textContent = getGreeting();
+        const firebaseConfig = {
+          apiKey: "AIzaSyDFYvzKavhrf4bnoFI0GckLk-dO40_ftJ4",
+          authDomain: "eliran-apps.firebaseapp.com",
+          projectId: "eliran-apps",
+          storageBucket: "eliran-apps.firebasestorage.app",
+          messagingSenderId: "383762752947",
+          appId: "1:383762752947:web:24fd294ce0cea858f557c6",
+          measurementId: "G-1NYMZVXBMP"
+        };
+        
+        const app = initializeApp(firebaseConfig);
+        db = getFirestore(app);
+        auth = getAuth(app);
+        onAuthStateChanged(auth, user => {
+            if (user) {
+                const collectionPath = `users/${user.uid}/tasks`;
+                tasksCollectionRef = collection(db, collectionPath);
+                listenForTasks();
+                loadingSpinner.classList.add('hidden');
+            }
+        });
+        await signInAnonymously(auth).catch(error => console.error("Authentication failed:", error));
+    }
+
+    // --- Core Functions ---
+    const render = () => {
+        if (currentLayout === 'cards') {
+            taskListContainer.classList.remove('hidden');
+            taskTableContainer.classList.add('hidden');
+            renderTasks();
+        } else {
+            taskListContainer.classList.add('hidden');
+            taskTableContainer.classList.remove('hidden');
+            renderTable();
+        }
+        renderTagFilters();
+        updateDashboard();
+    };
+
+    function listenForTasks() {
+        if (unsubscribeFromTasks) unsubscribeFromTasks();
+        const q = query(tasksCollectionRef, orderBy("createdAt", "desc"));
+        unsubscribeFromTasks = onSnapshot(q, (snapshot) => {
+            tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            manageSubtaskListeners();
+            render();
+        }, (error) => console.error("Firestore permission error: ", error));
+    }
+    
+    const updateDashboard = () => {
+        const openTasks = tasks.filter(t => !t.completed).length;
+        document.getElementById('open-tasks-count').textContent = openTasks;
+    };
+
+    const manageSubtaskListeners = () => {
+        const currentTaskIds = new Set(tasks.map(t => t.id));
+        for (const taskId in subtaskListeners) {
+            if (!currentTaskIds.has(taskId)) {
+                subtaskListeners[taskId]();
+                delete subtaskListeners[taskId];
+            }
+        }
+        tasks.forEach(task => {
+            if (!subtaskListeners[task.id]) {
+                const subtasksRef = collection(db, tasksCollectionRef.path, task.id, 'subtasks');
+                const q = query(subtasksRef, orderBy("createdAt", "asc"));
+                subtaskListeners[task.id] = onSnapshot(q, subtaskSnapshot => {
+                    const subtasks = subtaskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderSubtasks(task.id, subtasks);
+                }, console.error);
+            }
+        });
+    };
+
+    const getFilteredAndSortedTasks = () => {
+        let filteredTasks;
+        if (currentViewFilter === 'completed') {
+            filteredTasks = tasks.filter(task => task.completed);
+        } else {
+            filteredTasks = tasks.filter(task => !task.completed);
+            if (currentViewFilter !== 'active') {
+                filteredTasks = filteredTasks.filter(task => task.category === currentViewFilter);
+            }
+        }
+        if (currentTagFilter) {
+            filteredTasks = filteredTasks.filter(task => task.tags && task.tags.includes(currentTagFilter));
+        }
+        return sortTasks(filteredTasks);
+    };
+
+    const sortTasks = (tasksToSort) => {
+        const { key, direction } = currentSort;
+        const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+
+        return tasksToSort.sort((a, b) => {
+            let valA, valB;
+            switch (key) {
+                case 'priority':
+                    valA = priorityOrder[a.priority]; valB = priorityOrder[b.priority]; break;
+                case 'dueDate':
+                    valA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+                    valB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity; break;
+                case 'createdAt':
+                     valA = a.createdAt?.toMillis() || 0; valB = b.createdAt?.toMillis() || 0; break;
+                case 'status':
+                    valA = a.completed; valB = b.completed; break;
+                default: // text, category
+                    valA = a[key] || ''; valB = b[key] || '';
+            }
+
+            if (valA < valB) return direction === 'asc' ? -1 : 1;
+            if (valA > valB) return direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
+    
+    const renderTasks = () => {
+        currentSort = { key: 'priority', direction: 'asc' };
+        const filteredTasks = getFilteredAndSortedTasks();
+        
+        taskListContainer.innerHTML = '';
+        if (filteredTasks.length === 0) {
+            taskListContainer.innerHTML = `<div class="text-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-gray-500">אין משימות להצגה.</div>`;
+            return;
+        }
+        filteredTasks.forEach(task => {
+            const taskEl = createTaskElement(task);
+            taskListContainer.appendChild(taskEl);
+        });
+    };
+    
+    const renderTable = () => {
+        const filteredTasks = getFilteredAndSortedTasks();
+        taskTableBody.innerHTML = '';
+        if (filteredTasks.length === 0) {
+            taskTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 py-6">אין משימות להצגה.</td></tr>`;
+            return;
+        }
+        filteredTasks.forEach(task => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${task.text}</td>
+                <td>${createStatusBadge(task.completed)}</td>
+                <td>${createPriorityBadge(task.priority)}</td>
+                <td>${task.category === 'personal' ? 'אישי' : 'עסק'}</td>
+                <td>${task.dueDate ? formatTimestamp(new Date(task.dueDate)) : '---'}</td>
+                <td>${formatTimestamp(task.createdAt)}</td>
+                <td>${(task.tags || []).join(', ')}</td>
+                <td class="flex items-center gap-2">
+                    <button title="${task.completed ? 'פתח מחדש' : 'השלם משימה'}" class="complete-btn p-2 rounded-full hover:bg-green-200 dark:hover:bg-green-800/50">${task.completed ? '↩️' : '✅'}</button>
+                    <button title="ערוך" class="edit-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">✏️</button>
+                    <button title="מחק" class="delete-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
+                </td>
+            `;
+            tr.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+            tr.querySelector('.edit-btn').onclick = () => openEditModal(task);
+            tr.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+            taskTableBody.appendChild(tr);
+        });
+    };
+    
+    const renderTagFilters = () => {
+        const allTags = [...new Set(tasks.flatMap(t => t.tags || []))];
+        tagFilterContainer.innerHTML = '';
+        if (allTags.length > 0) {
+            const allTagBtn = createTagFilterButton('הכל');
+            allTagBtn.onclick = () => setTagFilter(null);
+            if (currentTagFilter === null) allTagBtn.classList.add('bg-blue-600', 'text-white');
+            tagFilterContainer.appendChild(allTagBtn);
+            allTags.forEach(tag => {
+                const tagBtn = createTagFilterButton(tag);
+                tagBtn.onclick = () => setTagFilter(tag);
+                if (currentTagFilter === tag) tagBtn.classList.add('bg-blue-600', 'text-white');
+                tagFilterContainer.appendChild(tagBtn);
+            });
+        }
+    };
+    
+    const renderSubtasks = (taskId, subtasks) => {
+        const subtaskListEl = document.querySelector(`[data-task-id="${taskId}"] .subtask-list`);
+        const progressBar = document.querySelector(`[data-task-id="${taskId}"] .progress-bar-fg`);
+        const progressContainer = document.querySelector(`[data-task-id="${taskId}"] .progress-bar-container`);
+
+        if (!subtaskListEl) return;
+
+        subtaskListEl.innerHTML = '';
+        if (subtasks.length > 0) {
+            progressContainer.classList.remove('hidden');
+            subtasks.forEach(st => subtaskListEl.appendChild(createSubtaskElement(taskId, st)));
+            const completedCount = subtasks.filter(st => st.completed).length;
+            progressBar.style.width = `${(completedCount / subtasks.length) * 100}%`;
+        } else {
+            progressContainer.classList.add('hidden');
+        }
+    };
+
+    // --- Element Creation ---
+    const createTaskElement = (task) => {
+        const div = document.createElement('div');
+        div.className = `p-4 rounded-lg shadow-md transition-all duration-200 bg-white dark:bg-gray-800 priority-${task.priority}`;
+        div.setAttribute('data-task-id', task.id);
+        div.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex-grow flex items-center gap-3">
+                    <button title="סמן כהושלמה" class="complete-btn text-2xl">${task.completed ? '✅' : '⚪️'}</button>
+                    <div class="flex-grow">
+                        <p class="${task.completed ? 'task-completed' : ''}">${task.text}</p>
+                        <div class="flex items-center gap-2 mt-2 flex-wrap">
+                            ${createBadge(task.category === 'personal' ? 'אישי' : 'עסק', task.category === 'personal' ? 'purple' : 'blue')}
+                            ${task.dueDate ? createDateBadge(task.dueDate, task.completed) : ''}
+                            ${(task.tags || []).map(tag => createBadge(tag, 'gray')).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button title="ערוך" class="edit-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">✏️</button>
+                    <button title="מחק" class="delete-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
+                </div>
+            </div>
+            <div class="progress-bar-container hidden w-full h-2 rounded-full mt-3 progress-bar-bg dark:bg-gray-700">
+                <div class="progress-bar-fg h-full rounded-full transition-all duration-300"></div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <ul class="subtask-list space-y-2"></ul>
+                <form class="add-subtask-form mt-2 flex gap-2">
+                    <input type="text" placeholder="הוסף תת-משימה..." class="flex-grow p-2 text-sm border rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-500 text-white px-3 rounded-md text-sm font-bold">+</button>
+                </form>
+            </div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between w-full">
+                <span>נוצר: ${formatTimestamp(task.createdAt)}</span>
+                ${task.completed && task.completedAt ? `<span>הושלם: ${formatTimestamp(task.completedAt)}</span>` : ''}
+            </div>
+        `;
+        div.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+        div.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+        div.querySelector('.edit-btn').onclick = () => openEditModal(task);
+        div.querySelector('.add-subtask-form').onsubmit = (e) => {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            if (input.value.trim()) {
+                addSubtask(task.id, input.value.trim());
+                input.value = '';
+            }
+        };
+        return div;
+    };
+    
+    const createSubtaskElement = (parentId, subtask) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between text-sm pr-4';
+        li.innerHTML = `
+            <div class="flex items-center gap-2">
+                <input type="checkbox" ${subtask.completed ? 'checked' : ''} class="form-checkbox h-4 w-4 rounded text-blue-600">
+                <span class="${subtask.completed ? 'task-completed' : ''}">${subtask.text}</span>
+            </div>
+            <button class="delete-subtask-btn text-red-500 opacity-50 hover:opacity-100">✖</button>
+        `;
+        li.querySelector('input[type="checkbox"]').onchange = () => toggleSubtaskComplete(parentId, subtask.id, subtask.completed);
+        li.querySelector('.delete-subtask-btn').onclick = () => deleteSubtask(parentId, subtask.id);
+        return li;
+    };
+    
+    const createStatusBadge = (completed) => {
+        const color = completed ? 'green' : 'blue';
+        const text = completed ? 'הושלמה' : 'פתוחה';
+        return createBadge(text, color);
+    };
+
+    const createPriorityBadge = (priority) => {
+        const priorityMap = { high: 'גבוהה', normal: 'רגילה', low: 'נמוכה' };
+        const colorMap = { high: 'red', normal: 'blue', low: 'green' };
+        return createBadge(priorityMap[priority] || 'רגילה', colorMap[priority] || 'blue');
+    };
+
+    const createBadge = (text, color) => {
+        const colors = {
+            purple: 'bg-purple-200 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+            blue: 'bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+            gray: 'bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+            green: 'bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200',
+            red: 'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200'
+        };
+        return `<span class="text-xs font-bold px-2 py-1 rounded-full ${colors[color] || colors.gray}">${text}</span>`;
+    };
+    
+    const createDateBadge = (dateStr, completed) => {
+        const date = new Date(dateStr); const today = new Date(); today.setHours(0,0,0,0); date.setHours(23,59,59,999);
+        const isOverdue = date < today && !completed;
+        const color = isOverdue ? 'bg-red-200 text-red-800 animate-pulse' : 'bg-green-200 text-green-800';
+        return `<span class="text-xs font-bold px-2 py-1 rounded-full ${color}">${new Date(dateStr).toLocaleDateString('he-IL')}</span>`;
+    };
+    
+    const createTagFilterButton = (tag) => {
+        const button = document.createElement('button'); button.textContent = tag;
+        button.className = 'py-1 px-3 rounded-full text-sm font-semibold bg-gray-200 dark:bg-gray-700';
+        return button;
+    };
+
+    // --- Firestore Logic Functions ---
+    const addTask = async (text, category, dueDate, tags, priority) => {
+        try { await addDoc(tasksCollectionRef, { text, category, priority, dueDate: dueDate || null, tags: tags || [], completed: false, createdAt: serverTimestamp(), completedAt: null }); } catch (e) { console.error("Error adding task: ", e); }
+    };
+    const toggleTaskComplete = async (id, currentStatus) => {
+        try { await updateDoc(doc(db, tasksCollectionRef.path, id), { completed: !currentStatus, completedAt: !currentStatus ? serverTimestamp() : null }); } catch (e) { console.error("Error updating task: ", e); }
+    };
+    const deleteTask = async (id) => {
+        try { await deleteDoc(doc(db, tasksCollectionRef.path, id)); } catch (e) { console.error("Error deleting task: ", e); }
+    };
+    const addSubtask = async (parentId, text) => {
+        const subtasksRef = collection(db, tasksCollectionRef.path, parentId, 'subtasks');
+        try { await addDoc(subtasksRef, { text, completed: false, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding subtask: ", e); }
+    };
+    const toggleSubtaskComplete = async (parentId, subtaskId, currentStatus) => {
+        const subtaskRef = doc(db, tasksCollectionRef.path, parentId, 'subtasks', subtaskId);
+        try { await updateDoc(subtaskRef, { completed: !currentStatus }); } catch (e) { console.error("Error updating subtask: ", e); }
+    };
+    const deleteSubtask = async (parentId, subtaskId) => {
+        const subtaskRef = doc(db, tasksCollectionRef.path, parentId, 'subtasks', subtaskId);
+        try { await deleteDoc(subtaskRef); } catch (e) { console.error("Error deleting subtask: ", e); }
+    };
+    
+    // --- Filter Logic ---
+    const setViewFilter = (filter) => {
+        currentViewFilter = filter;
+        document.querySelectorAll('#filter-buttons .filter-btn').forEach(btn => {
+            btn.classList.toggle('bg-blue-600', btn.dataset.filter === filter);
+            btn.classList.toggle('text-white', btn.dataset.filter === filter);
+            btn.classList.toggle('bg-gray-200', btn.dataset.filter !== filter);
+            btn.classList.toggle('dark:bg-gray-700', btn.dataset.filter !== filter);
+        });
+        render();
+    };
+    const setTagFilter = (tag) => { currentTagFilter = tag; render(); };
+    
+    // --- Modal Logic ---
+    const openEditModal = (task) => {
+        document.getElementById('edit-task-id').value = task.id;
+        document.getElementById('edit-task-input').value = task.text;
+        document.getElementById('edit-tags-input').value = (task.tags || []).join(', ');
+        document.getElementById('edit-due-date-input').value = task.dueDate || '';
+        document.getElementById('edit-priority-input').value = task.priority || 'normal';
+        editModal.classList.remove('hidden');
+    };
+    const closeEditModal = () => { editModal.classList.add('hidden'); };
+    const saveTaskChanges = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-task-id').value;
+        const taskRef = doc(db, tasksCollectionRef.path, id);
+        try {
+            await updateDoc(taskRef, {
+                text: document.getElementById('edit-task-input').value.trim(),
+                tags: document.getElementById('edit-tags-input').value.trim().split(',').filter(Boolean).map(t => t.trim()),
+                dueDate: document.getElementById('edit-due-date-input').value || null,
+                priority: document.getElementById('edit-priority-input').value
+            });
+        } catch (error) { console.error("Error saving task changes: ", error); }
+        closeEditModal();
+    };
+
+    // --- Event Listeners ---
+    addTaskForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = taskInput.value.trim(); if (!text) return;
+        const category = document.querySelector('input[name="category"]:checked').value;
+        const dueDate = dueDateInput.value;
+        const tags = tagsInput.value.trim().split(',').filter(Boolean).map(t => t.trim());
+        const priority = priorityInput.value;
+        addTask(text, category, dueDate, tags, priority);
+        addTaskForm.reset(); priorityInput.value = 'normal';
+        dueDateContainer.classList.add('hidden'); addDateBtn.classList.remove('hidden');
+    });
+    filterButtonsContainer.addEventListener('click', (e) => { if (e.target.matches('.filter-btn')) setViewFilter(e.target.dataset.filter); });
+    addDateBtn.onclick = () => { dueDateContainer.classList.remove('hidden'); addDateBtn.classList.add('hidden'); };
+    removeDateBtn.onclick = () => { dueDateInput.value = ''; dueDateContainer.classList.add('hidden'); addDateBtn.classList.remove('hidden'); };
+    editTaskForm.addEventListener('submit', saveTaskChanges);
+    cancelEditBtn.addEventListener('click', closeEditModal);
+
+    viewSwitcher.addEventListener('click', (e) => {
+        if (e.target.matches('.view-btn')) {
+            const view = e.target.dataset.view;
+            currentLayout = view;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('bg-white', btn.dataset.view === view);
+                btn.classList.toggle('dark:bg-gray-800', btn.dataset.view === view);
+                btn.classList.toggle('text-blue-600', btn.dataset.view === view);
+                btn.classList.toggle('shadow', btn.dataset.view === view);
+                btn.classList.toggle('text-gray-600', btn.dataset.view !== view);
+                btn.classList.toggle('dark:text-gray-300', btn.dataset.view !== view);
+            });
+            render();
+        }
+    });
+
+    document.querySelector('#task-table thead').addEventListener('click', (e) => {
+        if (e.target.matches('.sortable-header')) {
+            const sortKey = e.target.dataset.sort;
+            if (currentSort.key === sortKey) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.key = sortKey;
+                currentSort.direction = 'asc';
+            }
+            document.querySelectorAll('.sortable-header').forEach(th => {
+                th.classList.remove('asc', 'desc');
+                if (th.dataset.sort === currentSort.key) {
+                    th.classList.add(currentSort.direction);
+                }
+            });
+            renderTable();
+        }
+    });
+
+    // --- Initial Load ---
+    document.addEventListener('DOMContentLoaded', initializeFirebase);
+</script>
+</body>
+</html>
+
