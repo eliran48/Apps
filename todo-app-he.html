@@ -271,20 +271,36 @@
         </div>
     </div>
     
-    <!-- חלון פרטי לקוח וסיכומי שיחה (Modal) -->
+    <!-- חלון פרטי לקוח (Modal) - שודרג לדאשבורד -->
     <div id="client-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-30">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
             <h2 id="client-modal-name" class="text-3xl font-bold mb-4">שם לקוח</h2>
-            <div class="border-t border-b border-gray-200 dark:border-gray-700 py-4 mb-4 overflow-y-auto flex-grow">
-                <h3 class="text-xl font-semibold mb-3">היסטוריית שיחות</h3>
-                <div id="call-summary-list" class="space-y-3">
-                    <!-- סיכומים יטענו כאן -->
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow overflow-y-auto border-t border-b border-gray-200 dark:border-gray-700 py-4 mb-4">
+                
+                <!-- אזור משימות פתוחות -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">משימות פתוחות</h3>
+                    <div id="client-task-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                        <!-- משימות הלקוח יטענו כאן -->
+                    </div>
                 </div>
+
+                <!-- אזור היסטוריית שיחות -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">היסטוריית שיחות</h3>
+                    <div id="call-summary-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                        <!-- סיכומים יטענו כאן -->
+                    </div>
+                </div>
+
             </div>
+            
+            <!-- טופס הוספת סיכום שיחה -->
             <form id="add-summary-form">
                 <h3 class="text-xl font-semibold mb-3">הוספת סיכום שיחה חדש</h3>
                 <input type="hidden" id="summary-client-id">
-                <textarea id="summary-text-input" rows="4" placeholder="כתוב כאן את סיכום השיחה..." class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
+                <textarea id="summary-text-input" rows="3" placeholder="כתוב כאן את סיכום השיחה..." class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
                 <div class="flex justify-end gap-4">
                     <button type="button" id="cancel-summary-btn" class="bg-gray-300 dark:bg-gray-600 py-2 px-4 rounded-md">סגור</button>
                     <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md">הוסף סיכום</button>
@@ -298,7 +314,7 @@
     // --- Firebase SDK Imports ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- DOM Elements ---
     const loadingSpinner = document.getElementById('loading-spinner');
@@ -341,12 +357,12 @@
     // Client View
     const addClientForm = document.getElementById('add-client-form');
     const clientNameInput = document.getElementById('client-name-input');
-    // const clientIdInput = document.getElementById('client-id-input'); // Removed
     const clientTableBody = document.getElementById('client-table-body');
 
     // Client Details Modal
     const clientDetailsModal = document.getElementById('client-details-modal');
     const clientModalName = document.getElementById('client-modal-name');
+    const clientTaskList = document.getElementById('client-task-list'); // New
     const callSummaryList = document.getElementById('call-summary-list');
     const addSummaryForm = document.getElementById('add-summary-form');
     const summaryClientId = document.getElementById('summary-client-id');
@@ -365,6 +381,7 @@
     let unsubscribeFromTasks, unsubscribeFromClients;
     let subtaskListeners = {};
     let callSummaryListeners = {};
+    let clientTaskListeners = {}; // New
     let currentUserId;
 
     // --- Helper Functions ---
@@ -437,6 +454,12 @@
             tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             manageSubtaskListeners();
             render();
+            // This is a good place to also update any open client dashboards
+            const openClientId = summaryClientId.value;
+            if (openClientId && !clientDetailsModal.classList.contains('hidden')) {
+                const openClientTasks = tasks.filter(t => !t.completed && t.clientId === openClientId);
+                renderClientTasks(openClientTasks);
+            }
         }, (error) => console.error("Firestore permission error: ", error));
     }
 
@@ -641,6 +664,18 @@
         });
     };
 
+    const renderClientTasks = (clientTasks) => {
+        clientTaskList.innerHTML = '';
+        if (clientTasks.length === 0) {
+            clientTaskList.innerHTML = `<p class="text-gray-500">אין משימות פתוחות ללקוח זה.</p>`;
+            return;
+        }
+        clientTasks.forEach(task => {
+            const taskEl = createClientTaskElement(task);
+            clientTaskList.appendChild(taskEl);
+        });
+    };
+
     // --- Element Creation ---
     const createTaskElement = (task) => {
         const div = document.createElement('div');
@@ -690,6 +725,32 @@
                 addSubtask(task.id, input.value.trim());
                 input.value = '';
             }
+        };
+        return div;
+    };
+
+    const createClientTaskElement = (task) => {
+        const div = document.createElement('div');
+        div.className = 'p-3 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-between gap-2';
+        div.innerHTML = `
+            <div class_name="flex-grow">
+                <p>${task.text}</p>
+                <div class="flex items-center gap-2 mt-1">
+                    ${createPriorityBadge(task.priority)}
+                    ${task.dueDate ? createDateBadge(task.dueDate, task.completed) : ''}
+                </div>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+                <button title="השלם משימה" class="complete-btn p-2 rounded-full hover:bg-green-200 dark:hover:bg-green-800/50">✅</button>
+                <button title="ערוך" class="edit-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">✏️</button>
+                <button title="מחק" class="delete-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
+            </div>
+        `;
+        div.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+        div.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+        div.querySelector('.edit-btn').onclick = () => {
+            closeClientDetailsModal(); // Close this modal first
+            openEditModal(task); // Then open the edit modal
         };
         return div;
     };
@@ -859,17 +920,29 @@
         clientModalName.textContent = client.name;
         summaryClientId.value = client.id;
         callSummaryList.innerHTML = '<p>טוען סיכומים...</p>';
+        clientTaskList.innerHTML = '<p>טוען משימות...</p>'; // New
         clientDetailsModal.classList.remove('hidden');
         
         // Listen for summaries
         const summariesRef = collection(db, clientsCollectionRef.path, client.id, 'callSummaries');
-        const q = query(summariesRef, orderBy("createdAt", "desc"));
+        const qSummaries = query(summariesRef, orderBy("createdAt", "desc"));
         
-        // Manage listeners
         if (callSummaryListeners[client.id]) callSummaryListeners[client.id]();
-        callSummaryListeners[client.id] = onSnapshot(q, summarySnapshot => {
+        callSummaryListeners[client.id] = onSnapshot(qSummaries, summarySnapshot => {
             const summaries = summarySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             renderCallSummaries(summaries);
+        });
+
+        // Listen for client-specific tasks (using the global 'tasks' array for simplicity)
+        // A dedicated listener is safer to avoid race conditions
+        const qTasks = query(tasksCollectionRef, where("clientId", "==", client.id), where("completed", "==", false));
+        if(clientTaskListeners[client.id]) clientTaskListeners[client.id]();
+        clientTaskListeners[client.id] = onSnapshot(qTasks, taskSnapshot => {
+             const clientTasks = taskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+             renderClientTasks(clientTasks);
+        }, (error) => {
+            console.error("Error querying client tasks:", error);
+            clientTaskList.innerHTML = `<p class="text-red-500">שגיאה בטעינת משימות. ייתכן שנדרש אינדקס ב-Firestore.</p>`;
         });
     };
     
@@ -878,6 +951,10 @@
         if (callSummaryListeners[clientId]) {
             callSummaryListeners[clientId]();
             delete callSummaryListeners[clientId];
+        }
+        if (clientTaskListeners[clientId]) { // New
+            clientTaskListeners[clientId]();
+            delete clientTaskListeners[clientId];
         }
         clientDetailsModal.classList.add('hidden');
     };
@@ -993,10 +1070,8 @@
     addClientForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = clientNameInput.value.trim();
-        // const uniqueId = clientIdInput.value.trim(); // Removed
         if (name) {
-            addClient(name); // Removed uniqueId
-            addClientForm.reset();
+            addClient(name);
         }
     });
     
