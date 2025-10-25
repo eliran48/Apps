@@ -29,6 +29,7 @@
         .progress-bar-fg { background-color: #3b82f6; }
         .stat-card {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+            cursor: pointer; /* Make dashboard clickable */
         }
         .stat-card:hover {
             transform: translateY(-5px);
@@ -58,7 +59,22 @@
             text-align: right;
             border-bottom: 1px solid #e5e7eb; /* dark:border-gray-700 */
         }
-        #task-table tbody tr:nth-child(even),
+        /* Alternating client group colors in task table */
+        #task-table tbody tr.client-group-alt {
+             background-color: #f3f4f6; /* Lighter gray for light mode */
+        }
+       .dark #task-table tbody tr.client-group-alt {
+            background-color: rgba(55, 65, 81, 0.5); /* Slightly darker gray for dark mode */
+        }
+         /* Standard even/odd overrides for non-grouped rows */
+         #task-table tbody tr:not(.client-group-alt):nth-child(even) {
+            background-color: #f9fafb;
+         }
+         .dark #task-table tbody tr:not(.client-group-alt):nth-child(even) {
+            background-color: rgba(31, 41, 55, 0.5);
+         }
+
+
         #client-table tbody tr:nth-child(even) {
             background-color: #f9fafb; /* dark:bg-gray-800/50 */
         }
@@ -66,7 +82,7 @@
         .dark #client-table th, .dark #client-table td {
              border-bottom: 1px solid #374151;
         }
-        .dark #task-table tbody tr:nth-child(even),
+
         .dark #client-table tbody tr:nth-child(even) {
             background-color: rgba(31, 41, 55, 0.5);
         }
@@ -132,8 +148,8 @@
 
         <!-- תצוגת משימות -->
         <div id="tasks-view">
-            <!-- דאשבורד סטטיסטיקות -->
-            <div id="dashboard" class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg text-center">
+            <!-- דאשבורד סטטיסטיקות - הפך ללחיץ -->
+            <div id="dashboard" class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg text-center stat-card" title="לחץ לצפייה בטבלת המשימות הפעילות">
                 <h2 class="text-2xl font-bold mb-2 text-blue-800 dark:text-blue-200">משימות פתוחות</h2>
                 <p id="open-tasks-count" class="text-6xl font-bold text-blue-600 dark:text-blue-400">0</p>
             </div>
@@ -229,19 +245,26 @@
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
                 <form id="add-client-form">
                     <h2 class="text-2xl font-semibold mb-4">הוספת לקוח חדש</h2>
-                    <div class="grid grid-cols-1 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <input type="text" id="client-name-input" placeholder="שם הלקוח" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                         <input type="text" id="client-classification-input" placeholder="סיווג (אופציונלי)" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף לקוח</button>
                 </form>
             </div>
             
+             <!-- חיפוש לקוחות -->
+             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+                 <input type="search" id="client-search-input" placeholder="🔍 חפש לקוח לפי שם או סיווג..." class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+             </div>
+
             <!-- רשימת לקוחות -->
             <div id="client-list-container" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg overflow-x-auto">
                  <table id="client-table" class="w-full">
                     <thead>
                         <tr>
                             <th>שם לקוח</th>
+                            <th>סיווג</th> {/* New column */}
                             <th>פעולות</th>
                         </tr>
                     </thead>
@@ -294,7 +317,7 @@
                 
                 <!-- אזור משימות פתוחות -->
                 <div>
-                     <h3 id="client-tasks-header" class="text-xl font-semibold mb-3">משימות פתוחות (<span id="client-open-tasks-count">0</span>)</h3>
+                     <h3 id="client-tasks-header" class="text-xl font-semibold mb-3 clickable-header" title="לחץ לצפייה בטבלת המשימות של לקוח זה">משימות פתוחות (<span id="client-open-tasks-count">0</span>)</h3>
                     <div id="client-task-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
                         <!-- משימות הלקוח יטענו כאן -->
                     </div>
@@ -342,6 +365,9 @@
     const navTasks = document.getElementById('nav-tasks');
     const navClients = document.getElementById('nav-clients');
 
+    // Dashboard
+    const dashboard = document.getElementById('dashboard'); // Clickable dashboard
+
     // Task Form
     const addTaskForm = document.getElementById('add-task-form');
     const taskInput = document.getElementById('task-input');
@@ -373,6 +399,8 @@
     // Client View
     const addClientForm = document.getElementById('add-client-form');
     const clientNameInput = document.getElementById('client-name-input');
+    const clientClassificationInput = document.getElementById('client-classification-input'); // New classification input
+    const clientSearchInput = document.getElementById('client-search-input'); // Client search
     const clientTableBody = document.getElementById('client-table-body');
 
     // Client Details Modal
@@ -416,8 +444,13 @@
     const formatTimestamp = (timestamp) => {
         if (!timestamp) return '---';
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        // Simplified date for table view, detailed for summaries
+        if (arguments.callee.caller?.name === 'renderTable' || arguments.callee.caller?.name === 'createTaskElement' || arguments.callee.caller?.name === 'renderClientList') { // Include client list context
+             return date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        }
         return date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     };
+
 
     // --- Firebase Initialization ---
     async function initializeFirebase() {
@@ -473,13 +506,12 @@
         unsubscribeFromTasks = onSnapshot(q, (snapshot) => {
             tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             manageSubtaskListeners();
-            render();
+            render(); // Renders tasks
+            renderClientList(); // Re-render client list to update task icons
             // Update client dashboard if open
             const openClientId = summaryClientId.value;
-            if (openClientId && !clientDetailsModal.classList.contains('hidden')) {
-                // No need for a separate listener if the main listener updates it
-                // const openClientTasks = tasks.filter(t => !t.completed && t.clientId === openClientId);
-                // renderClientTasks(openClientTasks); // render() will handle this
+             if (openClientId && !clientDetailsModal.classList.contains('hidden')) {
+                // Trigger re-render of client tasks implicitly via the openClientDetailsModal listener
             }
         }, (error) => console.error("Firestore permission error: ", error));
     }
@@ -489,7 +521,7 @@
         const q = query(clientsCollectionRef, orderBy("name", "asc"));
         unsubscribeFromClients = onSnapshot(q, (snapshot) => {
             clients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            renderClientList();
+            renderClientList(); // Pass the original full list
             populateClientDropdowns();
         }, (error) => console.error("Firestore permission error (Clients): ", error));
     }
@@ -549,19 +581,32 @@
         const { key, direction } = currentSort;
         const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
 
-        return tasksToSort.sort((a, b) => {
+        return [...tasksToSort].sort((a, b) => { // Use spread to avoid modifying the original array
             let valA, valB;
             switch (key) {
-                case 'priority': valA = priorityOrder[a.priority]; valB = priorityOrder[b.priority]; break;
-                case 'dueDate': valA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity; valB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity; break;
+                case 'priority': valA = priorityOrder[a.priority] ?? 1; valB = priorityOrder[b.priority] ?? 1; break; // Provide default
+                case 'dueDate': valA = a.dueDate ? new Date(a.dueDate).getTime() : (direction === 'asc' ? Infinity : -Infinity) ; valB = b.dueDate ? new Date(b.dueDate).getTime() : (direction === 'asc' ? Infinity : -Infinity); break; // Handle null dates better for sorting
                 case 'createdAt': valA = a.createdAt?.toMillis() || 0; valB = b.createdAt?.toMillis() || 0; break;
                 case 'status': valA = a.completed; valB = b.completed; break;
                 case 'clientName': valA = a.clientName || ''; valB = b.clientName || ''; break;
-                default: valA = a[key] || ''; valB = b[key] || '';
+                default: valA = (a[key] || '').toString().toLowerCase(); valB = (b[key] || '').toString().toLowerCase(); // Case-insensitive text sort
             }
-            if (valA < valB) return direction === 'asc' ? -1 : 1;
-            if (valA > valB) return direction === 'asc' ? 1 : -1;
-            return 0;
+
+            // Ensure consistent comparison
+             if (valA < valB) return direction === 'asc' ? -1 : 1;
+             if (valA > valB) return direction === 'asc' ? 1 : -1;
+
+            // Secondary sort for client grouping (if sorting by clientName)
+            if (key === 'clientName' && a.clientId && b.clientId) {
+                 if (a.clientId < b.clientId) return -1;
+                 if (a.clientId > b.clientId) return 1;
+             }
+
+            // Tertiary sort by creation date as fallback
+             const dateA = a.createdAt?.toMillis() || 0;
+             const dateB = b.createdAt?.toMillis() || 0;
+             return dateB - dateA; // Newest first by default
+
         });
     };
     
@@ -582,14 +627,33 @@
     };
     
     const renderTable = () => {
-        const filteredTasks = getFilteredAndSortedTasks();
+        const filteredTasks = getFilteredAndSortedTasks(); // Already sorted
         taskTableBody.innerHTML = '';
         if (filteredTasks.length === 0) {
             taskTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500 py-6">אין משימות להצגה.</td></tr>`;
             return;
         }
+        let lastClientId = null;
+        let useAltColor = false;
         filteredTasks.forEach(task => {
+             // Logic for alternating client row colors
+            if (currentSort.key === 'clientName' || currentClientFilter) { // Apply only when sorted by client or filtered
+                if (task.clientId && task.clientId !== lastClientId) {
+                     useAltColor = !useAltColor; // Toggle color when client changes
+                     lastClientId = task.clientId;
+                 } else if (!task.clientId && lastClientId !== null) {
+                     useAltColor = !useAltColor; // Toggle for tasks without clients after a client block
+                     lastClientId = null;
+                 }
+            } else {
+                 useAltColor = false; // Reset if not sorting/filtering by client
+                 lastClientId = null;
+            }
+
+
             const tr = document.createElement('tr');
+             if(useAltColor) tr.classList.add('client-group-alt'); // Apply alternating color class
+
             tr.innerHTML = `
                 <td>${task.text}</td>
                 <td>${task.clientName || '---'}</td>
@@ -636,25 +700,37 @@
 
         subtaskListEl.innerHTML = '';
         if (subtasks.length > 0) {
-            progressContainer.classList.remove('hidden');
+            progressContainer?.classList.remove('hidden');
             subtasks.forEach(st => subtaskListEl.appendChild(createSubtaskElement(taskId, st)));
             const completedCount = subtasks.filter(st => st.completed).length;
-            progressBar.style.width = `${(completedCount / subtasks.length) * 100}%`;
+            if(progressBar) progressBar.style.width = `${(completedCount / subtasks.length) * 100}%`;
         } else {
-            progressContainer.classList.add('hidden');
+            progressContainer?.classList.add('hidden');
         }
     };
 
-    const renderClientList = () => {
+    const renderClientList = (clientsToRender = clients) => {
         clientTableBody.innerHTML = '';
-        if (clients.length === 0) {
-            clientTableBody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 py-6">לא נוספו לקוחות.</td></tr>`;
+         const searchTerm = clientSearchInput.value.toLowerCase();
+         // Filter based on search term (name or classification)
+         const filteredClients = clientsToRender.filter(client => 
+             client.name.toLowerCase().includes(searchTerm) ||
+             (client.classification && client.classification.toLowerCase().includes(searchTerm))
+         );
+
+        if (filteredClients.length === 0) {
+            clientTableBody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 py-6">${searchTerm ? 'לא נמצאו לקוחות תואמים.' : 'לא נוספו לקוחות.'}</td></tr>`;
             return;
         }
-        clients.forEach(client => {
+        filteredClients.forEach(client => {
             const tr = document.createElement('tr');
+            // Check for open tasks for this client
+            const openTasksCount = tasks.filter(t => !t.completed && t.clientId === client.id).length;
+            const taskIcon = openTasksCount > 0 ? '<span class="ml-2 text-blue-500" title="משימות פתוחות">📌</span>' : '';
+
             tr.innerHTML = `
-                <td class="font-semibold">${client.name}</td>
+                <td class="font-semibold">${client.name}${taskIcon}</td>
+                <td>${client.classification || '---'}</td> {/* Display classification */}
                 <td class="flex items-center gap-2">
                     <button title="צפה בפרטים וסיכומים" class="details-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">📋</button>
                     <button title="מחק לקוח" class="delete-client-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
@@ -695,9 +771,10 @@
          // Sort tasks within the modal as well, perhaps by priority then due date
         clientTasks.sort((a, b) => {
              const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
-             if (priorityOrder[a.priority] !== priorityOrder[b.priority]) return priorityOrder[a.priority] - priorityOrder[b.priority];
-             if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
-             if (a.dueDate) return -1; if (b.dueDate) return 1;
+             if ((priorityOrder[a.priority] ?? 1) !== (priorityOrder[b.priority] ?? 1)) return (priorityOrder[a.priority] ?? 1) - (priorityOrder[b.priority] ?? 1); // Adjusted sort
+             const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+             const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+             if (dateA !== dateB) return dateA - dateB;
              return 0;
          });
         clientTasks.forEach(task => {
@@ -824,7 +901,8 @@
     };
     
     const createDateBadge = (dateStr, completed) => {
-        const date = new Date(dateStr); const today = new Date(); today.setHours(0,0,0,0); date.setHours(23,59,59,999);
+        if (!dateStr) return ''; // Add check for null/undefined date
+        const date = new Date(dateStr); const today = new Date(); today.setHours(0,0,0,0); date.setHours(23,59,59,999); // Adjust date setting logic slightly
         const isOverdue = date < today && !completed;
         const color = isOverdue ? 'bg-red-200 text-red-800 animate-pulse' : 'bg-green-200 text-green-800';
         return `<span class="text-xs font-bold px-2 py-1 rounded-full ${color}">${new Date(dateStr).toLocaleDateString('he-IL')}</span>`;
@@ -872,12 +950,17 @@
         try { await deleteDoc(subtaskRef); } catch (e) { console.error("Error deleting subtask: ", e); }
     };
 
-    const addClient = async (name) => {
-        try { await addDoc(clientsCollectionRef, { name, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding client: ", e); }
+    const addClient = async (name, classification) => { // Added classification parameter
+        try { 
+            await addDoc(clientsCollectionRef, { 
+                name, 
+                classification: classification || null, // Save classification
+                createdAt: serverTimestamp() 
+            }); 
+        } catch (e) { console.error("Error adding client: ", e); }
     };
     const deleteClient = async (id) => {
-        // Note: This only deletes the client, not their tasks. 
-        // Consider adding a confirmation or logic to handle associated tasks.
+        // Simple confirm for deletion
         if (confirm(`האם אתה בטוח שברצונך למחוק לקוח זה? פעולה זו אינה הפיכה.`)) {
              try { await deleteDoc(doc(db, clientsCollectionRef.path, id)); } catch (e) { console.error("Error deleting client: ", e); }
         }
@@ -912,7 +995,7 @@
     const setClientFilter = (clientId) => { currentClientFilter = clientId; render(); };
 
     // Function to switch to tasks view with specific filters
-    const switchToTasksViewWithOptions = (clientId, layout = 'table') => {
+    const switchToTasksViewWithOptions = (clientId, layout = 'table', filter = 'active') => {
         // Switch main view
         tasksView.classList.remove('hidden');
         clientsView.classList.add('hidden');
@@ -920,9 +1003,9 @@
         navClients.classList.remove('active');
 
         // Set filters
-        setViewFilter('active'); // Ensure we are showing active tasks
-        setClientFilter(clientId); // Set the client filter
-        clientFilterSelect.value = clientId; // Update the dropdown selection
+        setViewFilter(filter); // Set the view filter (e.g., 'active')
+        setClientFilter(clientId || ""); // Set the client filter (or clear if null)
+        clientFilterSelect.value = clientId || ""; // Update the dropdown selection
 
         // Set layout
         currentLayout = layout;
@@ -1034,6 +1117,11 @@
         navTasks.classList.remove('active');
         navClients.classList.add('active');
     };
+    
+    // Clickable dashboard card
+    dashboard.onclick = () => {
+        switchToTasksViewWithOptions(null, 'table', 'active');
+    };
 
     // Task Form
     addTaskForm.addEventListener('submit', (e) => {
@@ -1135,11 +1223,17 @@
     addClientForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = clientNameInput.value.trim();
+        const classification = clientClassificationInput.value.trim(); // Get classification
         if (name) {
-            addClient(name);
+            addClient(name, classification); // Pass classification to addClient
             addClientForm.reset(); // Clear the form after adding
         }
     });
+
+    // Client Search
+    clientSearchInput.addEventListener('input', () => {
+         renderClientList(); // Re-render the client list with the search term
+     });
     
     // Client Details Modal
     addSummaryForm.addEventListener('submit', (e) => {
