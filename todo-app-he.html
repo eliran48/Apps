@@ -89,6 +89,20 @@
             color: #60a5fa;
             border-bottom-color: #60a5fa;
         }
+        .clickable-header {
+            cursor: pointer;
+            color: #3b82f6; /* dark:text-blue-400 */
+            text-decoration: underline;
+        }
+        .clickable-header:hover {
+            color: #2563eb; /* dark:text-blue-500 */
+        }
+        .dark .clickable-header {
+            color: #60a5fa;
+        }
+        .dark .clickable-header:hover {
+            color: #3b82f6;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
@@ -280,10 +294,11 @@
                 
                 <!-- אזור משימות פתוחות -->
                 <div>
-                    <h3 class="text-xl font-semibold mb-3">משימות פתוחות</h3>
+                     <h3 id="client-tasks-header" class="text-xl font-semibold mb-3">משימות פתוחות (<span id="client-open-tasks-count">0</span>)</h3>
                     <div id="client-task-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
                         <!-- משימות הלקוח יטענו כאן -->
                     </div>
+                    <button id="add-task-for-client-btn" class="mt-4 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-4 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800">+ הוסף משימה ללקוח זה</button>
                 </div>
 
                 <!-- אזור היסטוריית שיחות -->
@@ -300,6 +315,7 @@
             <form id="add-summary-form">
                 <h3 class="text-xl font-semibold mb-3">הוספת סיכום שיחה חדש</h3>
                 <input type="hidden" id="summary-client-id">
+                 <input type="hidden" id="summary-client-name"> <!-- Add hidden input for client name -->
                 <textarea id="summary-text-input" rows="3" placeholder="כתוב כאן את סיכום השיחה..." class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
                 <div class="flex justify-end gap-4">
                     <button type="button" id="cancel-summary-btn" class="bg-gray-300 dark:bg-gray-600 py-2 px-4 rounded-md">סגור</button>
@@ -362,10 +378,14 @@
     // Client Details Modal
     const clientDetailsModal = document.getElementById('client-details-modal');
     const clientModalName = document.getElementById('client-modal-name');
-    const clientTaskList = document.getElementById('client-task-list'); // New
+    const clientTaskList = document.getElementById('client-task-list'); 
+    const clientTasksHeader = document.getElementById('client-tasks-header'); // For clickable header
+    const clientOpenTasksCount = document.getElementById('client-open-tasks-count'); // Span for count
+    const addTaskForClientBtn = document.getElementById('add-task-for-client-btn'); // New button
     const callSummaryList = document.getElementById('call-summary-list');
     const addSummaryForm = document.getElementById('add-summary-form');
     const summaryClientId = document.getElementById('summary-client-id');
+    const summaryClientName = document.getElementById('summary-client-name'); // Hidden input for name
     const summaryTextInput = document.getElementById('summary-text-input');
     const cancelSummaryBtn = document.getElementById('cancel-summary-btn');
     
@@ -381,7 +401,7 @@
     let unsubscribeFromTasks, unsubscribeFromClients;
     let subtaskListeners = {};
     let callSummaryListeners = {};
-    let clientTaskListeners = {}; // New
+    let clientTaskListeners = {}; 
     let currentUserId;
 
     // --- Helper Functions ---
@@ -454,11 +474,12 @@
             tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             manageSubtaskListeners();
             render();
-            // This is a good place to also update any open client dashboards
+            // Update client dashboard if open
             const openClientId = summaryClientId.value;
             if (openClientId && !clientDetailsModal.classList.contains('hidden')) {
-                const openClientTasks = tasks.filter(t => !t.completed && t.clientId === openClientId);
-                renderClientTasks(openClientTasks);
+                // No need for a separate listener if the main listener updates it
+                // const openClientTasks = tasks.filter(t => !t.completed && t.clientId === openClientId);
+                // renderClientTasks(openClientTasks); // render() will handle this
             }
         }, (error) => console.error("Firestore permission error: ", error));
     }
@@ -665,11 +686,20 @@
     };
 
     const renderClientTasks = (clientTasks) => {
+        clientOpenTasksCount.textContent = clientTasks.length; // Update count
         clientTaskList.innerHTML = '';
         if (clientTasks.length === 0) {
             clientTaskList.innerHTML = `<p class="text-gray-500">אין משימות פתוחות ללקוח זה.</p>`;
             return;
         }
+         // Sort tasks within the modal as well, perhaps by priority then due date
+        clientTasks.sort((a, b) => {
+             const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+             if (priorityOrder[a.priority] !== priorityOrder[b.priority]) return priorityOrder[a.priority] - priorityOrder[b.priority];
+             if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+             if (a.dueDate) return -1; if (b.dueDate) return 1;
+             return 0;
+         });
         clientTasks.forEach(task => {
             const taskEl = createClientTaskElement(task);
             clientTaskList.appendChild(taskEl);
@@ -733,7 +763,7 @@
         const div = document.createElement('div');
         div.className = 'p-3 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-between gap-2';
         div.innerHTML = `
-            <div class_name="flex-grow">
+            <div class="flex-grow">
                 <p>${task.text}</p>
                 <div class="flex items-center gap-2 mt-1">
                     ${createPriorityBadge(task.priority)}
@@ -846,8 +876,11 @@
         try { await addDoc(clientsCollectionRef, { name, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding client: ", e); }
     };
     const deleteClient = async (id) => {
-        // Note: This only deletes the client, not their tasks. We might want to change this logic later.
-        try { await deleteDoc(doc(db, clientsCollectionRef.path, id)); } catch (e) { console.error("Error deleting client: ", e); }
+        // Note: This only deletes the client, not their tasks. 
+        // Consider adding a confirmation or logic to handle associated tasks.
+        if (confirm(`האם אתה בטוח שברצונך למחוק לקוח זה? פעולה זו אינה הפיכה.`)) {
+             try { await deleteDoc(doc(db, clientsCollectionRef.path, id)); } catch (e) { console.error("Error deleting client: ", e); }
+        }
     };
     const addCallSummary = async (clientId, text) => {
         const summariesRef = collection(db, clientsCollectionRef.path, clientId, 'callSummaries');
@@ -877,6 +910,33 @@
     };
     const setTagFilter = (tag) => { currentTagFilter = tag; render(); };
     const setClientFilter = (clientId) => { currentClientFilter = clientId; render(); };
+
+    // Function to switch to tasks view with specific filters
+    const switchToTasksViewWithOptions = (clientId, layout = 'table') => {
+        // Switch main view
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+
+        // Set filters
+        setViewFilter('active'); // Ensure we are showing active tasks
+        setClientFilter(clientId); // Set the client filter
+        clientFilterSelect.value = clientId; // Update the dropdown selection
+
+        // Set layout
+        currentLayout = layout;
+        document.querySelectorAll('.view-btn').forEach(btn => {
+             btn.classList.toggle('bg-white', btn.dataset.view === layout);
+             btn.classList.toggle('dark:bg-gray-800', btn.dataset.view === layout);
+             btn.classList.toggle('text-blue-600', btn.dataset.view === layout);
+             btn.classList.toggle('shadow', btn.dataset.view === layout);
+             btn.classList.toggle('text-gray-600', btn.dataset.view !== layout);
+             btn.classList.toggle('dark:text-gray-300', btn.dataset.view !== layout);
+         });
+
+        render(); // Re-render with new settings
+    };
     
     // --- Modal Logic ---
     const openEditModal = (task) => {
@@ -919,8 +979,9 @@
     const openClientDetailsModal = (client) => {
         clientModalName.textContent = client.name;
         summaryClientId.value = client.id;
+        summaryClientName.value = client.name; // Store name for adding tasks
         callSummaryList.innerHTML = '<p>טוען סיכומים...</p>';
-        clientTaskList.innerHTML = '<p>טוען משימות...</p>'; // New
+        clientTaskList.innerHTML = '<p>טוען משימות...</p>'; 
         clientDetailsModal.classList.remove('hidden');
         
         // Listen for summaries
@@ -933,8 +994,7 @@
             renderCallSummaries(summaries);
         });
 
-        // Listen for client-specific tasks (using the global 'tasks' array for simplicity)
-        // A dedicated listener is safer to avoid race conditions
+        // Listen for client-specific tasks 
         const qTasks = query(tasksCollectionRef, where("clientId", "==", client.id), where("completed", "==", false));
         if(clientTaskListeners[client.id]) clientTaskListeners[client.id]();
         clientTaskListeners[client.id] = onSnapshot(qTasks, taskSnapshot => {
@@ -952,7 +1012,7 @@
             callSummaryListeners[clientId]();
             delete callSummaryListeners[clientId];
         }
-        if (clientTaskListeners[clientId]) { // New
+        if (clientTaskListeners[clientId]) { 
             clientTaskListeners[clientId]();
             delete clientTaskListeners[clientId];
         }
@@ -992,10 +1052,15 @@
         
         addTaskForm.reset(); 
         priorityInput.value = 'normal';
-        clientSelectContainer.classList.add('hidden');
+        clientSelectContainer.classList.add('hidden'); // Reset to hidden initially
         dueDateContainer.classList.add('hidden'); 
         addDateBtn.classList.remove('hidden');
-        document.getElementById('category-business').checked = true;
+        document.getElementById('category-business').checked = true; // Default to business
+        // Manually trigger the category change logic to show client select if needed
+        if (document.getElementById('category-business').checked) {
+             clientSelectContainer.classList.remove('hidden');
+             clientFilterContainer.classList.remove('hidden');
+        }
     });
     
     // Show/Hide client dropdown based on category
@@ -1056,7 +1121,7 @@
                 currentSort.key = sortKey;
                 currentSort.direction = 'asc';
             }
-            document.querySelectorAll('.sortable-header').forEach(th => {
+            document.querySelectorAll('#task-table thead .sortable-header').forEach(th => { // Target only headers in task table
                 th.classList.remove('asc', 'desc');
                 if (th.dataset.sort === currentSort.key) {
                     th.classList.add(currentSort.direction);
@@ -1072,6 +1137,7 @@
         const name = clientNameInput.value.trim();
         if (name) {
             addClient(name);
+            addClientForm.reset(); // Clear the form after adding
         }
     });
     
@@ -1086,6 +1152,42 @@
         }
     });
     cancelSummaryBtn.onclick = closeClientDetailsModal;
+
+    // New: Add Task button inside Client Modal
+    addTaskForClientBtn.onclick = () => {
+        const clientId = summaryClientId.value;
+        const clientName = summaryClientName.value; // Get name from hidden input
+        if (!clientId || !clientName) return; 
+
+        closeClientDetailsModal();
+
+        // Switch to tasks view
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+        
+        // Pre-fill the form
+        document.getElementById('category-business').checked = true; // Select business
+        clientSelectContainer.classList.remove('hidden'); // Show client dropdown
+        clientFilterContainer.classList.remove('hidden'); // Ensure filter is visible
+        clientSelect.value = clientId; // Pre-select the client
+        taskInput.focus(); // Focus on task description
+        
+        // Optional: Scroll to the add task form if needed
+        addTaskForm.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // New: Clickable header to view client tasks in table
+    clientTasksHeader.onclick = () => {
+        const clientId = summaryClientId.value;
+        if (!clientId) return;
+        
+        closeClientDetailsModal();
+        switchToTasksViewWithOptions(clientId, 'table'); // Switch view and filter
+    };
+    clientTasksHeader.classList.add('clickable-header'); // Add styling
+
 
     // --- Initial Load ---
     document.addEventListener('DOMContentLoaded', initializeFirebase);
