@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ניהול משימות | דאשבורד</title>
+    <title>ניהול משימות ולקוחות | דאשבורד</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -52,19 +52,56 @@
             content: '↓';
             opacity: 1;
         }
-        #task-table th, #task-table td {
+        #task-table th, #task-table td,
+        #client-table th, #client-table td {
             padding: 12px 15px;
             text-align: right;
             border-bottom: 1px solid #e5e7eb; /* dark:border-gray-700 */
         }
-        #task-table tbody tr:nth-child(even) {
+        #task-table tbody tr:nth-child(even),
+        #client-table tbody tr:nth-child(even) {
             background-color: #f9fafb; /* dark:bg-gray-800/50 */
         }
-        .dark #task-table th, .dark #task-table td {
+        .dark #task-table th, .dark #task-table td,
+        .dark #client-table th, .dark #client-table td {
              border-bottom: 1px solid #374151;
         }
-        .dark #task-table tbody tr:nth-child(even) {
+        .dark #task-table tbody tr:nth-child(even),
+        .dark #client-table tbody tr:nth-child(even) {
             background-color: rgba(31, 41, 55, 0.5);
+        }
+        .nav-tab {
+            cursor: pointer;
+            padding: 0.75rem 1.25rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            border-bottom: 4px solid transparent;
+            color: #6b7280; /* dark:text-gray-400 */
+        }
+        .nav-tab.active {
+            border-bottom-color: #3b82f6;
+            color: #3b82f6; /* dark:text-blue-400 */
+        }
+        .dark .nav-tab {
+            color: #9ca3af;
+        }
+        .dark .nav-tab.active {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+        }
+        .clickable-header {
+            cursor: pointer;
+            color: #3b82f6; /* dark:text-blue-400 */
+            text-decoration: underline;
+        }
+        .clickable-header:hover {
+            color: #2563eb; /* dark:text-blue-500 */
+        }
+        .dark .clickable-header {
+            color: #60a5fa;
+        }
+        .dark .clickable-header:hover {
+            color: #3b82f6;
         }
     </style>
 </head>
@@ -82,80 +119,135 @@
 
     <div class="container mx-auto max-w-6xl px-4 py-8">
         
-        <header class="text-center mb-8">
+        <header class="text-center mb-4">
             <h1 id="greeting-header" class="text-4xl font-bold text-blue-600 dark:text-blue-400"></h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">הדאשבורד שלך לפרודוקטיביות</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">הדאשבורד שלך לפרודוקטיביות</l>
         </header>
 
-        <!-- דאשבורד סטטיסטיקות -->
-        <div id="dashboard" class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg text-center">
-             <h2 class="text-2xl font-bold mb-2 text-blue-800 dark:text-blue-200">משימות פתוחות</h2>
-             <p id="open-tasks-count" class="text-6xl font-bold text-blue-600 dark:text-blue-400">0</p>
-        </div>
+        <!-- ניווט ראשי -->
+        <nav class="flex justify-center border-b border-gray-300 dark:border-gray-700 mb-8">
+            <button id="nav-tasks" class="nav-tab active" data-view="tasks-view">ניהול משימות</button>
+            <button id="nav-clients" class="nav-tab" data-view="clients-view">ניהול לקוחות</button>
+        </nav>
 
-        <!-- טופס הוספת משימה -->
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
-            <form id="add-task-form">
-                <h2 class="text-2xl font-semibold mb-4">הוספת משימה חדשה</h2>
-                <input type="text" id="task-input" placeholder="לדוגמה: להכין מצגת למחר" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="text" id="tags-input" placeholder="הוסף תגיות (מופרדות בפסיק)" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
-                    <div class="flex items-center gap-4">
-                        <select id="priority-input" class="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
-                            <option value="low">עדיפות נמוכה</option>
-                            <option value="normal" selected>עדיפות רגילה</option>
-                            <option value="high">עדיפות גבוהה</option>
-                        </select>
-                        <div class="flex items-center gap-2">
-                            <input type="radio" id="category-business" name="category" value="business" class="form-radio text-blue-600" checked><label for="category-business">עסק 💼</label>
-                            <input type="radio" id="category-personal" name="category" value="personal" class="form-radio text-purple-600"><label for="category-personal">אישי 🏠</label>
+        <!-- תצוגת משימות -->
+        <div id="tasks-view">
+            <!-- דאשבורד סטטיסטיקות -->
+            <div id="dashboard" class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg text-center">
+                <h2 class="text-2xl font-bold mb-2 text-blue-800 dark:text-blue-200">משימות פתוחות</h2>
+                <p id="open-tasks-count" class="text-6xl font-bold text-blue-600 dark:text-blue-400">0</p>
+            </div>
+
+            <!-- טופס הוספת משימה -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                <form id="add-task-form">
+                    <h2 class="text-2xl font-semibold mb-4">הוספת משימה חדשה</h2>
+                    <input type="text" id="task-input" placeholder="לדוגמה: להכין מצגת למחר" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <input type="text" id="tags-input" placeholder="הוסף תגיות (מופרדות בפסיק)" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        
+                        <div id="client-select-container" class="hidden">
+                             <select id="client-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                                <option value="">בחר לקוח...</option>
+                                <!-- רשימת לקוחות תטען כאן -->
+                            </select>
                         </div>
                     </div>
-                    <button type="button" id="add-date-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">+ הוסף תאריך יעד</button>
-                </div>
-                 <div id="due-date-container" class="hidden mt-4 flex items-center gap-2">
-                    <input type="date" id="due-date-input" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
-                    <button type="button" id="remove-date-btn" class="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded-full" title="הסר תאריך">✖</button>
-                </div>
-                <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף משימה</button>
-            </form>
-        </div>
 
-        <!-- אזור סינון ותצוגה -->
-        <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
-            <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
-                <div id="view-switcher" class="flex p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
-                    <button data-view="cards" class="view-btn bg-white dark:bg-gray-800 text-blue-600 py-2 px-5 rounded-full font-semibold shadow">כרטיסים</button>
-                    <button data-view="table" class="view-btn py-2 px-5 rounded-full font-semibold text-gray-600 dark:text-gray-300">טבלה</button>
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="flex items-center gap-4">
+                            <select id="priority-input" class="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                                <option value="low">עדיפות נמוכה</option>
+                                <option value="normal" selected>עדיפות רגילה</option>
+                                <option value="high">עדיפות גבוהה</option>
+                            </select>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" id="category-business" name="category" value="business" class="form-radio text-blue-600" checked><label for="category-business">עסק 💼</label>
+                                <input type="radio" id="category-personal" name="category" value="personal" class="form-radio text-purple-600"><label for="category-personal">אישי 🏠</label>
+                            </div>
+                        </div>
+                        <button type="button" id="add-date-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">+ הוסף תאריך יעד</button>
+                    </div>
+                    <div id="due-date-container" class="hidden mt-4 flex items-center gap-2">
+                        <input type="date" id="due-date-input" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                        <button type="button" id="remove-date-btn" class="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded-full" title="הסר תאריך">✖</button>
+                    </div>
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף משימה</button>
+                </form>
+            </div>
+
+            <!-- אזור סינון ותצוגה -->
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                    <div id="view-switcher" class="flex p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                        <button data-view="cards" class="view-btn bg-white dark:bg-gray-800 text-blue-600 py-2 px-5 rounded-full font-semibold shadow">כרטיסים</button>
+                        <button data-view="table" class="view-btn py-2 px-5 rounded-full font-semibold text-gray-600 dark:text-gray-300">טבלה</button>
+                    </div>
+                    <div class="flex justify-center gap-2 flex-wrap" id="filter-buttons">
+                        <button data-filter="active" class="filter-btn bg-blue-600 text-white py-2 px-5 rounded-full font-semibold">פעילות</button>
+                        <button data-filter="business" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">עסק</button>
+                        <button data-filter="personal" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">אישי</button>
+                        <button data-filter="completed" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">הושלמו ✅</button>
+                    </div>
                 </div>
-                <div class="flex justify-center gap-2 flex-wrap" id="filter-buttons">
-                    <button data-filter="active" class="filter-btn bg-blue-600 text-white py-2 px-5 rounded-full font-semibold">פעילות</button>
-                    <button data-filter="business" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">עסק</button>
-                    <button data-filter="personal" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">אישי</button>
-                    <button data-filter="completed" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">הושלמו ✅</button>
+                <!-- סינון תגיות ולקוחות -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <div id="tag-filter-container" class="flex justify-center gap-2 flex-wrap"></div>
+                    <div id="client-filter-container" class="hidden">
+                         <select id="client-filter-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                            <option value="">סנן לפי לקוח...</option>
+                            <!-- רשימת לקוחות תטען כאן -->
+                        </select>
+                    </div>
                 </div>
             </div>
-            <div id="tag-filter-container" class="flex justify-center gap-2 flex-wrap border-t border-gray-200 dark:border-gray-700 pt-4"></div>
+
+            <!-- אזור תוכן -->
+            <div id="task-list-container" class="space-y-4"></div>
+            <div id="task-table-container" class="hidden bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg overflow-x-auto">
+                <table id="task-table" class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="sortable-header" data-sort="text">משימה</th>
+                            <th class="sortable-header" data-sort="clientName">לקוח</th>
+                            <th class="sortable-header" data-sort="status">סטטוס</th>
+                            <th class="sortable-header" data-sort="priority">עדיפות</th>
+                            <th class="sortable-header" data-sort="dueDate">תאריך יעד</th>
+                            <th class="sortable-header" data-sort="createdAt">תאריך יצירה</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-table-body"></tbody>
+                </table>
+            </div>
         </div>
 
-        <!-- אזור תוכן -->
-        <div id="task-list-container" class="space-y-4"></div>
-        <div id="task-table-container" class="hidden bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg overflow-x-auto">
-            <table id="task-table" class="w-full">
-                <thead>
-                    <tr>
-                        <th class="sortable-header" data-sort="text">משימה</th>
-                        <th class="sortable-header" data-sort="status">סטטוס</th>
-                        <th class="sortable-header" data-sort="priority">עדיפות</th>
-                        <th class="sortable-header" data-sort="category">קטגוריה</th>
-                        <th class="sortable-header" data-sort="dueDate">תאריך יעד</th>
-                        <th class="sortable-header" data-sort="createdAt">תאריך יצירה</th>
-                        <th>תגיות</th>
-                        <th>פעולות</th>
-                    </tr>
-                </thead>
-                <tbody id="task-table-body"></tbody>
-            </table>
+        <!-- תצוגת לקוחות -->
+        <div id="clients-view" class="hidden">
+            <!-- טופס הוספת לקוח -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                <form id="add-client-form">
+                    <h2 class="text-2xl font-semibold mb-4">הוספת לקוח חדש</h2>
+                    <div class="grid grid-cols-1 gap-4 mb-4">
+                        <input type="text" id="client-name-input" placeholder="שם הלקוח" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף לקוח</button>
+                </form>
+            </div>
+            
+            <!-- רשימת לקוחות -->
+            <div id="client-list-container" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg overflow-x-auto">
+                 <table id="client-table" class="w-full">
+                    <thead>
+                        <tr>
+                            <th>שם לקוח</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="client-table-body"></tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -165,9 +257,21 @@
             <h2 class="text-2xl font-semibold mb-4">עריכת משימה</h2>
             <form id="edit-task-form">
                 <input type="hidden" id="edit-task-id">
+                <label for="edit-task-input" class="block text-sm font-medium mb-1">תיאור המשימה</label>
                 <input type="text" id="edit-task-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                
+                <label for="edit-client-select" class="block text-sm font-medium mb-1">שיוך לקוח (לעסק)</label>
+                <select id="edit-client-select" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                    <option value="">ללא שיוך</option>
+                </select>
+
+                <label for="edit-tags-input" class="block text-sm font-medium mb-1">תגיות</label>
                 <input type="text" id="edit-tags-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                
+                <label for="edit-due-date-input" class="block text-sm font-medium mb-1">תאריך יעד</label>
                 <input type="date" id="edit-due-date-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                
+                <label for="edit-priority-input" class="block text-sm font-medium mb-1">עדיפות</label>
                 <select id="edit-priority-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
                     <option value="low">עדיפות נמוכה</option>
                     <option value="normal">עדיפות רגילה</option>
@@ -180,42 +284,125 @@
             </form>
         </div>
     </div>
+    
+    <!-- חלון פרטי לקוח (Modal) - שודרג לדאשבורד -->
+    <div id="client-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-30">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <h2 id="client-modal-name" class="text-3xl font-bold mb-4">שם לקוח</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow overflow-y-auto border-t border-b border-gray-200 dark:border-gray-700 py-4 mb-4">
+                
+                <!-- אזור משימות פתוחות -->
+                <div>
+                     <h3 id="client-tasks-header" class="text-xl font-semibold mb-3">משימות פתוחות (<span id="client-open-tasks-count">0</span>)</h3>
+                    <div id="client-task-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                        <!-- משימות הלקוח יטענו כאן -->
+                    </div>
+                    <button id="add-task-for-client-btn" class="mt-4 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-4 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800">+ הוסף משימה ללקוח זה</button>
+                </div>
+
+                <!-- אזור היסטוריית שיחות -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">היסטוריית שיחות</h3>
+                    <div id="call-summary-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                        <!-- סיכומים יטענו כאן -->
+                    </div>
+                </div>
+
+            </div>
+            
+            <!-- טופס הוספת סיכום שיחה -->
+            <form id="add-summary-form">
+                <h3 class="text-xl font-semibold mb-3">הוספת סיכום שיחה חדש</h3>
+                <input type="hidden" id="summary-client-id">
+                 <input type="hidden" id="summary-client-name"> <!-- Add hidden input for client name -->
+                <textarea id="summary-text-input" rows="3" placeholder="כתוב כאן את סיכום השיחה..." class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
+                <div class="flex justify-end gap-4">
+                    <button type="button" id="cancel-summary-btn" class="bg-gray-300 dark:bg-gray-600 py-2 px-4 rounded-md">סגור</button>
+                    <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md">הוסף סיכום</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
 
 <script type="module">
     // --- Firebase SDK Imports ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, onAuthStateChanged, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, where } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // --- DOM Elements ---
     const loadingSpinner = document.getElementById('loading-spinner');
     const greetingHeader = document.getElementById('greeting-header');
+    
+    // Views
+    const tasksView = document.getElementById('tasks-view');
+    const clientsView = document.getElementById('clients-view');
+    const navTasks = document.getElementById('nav-tasks');
+    const navClients = document.getElementById('nav-clients');
+
+    // Task Form
     const addTaskForm = document.getElementById('add-task-form');
     const taskInput = document.getElementById('task-input');
     const dueDateInput = document.getElementById('due-date-input');
     const tagsInput = document.getElementById('tags-input');
     const priorityInput = document.getElementById('priority-input');
-    const filterButtonsContainer = document.getElementById('filter-buttons');
     const addDateBtn = document.getElementById('add-date-btn');
     const removeDateBtn = document.getElementById('remove-date-btn');
     const dueDateContainer = document.getElementById('due-date-container');
+    const clientSelectContainer = document.getElementById('client-select-container');
+    const clientSelect = document.getElementById('client-select');
+
+    // Task Display & Filtering
+    const filterButtonsContainer = document.getElementById('filter-buttons');
     const taskListContainer = document.getElementById('task-list-container');
     const taskTableContainer = document.getElementById('task-table-container');
     const taskTableBody = document.getElementById('task-table-body');
     const viewSwitcher = document.getElementById('view-switcher');
     const tagFilterContainer = document.getElementById('tag-filter-container');
+    const clientFilterContainer = document.getElementById('client-filter-container');
+    const clientFilterSelect = document.getElementById('client-filter-select');
+
+    // Task Edit Modal
     const editModal = document.getElementById('edit-modal');
     const editTaskForm = document.getElementById('edit-task-form');
     const cancelEditBtn = document.getElementById('cancel-edit-btn');
+    const editClientSelect = document.getElementById('edit-client-select');
+
+    // Client View
+    const addClientForm = document.getElementById('add-client-form');
+    const clientNameInput = document.getElementById('client-name-input');
+    const clientTableBody = document.getElementById('client-table-body');
+
+    // Client Details Modal
+    const clientDetailsModal = document.getElementById('client-details-modal');
+    const clientModalName = document.getElementById('client-modal-name');
+    const clientTaskList = document.getElementById('client-task-list'); 
+    const clientTasksHeader = document.getElementById('client-tasks-header'); // For clickable header
+    const clientOpenTasksCount = document.getElementById('client-open-tasks-count'); // Span for count
+    const addTaskForClientBtn = document.getElementById('add-task-for-client-btn'); // New button
+    const callSummaryList = document.getElementById('call-summary-list');
+    const addSummaryForm = document.getElementById('add-summary-form');
+    const summaryClientId = document.getElementById('summary-client-id');
+    const summaryClientName = document.getElementById('summary-client-name'); // Hidden input for name
+    const summaryTextInput = document.getElementById('summary-text-input');
+    const cancelSummaryBtn = document.getElementById('cancel-summary-btn');
     
     // --- App State ---
     let tasks = [];
+    let clients = [];
     let currentViewFilter = 'active';
     let currentTagFilter = null;
-    let currentLayout = 'cards'; // 'cards' or 'table'
-    let currentSort = { key: 'priority', direction: 'asc' }; // For table sorting
-    let db, auth, tasksCollectionRef, unsubscribeFromTasks;
+    let currentClientFilter = "";
+    let currentLayout = 'cards';
+    let currentSort = { key: 'priority', direction: 'asc' };
+    let db, auth, tasksCollectionRef, clientsCollectionRef;
+    let unsubscribeFromTasks, unsubscribeFromClients;
     let subtaskListeners = {};
+    let callSummaryListeners = {};
+    let clientTaskListeners = {}; 
+    let currentUserId;
 
     // --- Helper Functions ---
     const getGreeting = () => {
@@ -229,7 +416,7 @@
     const formatTimestamp = (timestamp) => {
         if (!timestamp) return '---';
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
-        return date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+        return date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     };
 
     // --- Firebase Initialization ---
@@ -250,9 +437,15 @@
         auth = getAuth(app);
         onAuthStateChanged(auth, user => {
             if (user) {
-                const collectionPath = `users/${user.uid}/tasks`;
-                tasksCollectionRef = collection(db, collectionPath);
+                currentUserId = user.uid;
+                const tasksPath = `users/${currentUserId}/tasks`;
+                const clientsPath = `users/${currentUserId}/clients`;
+                tasksCollectionRef = collection(db, tasksPath);
+                clientsCollectionRef = collection(db, clientsPath);
+                
                 listenForTasks();
+                listenForClients();
+                
                 loadingSpinner.classList.add('hidden');
             }
         });
@@ -281,12 +474,36 @@
             tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             manageSubtaskListeners();
             render();
+            // Update client dashboard if open
+            const openClientId = summaryClientId.value;
+            if (openClientId && !clientDetailsModal.classList.contains('hidden')) {
+                // No need for a separate listener if the main listener updates it
+                // const openClientTasks = tasks.filter(t => !t.completed && t.clientId === openClientId);
+                // renderClientTasks(openClientTasks); // render() will handle this
+            }
         }, (error) => console.error("Firestore permission error: ", error));
+    }
+
+    function listenForClients() {
+        if (unsubscribeFromClients) unsubscribeFromClients();
+        const q = query(clientsCollectionRef, orderBy("name", "asc"));
+        unsubscribeFromClients = onSnapshot(q, (snapshot) => {
+            clients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderClientList();
+            populateClientDropdowns();
+        }, (error) => console.error("Firestore permission error (Clients): ", error));
     }
     
     const updateDashboard = () => {
         const openTasks = tasks.filter(t => !t.completed).length;
         document.getElementById('open-tasks-count').textContent = openTasks;
+    };
+    
+    const populateClientDropdowns = () => {
+        const options = clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        clientSelect.innerHTML = `<option value="">בחר לקוח...</option>${options}`;
+        clientFilterSelect.innerHTML = `<option value="">כל הלקוחות</option>${options}`;
+        editClientSelect.innerHTML = `<option value="">ללא שיוך</option>${options}`;
     };
 
     const manageSubtaskListeners = () => {
@@ -322,6 +539,9 @@
         if (currentTagFilter) {
             filteredTasks = filteredTasks.filter(task => task.tags && task.tags.includes(currentTagFilter));
         }
+        if (currentClientFilter) {
+            filteredTasks = filteredTasks.filter(task => task.clientId === currentClientFilter);
+        }
         return sortTasks(filteredTasks);
     };
 
@@ -332,25 +552,20 @@
         return tasksToSort.sort((a, b) => {
             let valA, valB;
             switch (key) {
-                case 'priority':
-                    valA = priorityOrder[a.priority]; valB = priorityOrder[b.priority]; break;
-                case 'dueDate':
-                    valA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
-                    valB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity; break;
-                case 'createdAt':
-                     valA = a.createdAt?.toMillis() || 0; valB = b.createdAt?.toMillis() || 0; break;
-                case 'status':
-                    valA = a.completed; valB = b.completed; break;
-                default: // text, category
-                    valA = a[key] || ''; valB = b[key] || '';
+                case 'priority': valA = priorityOrder[a.priority]; valB = priorityOrder[b.priority]; break;
+                case 'dueDate': valA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity; valB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity; break;
+                case 'createdAt': valA = a.createdAt?.toMillis() || 0; valB = b.createdAt?.toMillis() || 0; break;
+                case 'status': valA = a.completed; valB = b.completed; break;
+                case 'clientName': valA = a.clientName || ''; valB = b.clientName || ''; break;
+                default: valA = a[key] || ''; valB = b[key] || '';
             }
-
             if (valA < valB) return direction === 'asc' ? -1 : 1;
             if (valA > valB) return direction === 'asc' ? 1 : -1;
             return 0;
         });
     };
     
+    // --- Render Functions ---
     const renderTasks = () => {
         currentSort = { key: 'priority', direction: 'asc' };
         const filteredTasks = getFilteredAndSortedTasks();
@@ -370,19 +585,18 @@
         const filteredTasks = getFilteredAndSortedTasks();
         taskTableBody.innerHTML = '';
         if (filteredTasks.length === 0) {
-            taskTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 py-6">אין משימות להצגה.</td></tr>`;
+            taskTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500 py-6">אין משימות להצגה.</td></tr>`;
             return;
         }
         filteredTasks.forEach(task => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${task.text}</td>
+                <td>${task.clientName || '---'}</td>
                 <td>${createStatusBadge(task.completed)}</td>
                 <td>${createPriorityBadge(task.priority)}</td>
-                <td>${task.category === 'personal' ? 'אישי' : 'עסק'}</td>
                 <td>${task.dueDate ? formatTimestamp(new Date(task.dueDate)) : '---'}</td>
                 <td>${formatTimestamp(task.createdAt)}</td>
-                <td>${(task.tags || []).join(', ')}</td>
                 <td class="flex items-center gap-2">
                     <button title="${task.completed ? 'פתח מחדש' : 'השלם משימה'}" class="complete-btn p-2 rounded-full hover:bg-green-200 dark:hover:bg-green-800/50">${task.completed ? '↩️' : '✅'}</button>
                     <button title="ערוך" class="edit-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">✏️</button>
@@ -431,6 +645,67 @@
         }
     };
 
+    const renderClientList = () => {
+        clientTableBody.innerHTML = '';
+        if (clients.length === 0) {
+            clientTableBody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 py-6">לא נוספו לקוחות.</td></tr>`;
+            return;
+        }
+        clients.forEach(client => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td class="font-semibold">${client.name}</td>
+                <td class="flex items-center gap-2">
+                    <button title="צפה בפרטים וסיכומים" class="details-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">📋</button>
+                    <button title="מחק לקוח" class="delete-client-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
+                </td>
+            `;
+            tr.querySelector('.details-btn').onclick = () => openClientDetailsModal(client);
+            tr.querySelector('.delete-client-btn').onclick = () => deleteClient(client.id);
+            clientTableBody.appendChild(tr);
+        });
+    };
+    
+    const renderCallSummaries = (summaries) => {
+        callSummaryList.innerHTML = '';
+        if (summaries.length === 0) {
+            callSummaryList.innerHTML = `<p class="text-gray-500">אין סיכומי שיחה עבור לקוח זה.</p>`;
+            return;
+        }
+        summaries.forEach(summary => {
+            const div = document.createElement('div');
+            div.className = 'p-3 bg-gray-100 dark:bg-gray-700 rounded-lg';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-sm font-bold text-blue-600 dark:text-blue-400">${formatTimestamp(summary.createdAt)}</span>
+                </div>
+                <p class="whitespace-pre-wrap">${summary.text}</p>
+            `;
+            callSummaryList.appendChild(div);
+        });
+    };
+
+    const renderClientTasks = (clientTasks) => {
+        clientOpenTasksCount.textContent = clientTasks.length; // Update count
+        clientTaskList.innerHTML = '';
+        if (clientTasks.length === 0) {
+            clientTaskList.innerHTML = `<p class="text-gray-500">אין משימות פתוחות ללקוח זה.</p>`;
+            return;
+        }
+         // Sort tasks within the modal as well, perhaps by priority then due date
+        clientTasks.sort((a, b) => {
+             const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+             if (priorityOrder[a.priority] !== priorityOrder[b.priority]) return priorityOrder[a.priority] - priorityOrder[b.priority];
+             if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+             if (a.dueDate) return -1; if (b.dueDate) return 1;
+             return 0;
+         });
+        clientTasks.forEach(task => {
+            const taskEl = createClientTaskElement(task);
+            clientTaskList.appendChild(taskEl);
+        });
+    };
+
     // --- Element Creation ---
     const createTaskElement = (task) => {
         const div = document.createElement('div');
@@ -444,6 +719,7 @@
                         <p class="${task.completed ? 'task-completed' : ''}">${task.text}</p>
                         <div class="flex items-center gap-2 mt-2 flex-wrap">
                             ${createBadge(task.category === 'personal' ? 'אישי' : 'עסק', task.category === 'personal' ? 'purple' : 'blue')}
+                            ${task.clientName ? createBadge(task.clientName, 'green') : ''}
                             ${task.dueDate ? createDateBadge(task.dueDate, task.completed) : ''}
                             ${(task.tags || []).map(tag => createBadge(tag, 'gray')).join('')}
                         </div>
@@ -479,6 +755,32 @@
                 addSubtask(task.id, input.value.trim());
                 input.value = '';
             }
+        };
+        return div;
+    };
+
+    const createClientTaskElement = (task) => {
+        const div = document.createElement('div');
+        div.className = 'p-3 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-between gap-2';
+        div.innerHTML = `
+            <div class="flex-grow">
+                <p>${task.text}</p>
+                <div class="flex items-center gap-2 mt-1">
+                    ${createPriorityBadge(task.priority)}
+                    ${task.dueDate ? createDateBadge(task.dueDate, task.completed) : ''}
+                </div>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+                <button title="השלם משימה" class="complete-btn p-2 rounded-full hover:bg-green-200 dark:hover:bg-green-800/50">✅</button>
+                <button title="ערוך" class="edit-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">✏️</button>
+                <button title="מחק" class="delete-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
+            </div>
+        `;
+        div.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+        div.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+        div.querySelector('.edit-btn').onclick = () => {
+            closeClientDetailsModal(); // Close this modal first
+            openEditModal(task); // Then open the edit modal
         };
         return div;
     };
@@ -535,8 +837,21 @@
     };
 
     // --- Firestore Logic Functions ---
-    const addTask = async (text, category, dueDate, tags, priority) => {
-        try { await addDoc(tasksCollectionRef, { text, category, priority, dueDate: dueDate || null, tags: tags || [], completed: false, createdAt: serverTimestamp(), completedAt: null }); } catch (e) { console.error("Error adding task: ", e); }
+    const addTask = async (text, category, dueDate, tags, priority, clientId, clientName) => {
+        try { 
+            await addDoc(tasksCollectionRef, { 
+                text, 
+                category, 
+                priority, 
+                dueDate: dueDate || null, 
+                tags: tags || [], 
+                completed: false, 
+                createdAt: serverTimestamp(), 
+                completedAt: null,
+                clientId: clientId || null,
+                clientName: clientName || null
+            }); 
+        } catch (e) { console.error("Error adding task: ", e); }
     };
     const toggleTaskComplete = async (id, currentStatus) => {
         try { await updateDoc(doc(db, tasksCollectionRef.path, id), { completed: !currentStatus, completedAt: !currentStatus ? serverTimestamp() : null }); } catch (e) { console.error("Error updating task: ", e); }
@@ -556,6 +871,21 @@
         const subtaskRef = doc(db, tasksCollectionRef.path, parentId, 'subtasks', subtaskId);
         try { await deleteDoc(subtaskRef); } catch (e) { console.error("Error deleting subtask: ", e); }
     };
+
+    const addClient = async (name) => {
+        try { await addDoc(clientsCollectionRef, { name, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding client: ", e); }
+    };
+    const deleteClient = async (id) => {
+        // Note: This only deletes the client, not their tasks. 
+        // Consider adding a confirmation or logic to handle associated tasks.
+        if (confirm(`האם אתה בטוח שברצונך למחוק לקוח זה? פעולה זו אינה הפיכה.`)) {
+             try { await deleteDoc(doc(db, clientsCollectionRef.path, id)); } catch (e) { console.error("Error deleting client: ", e); }
+        }
+    };
+    const addCallSummary = async (clientId, text) => {
+        const summariesRef = collection(db, clientsCollectionRef.path, clientId, 'callSummaries');
+        try { await addDoc(summariesRef, { text, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding call summary: ", e); }
+    };
     
     // --- Filter Logic ---
     const setViewFilter = (filter) => {
@@ -566,9 +896,47 @@
             btn.classList.toggle('bg-gray-200', btn.dataset.filter !== filter);
             btn.classList.toggle('dark:bg-gray-700', btn.dataset.filter !== filter);
         });
+        
+        // Show/Hide client filter
+        if (filter === 'business' || filter === 'active') {
+            clientFilterContainer.classList.remove('hidden');
+        } else {
+            clientFilterContainer.classList.add('hidden');
+            currentClientFilter = "";
+            clientFilterSelect.value = "";
+        }
+        
         render();
     };
     const setTagFilter = (tag) => { currentTagFilter = tag; render(); };
+    const setClientFilter = (clientId) => { currentClientFilter = clientId; render(); };
+
+    // Function to switch to tasks view with specific filters
+    const switchToTasksViewWithOptions = (clientId, layout = 'table') => {
+        // Switch main view
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+
+        // Set filters
+        setViewFilter('active'); // Ensure we are showing active tasks
+        setClientFilter(clientId); // Set the client filter
+        clientFilterSelect.value = clientId; // Update the dropdown selection
+
+        // Set layout
+        currentLayout = layout;
+        document.querySelectorAll('.view-btn').forEach(btn => {
+             btn.classList.toggle('bg-white', btn.dataset.view === layout);
+             btn.classList.toggle('dark:bg-gray-800', btn.dataset.view === layout);
+             btn.classList.toggle('text-blue-600', btn.dataset.view === layout);
+             btn.classList.toggle('shadow', btn.dataset.view === layout);
+             btn.classList.toggle('text-gray-600', btn.dataset.view !== layout);
+             btn.classList.toggle('dark:text-gray-300', btn.dataset.view !== layout);
+         });
+
+        render(); // Re-render with new settings
+    };
     
     // --- Modal Logic ---
     const openEditModal = (task) => {
@@ -577,6 +945,12 @@
         document.getElementById('edit-tags-input').value = (task.tags || []).join(', ');
         document.getElementById('edit-due-date-input').value = task.dueDate || '';
         document.getElementById('edit-priority-input').value = task.priority || 'normal';
+        
+        // Populate and set client dropdown
+        editClientSelect.innerHTML = clientSelect.innerHTML; // Clone options from add form
+        editClientSelect.value = task.clientId || "";
+        editClientSelect.parentElement.style.display = (task.category === 'business') ? 'block' : 'none';
+
         editModal.classList.remove('hidden');
     };
     const closeEditModal = () => { editModal.classList.add('hidden'); };
@@ -584,18 +958,84 @@
         e.preventDefault();
         const id = document.getElementById('edit-task-id').value;
         const taskRef = doc(db, tasksCollectionRef.path, id);
+        
+        const selectedClientOption = editClientSelect.options[editClientSelect.selectedIndex];
+        const clientId = selectedClientOption.value;
+        const clientName = clientId ? selectedClientOption.text : null;
+
         try {
             await updateDoc(taskRef, {
                 text: document.getElementById('edit-task-input').value.trim(),
                 tags: document.getElementById('edit-tags-input').value.trim().split(',').filter(Boolean).map(t => t.trim()),
                 dueDate: document.getElementById('edit-due-date-input').value || null,
-                priority: document.getElementById('edit-priority-input').value
+                priority: document.getElementById('edit-priority-input').value,
+                clientId: clientId || null,
+                clientName: clientName || null
             });
         } catch (error) { console.error("Error saving task changes: ", error); }
         closeEditModal();
     };
 
+    const openClientDetailsModal = (client) => {
+        clientModalName.textContent = client.name;
+        summaryClientId.value = client.id;
+        summaryClientName.value = client.name; // Store name for adding tasks
+        callSummaryList.innerHTML = '<p>טוען סיכומים...</p>';
+        clientTaskList.innerHTML = '<p>טוען משימות...</p>'; 
+        clientDetailsModal.classList.remove('hidden');
+        
+        // Listen for summaries
+        const summariesRef = collection(db, clientsCollectionRef.path, client.id, 'callSummaries');
+        const qSummaries = query(summariesRef, orderBy("createdAt", "desc"));
+        
+        if (callSummaryListeners[client.id]) callSummaryListeners[client.id]();
+        callSummaryListeners[client.id] = onSnapshot(qSummaries, summarySnapshot => {
+            const summaries = summarySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderCallSummaries(summaries);
+        });
+
+        // Listen for client-specific tasks 
+        const qTasks = query(tasksCollectionRef, where("clientId", "==", client.id), where("completed", "==", false));
+        if(clientTaskListeners[client.id]) clientTaskListeners[client.id]();
+        clientTaskListeners[client.id] = onSnapshot(qTasks, taskSnapshot => {
+             const clientTasks = taskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+             renderClientTasks(clientTasks);
+        }, (error) => {
+            console.error("Error querying client tasks:", error);
+            clientTaskList.innerHTML = `<p class="text-red-500">שגיאה בטעינת משימות. ייתכן שנדרש אינדקס ב-Firestore.</p>`;
+        });
+    };
+    
+    const closeClientDetailsModal = () => {
+        const clientId = summaryClientId.value;
+        if (callSummaryListeners[clientId]) {
+            callSummaryListeners[clientId]();
+            delete callSummaryListeners[clientId];
+        }
+        if (clientTaskListeners[clientId]) { 
+            clientTaskListeners[clientId]();
+            delete clientTaskListeners[clientId];
+        }
+        clientDetailsModal.classList.add('hidden');
+    };
+
     // --- Event Listeners ---
+    
+    // Main Navigation
+    navTasks.onclick = () => {
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+    };
+    navClients.onclick = () => {
+        tasksView.classList.add('hidden');
+        clientsView.classList.remove('hidden');
+        navTasks.classList.remove('active');
+        navClients.classList.add('active');
+    };
+
+    // Task Form
     addTaskForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const text = taskInput.value.trim(); if (!text) return;
@@ -603,16 +1043,58 @@
         const dueDate = dueDateInput.value;
         const tags = tagsInput.value.trim().split(',').filter(Boolean).map(t => t.trim());
         const priority = priorityInput.value;
-        addTask(text, category, dueDate, tags, priority);
-        addTaskForm.reset(); priorityInput.value = 'normal';
-        dueDateContainer.classList.add('hidden'); addDateBtn.classList.remove('hidden');
+        
+        const selectedClientOption = clientSelect.options[clientSelect.selectedIndex];
+        const clientId = selectedClientOption.value;
+        const clientName = clientId ? selectedClientOption.text : null;
+
+        addTask(text, category, dueDate, tags, priority, clientId, clientName);
+        
+        addTaskForm.reset(); 
+        priorityInput.value = 'normal';
+        clientSelectContainer.classList.add('hidden'); // Reset to hidden initially
+        dueDateContainer.classList.add('hidden'); 
+        addDateBtn.classList.remove('hidden');
+        document.getElementById('category-business').checked = true; // Default to business
+        // Manually trigger the category change logic to show client select if needed
+        if (document.getElementById('category-business').checked) {
+             clientSelectContainer.classList.remove('hidden');
+             clientFilterContainer.classList.remove('hidden');
+        }
     });
+    
+    // Show/Hide client dropdown based on category
+    document.querySelectorAll('input[name="category"]').forEach(radio => {
+        radio.onchange = (e) => {
+            if (e.target.value === 'business') {
+                clientSelectContainer.classList.remove('hidden');
+                clientFilterContainer.classList.remove('hidden');
+            } else {
+                clientSelectContainer.classList.add('hidden');
+                clientFilterContainer.classList.add('hidden');
+                clientFilterSelect.value = "";
+                currentClientFilter = "";
+                render();
+            }
+        };
+    });
+    // Initial check on load
+    if (document.getElementById('category-business').checked) {
+        clientSelectContainer.classList.remove('hidden');
+        clientFilterContainer.classList.remove('hidden');
+    }
+
+    // Task Filters
     filterButtonsContainer.addEventListener('click', (e) => { if (e.target.matches('.filter-btn')) setViewFilter(e.target.dataset.filter); });
+    clientFilterSelect.onchange = (e) => setClientFilter(e.target.value);
     addDateBtn.onclick = () => { dueDateContainer.classList.remove('hidden'); addDateBtn.classList.add('hidden'); };
     removeDateBtn.onclick = () => { dueDateInput.value = ''; dueDateContainer.classList.add('hidden'); addDateBtn.classList.remove('hidden'); };
+    
+    // Task Edit Modal
     editTaskForm.addEventListener('submit', saveTaskChanges);
     cancelEditBtn.addEventListener('click', closeEditModal);
 
+    // View Switcher
     viewSwitcher.addEventListener('click', (e) => {
         if (e.target.matches('.view-btn')) {
             const view = e.target.dataset.view;
@@ -629,6 +1111,7 @@
         }
     });
 
+    // Table Sorting
     document.querySelector('#task-table thead').addEventListener('click', (e) => {
         if (e.target.matches('.sortable-header')) {
             const sortKey = e.target.dataset.sort;
@@ -638,7 +1121,7 @@
                 currentSort.key = sortKey;
                 currentSort.direction = 'asc';
             }
-            document.querySelectorAll('.sortable-header').forEach(th => {
+            document.querySelectorAll('#task-table thead .sortable-header').forEach(th => { // Target only headers in task table
                 th.classList.remove('asc', 'desc');
                 if (th.dataset.sort === currentSort.key) {
                     th.classList.add(currentSort.direction);
@@ -648,9 +1131,66 @@
         }
     });
 
+    // Client Form
+    addClientForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = clientNameInput.value.trim();
+        if (name) {
+            addClient(name);
+            addClientForm.reset(); // Clear the form after adding
+        }
+    });
+    
+    // Client Details Modal
+    addSummaryForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const clientId = summaryClientId.value;
+        const text = summaryTextInput.value.trim();
+        if (clientId && text) {
+            addCallSummary(clientId, text);
+            summaryTextInput.value = '';
+        }
+    });
+    cancelSummaryBtn.onclick = closeClientDetailsModal;
+
+    // New: Add Task button inside Client Modal
+    addTaskForClientBtn.onclick = () => {
+        const clientId = summaryClientId.value;
+        const clientName = summaryClientName.value; // Get name from hidden input
+        if (!clientId || !clientName) return; 
+
+        closeClientDetailsModal();
+
+        // Switch to tasks view
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+        
+        // Pre-fill the form
+        document.getElementById('category-business').checked = true; // Select business
+        clientSelectContainer.classList.remove('hidden'); // Show client dropdown
+        clientFilterContainer.classList.remove('hidden'); // Ensure filter is visible
+        clientSelect.value = clientId; // Pre-select the client
+        taskInput.focus(); // Focus on task description
+        
+        // Optional: Scroll to the add task form if needed
+        addTaskForm.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // New: Clickable header to view client tasks in table
+    clientTasksHeader.onclick = () => {
+        const clientId = summaryClientId.value;
+        if (!clientId) return;
+        
+        closeClientDetailsModal();
+        switchToTasksViewWithOptions(clientId, 'table'); // Switch view and filter
+    };
+    clientTasksHeader.classList.add('clickable-header'); // Add styling
+
+
     // --- Initial Load ---
     document.addEventListener('DOMContentLoaded', initializeFirebase);
 </script>
 </body>
 </html>
-
