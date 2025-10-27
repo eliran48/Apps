@@ -22,19 +22,13 @@
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
         }
-        /* Priorities */
         .priority-high { border-right: 4px solid #ef4444; }
         .priority-normal { border-right: 4px solid #3b82f6; }
         .priority-low { border-right: 4px solid #22c55e; }
-        /* Reminders */
-        .due-today { box-shadow: 0 0 0 3px #f59e0b; }
-        .overdue { box-shadow: 0 0 0 3px #ef4444; }
-
         .progress-bar-bg { background-color: #e5e7eb; }
         .progress-bar-fg { background-color: #3b82f6; }
         .stat-card {
             transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-            cursor: pointer; /* Make dashboard clickable */
         }
         .stat-card:hover {
             transform: translateY(-5px);
@@ -50,31 +44,21 @@
             left: 5px;
             opacity: 0.5;
         }
-        .sortable-header.asc::after { content: '↑'; opacity: 1; }
-        .sortable-header.desc::after { content: '↓'; opacity: 1; }
-
+        .sortable-header.asc::after {
+            content: '↑';
+            opacity: 1;
+        }
+        .sortable-header.desc::after {
+            content: '↓';
+            opacity: 1;
+        }
         #task-table th, #task-table td,
         #client-table th, #client-table td {
             padding: 12px 15px;
             text-align: right;
             border-bottom: 1px solid #e5e7eb; /* dark:border-gray-700 */
         }
-        /* Alternating client group colors in task table */
-        #task-table tbody tr.client-group-alt {
-             background-color: #f3f4f6; /* Lighter gray for light mode */
-        }
-       .dark #task-table tbody tr.client-group-alt {
-            background-color: rgba(55, 65, 81, 0.5); /* Slightly darker gray for dark mode */
-        }
-         /* Standard even/odd overrides for non-grouped rows */
-         #task-table tbody tr:not(.client-group-alt):nth-child(even) {
-            background-color: #f9fafb;
-         }
-         .dark #task-table tbody tr:not(.client-group-alt):nth-child(even) {
-            background-color: rgba(31, 41, 55, 0.5);
-         }
-
-
+        #task-table tbody tr:nth-child(even),
         #client-table tbody tr:nth-child(even) {
             background-color: #f9fafb; /* dark:bg-gray-800/50 */
         }
@@ -82,7 +66,7 @@
         .dark #client-table th, .dark #client-table td {
              border-bottom: 1px solid #374151;
         }
-
+        .dark #task-table tbody tr:nth-child(even),
         .dark #client-table tbody tr:nth-child(even) {
             background-color: rgba(31, 41, 55, 0.5);
         }
@@ -98,16 +82,27 @@
             border-bottom-color: #3b82f6;
             color: #3b82f6; /* dark:text-blue-400 */
         }
-        .dark .nav-tab { color: #9ca3af; }
-        .dark .nav-tab.active { color: #60a5fa; border-bottom-color: #60a5fa; }
+        .dark .nav-tab {
+            color: #9ca3af;
+        }
+        .dark .nav-tab.active {
+            color: #60a5fa;
+            border-bottom-color: #60a5fa;
+        }
         .clickable-header {
             cursor: pointer;
             color: #3b82f6; /* dark:text-blue-400 */
             text-decoration: underline;
         }
-        .clickable-header:hover { color: #2563eb; /* dark:text-blue-500 */ }
-        .dark .clickable-header { color: #60a5fa; }
-        .dark .clickable-header:hover { color: #3b82f6; }
+        .clickable-header:hover {
+            color: #2563eb; /* dark:text-blue-500 */
+        }
+        .dark .clickable-header {
+            color: #60a5fa;
+        }
+        .dark .clickable-header:hover {
+            color: #3b82f6;
+        }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
@@ -126,19 +121,20 @@
         
         <header class="text-center mb-4">
             <h1 id="greeting-header" class="text-4xl font-bold text-blue-600 dark:text-blue-400"></h1>
-            <p class="text-gray-600 dark:text-gray-400 mt-2">הדאשבורד שלך לפרודוקטיביות</p>
+            <p class="text-gray-600 dark:text-gray-400 mt-2">הדאשבורד שלך לפרודוקטיביות</l>
         </header>
 
         <!-- ניווט ראשי -->
         <nav class="flex justify-center border-b border-gray-300 dark:border-gray-700 mb-8">
             <button id="nav-tasks" class="nav-tab active" data-view="tasks-view">ניהול משימות</button>
             <button id="nav-clients" class="nav-tab" data-view="clients-view">ניהול לקוחות</button>
+            <button id="nav-projects" class="nav-tab" data-view="projects-view">ניהול פרויקטים</button>
         </nav>
 
         <!-- תצוגת משימות -->
         <div id="tasks-view">
-            <!-- דאשבורד סטטיסטיקות - הפך ללחיץ -->
-            <div id="dashboard" class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg text-center stat-card" title="לחץ לצפייה בטבלת המשימות הפעילות">
+            <!-- דאשבורד סטטיסטיקות -->
+            <div id="dashboard" class="mb-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg text-center stat-card cursor-pointer" title="לחץ לצפייה בטבלת המשימות הפעילות">
                 <h2 class="text-2xl font-bold mb-2 text-blue-800 dark:text-blue-200">משימות פתוחות</h2>
                 <p id="open-tasks-count" class="text-6xl font-bold text-blue-600 dark:text-blue-400">0</p>
             </div>
@@ -146,17 +142,28 @@
             <!-- טופס הוספת משימה -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
                 <form id="add-task-form">
-                     <h2 class="text-2xl font-semibold mb-4">הוספת משימה חדשה</h2>
-                     <input type="text" id="task-input" placeholder="לדוגמה: להכין מצגת למחר" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <input type="text" id="tags-input" placeholder="הוסף תגיות (מופרדות בפסיק)" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    <h2 class="text-2xl font-semibold mb-4">הוספת משימה חדשה</h2>
+                    <input type="text" id="task-input" placeholder="לדוגמה: להכין מצגת למחר" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <input type="text" id="tags-input" placeholder="הוסף תגיות (מופרדות בפסיק)" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        
                         <div id="client-select-container" class="hidden">
-                             <select id="client-select" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                             <select id="client-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
                                 <option value="">בחר לקוח...</option>
+                                <!-- רשימת לקוחות תטען כאן -->
                             </select>
                         </div>
-                     </div>
-                     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+
+                        <div id="project-select-container" class="hidden">
+                             <select id="project-select" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                                <option value="">בחר פרויקט (אופציונלי)...</option>
+                                <!-- רשימת פרויקטים תטען כאן -->
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
                         <div class="flex items-center gap-4">
                             <select id="priority-input" class="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
                                 <option value="low">עדיפות נמוכה</option>
@@ -170,16 +177,17 @@
                         </div>
                         <button type="button" id="add-date-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">+ הוסף תאריך יעד</button>
                     </div>
-                     <div id="due-date-container" class="hidden mt-4 flex items-center gap-2">
-                         <input type="date" id="due-date-input" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
-                         <button type="button" id="remove-date-btn" class="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded-full" title="הסר תאריך">✖</button>
-                     </div>
-                     <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף משימה</button>
-                 </form>
+                    <div id="due-date-container" class="hidden mt-4 flex items-center gap-2">
+                        <input type="date" id="due-date-input" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                        <button type="button" id="remove-date-btn" class="p-2 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded-full" title="הסר תאריך">✖</button>
+                    </div>
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף משימה</button>
+                </form>
             </div>
-             <!-- אזור סינון ותצוגה -->
-             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
-                 <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+
+            <!-- אזור סינון ותצוגה -->
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
                     <div id="view-switcher" class="flex p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
                         <button data-view="cards" class="view-btn bg-white dark:bg-gray-800 text-blue-600 py-2 px-5 rounded-full font-semibold shadow">כרטיסים</button>
                         <button data-view="table" class="view-btn py-2 px-5 rounded-full font-semibold text-gray-600 dark:text-gray-300">טבלה</button>
@@ -191,65 +199,93 @@
                         <button data-filter="completed" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold">הושלמו ✅</button>
                     </div>
                 </div>
-                <!-- Filters -->
-                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                <!-- סינון תגיות ולקוחות -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
                     <div id="tag-filter-container" class="flex justify-center gap-2 flex-wrap"></div>
                     <div id="client-filter-container" class="hidden">
                          <select id="client-filter-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
                             <option value="">סנן לפי לקוח...</option>
+                            <!-- רשימת לקוחות תטען כאן -->
+                        </select>
+                    </div>
+                    <div id="project-filter-container" class="hidden">
+                         <select id="project-filter-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                            <option value="">סנן לפי פרויקט...</option>
+                            <!-- רשימת פרויקטים תטען כאן -->
                         </select>
                     </div>
                 </div>
-             </div>
-             <!-- אזור תוכן (כרטיסים וטבלה) -->
-             <div id="task-list-container" class="space-y-4"></div>
-             <div id="task-table-container" class="hidden bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg overflow-x-auto">
-                 <table id="task-table" class="w-full">
-                     <thead>
-                         <tr>
-                             <th class="sortable-header" data-sort="text">משימה</th>
-                             <th class="sortable-header" data-sort="clientName">לקוח</th>
-                             <th class="sortable-header" data-sort="status">סטטוס</th>
-                             <th class="sortable-header" data-sort="priority">עדיפות</th>
-                             <th class="sortable-header" data-sort="dueDate">תאריך יעד</th>
-                             <th class="sortable-header" data-sort="createdAt">תאריך יצירה</th>
-                             <th>פעולות</th>
-                         </tr>
-                     </thead>
-                     <tbody id="task-table-body"></tbody>
-                 </table>
-             </div>
+            </div>
+
+            <!-- אזור תוכן -->
+            <div id="task-list-container" class="space-y-4"></div>
+            <div id="task-table-container" class="hidden bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg overflow-x-auto">
+                <table id="task-table" class="w-full">
+                    <thead>
+                        <tr>
+                            <th class="sortable-header" data-sort="text">משימה</th>
+                            <th class="sortable-header" data-sort="clientName">לקוח</th>
+                            <th class="sortable-header" data-sort="projectName">פרויקט</th>
+                            <th class="sortable-header" data-sort="status">סטטוס</th>
+                            <th class="sortable-header" data-sort="priority">עדיפות</th>
+                            <th class="sortable-header" data-sort="dueDate">תאריך יעד</th>
+                            <th class="sortable-header" data-sort="createdAt">תאריך יצירה</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-table-body"></tbody>
+                </table>
+            </div>
         </div>
 
         <!-- תצוגת לקוחות -->
         <div id="clients-view" class="hidden">
             <!-- טופס הוספת לקוח -->
-             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
-                 <form id="add-client-form">
-                     <h2 class="text-2xl font-semibold mb-4">הוספת לקוח חדש</h2>
-                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                         <input type="text" id="client-name-input" placeholder="שם הלקוח" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700" required>
-                         <input type="text" id="client-classification-input" placeholder="סיווג (אופציונלי)" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
-                     </div>
-                     <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700">הוסף לקוח</button>
-                 </form>
-             </div>
-             <!-- חיפוש לקוחות -->
-             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
-                 <input type="search" id="client-search-input" placeholder="🔍 חפש לקוח לפי שם או סיווג..." class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
-             </div>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                <form id="add-client-form">
+                    <h2 class="text-2xl font-semibold mb-4">הוספת לקוח חדש</h2>
+                    <div class="grid grid-cols-1 gap-4 mb-4">
+                        <input type="text" id="client-name-input" placeholder="שם הלקוח" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                    </div>
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף לקוח</button>
+                </form>
+            </div>
+            
             <!-- רשימת לקוחות -->
             <div id="client-list-container" class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg overflow-x-auto">
                  <table id="client-table" class="w-full">
                     <thead>
                         <tr>
                             <th>שם לקוח</th>
-                            <th>סיווג</th>
                             <th>פעולות</th>
                         </tr>
                     </thead>
                     <tbody id="client-table-body"></tbody>
                 </table>
+            </div>
+        </div>
+
+        <!-- תצוגת פרויקטים -->
+        <div id="projects-view" class="hidden">
+            <!-- טופס הוספת פרויקט -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                <form id="add-project-form">
+                    <h2 class="text-2xl font-semibold mb-4">הוספת פרויקט חדש</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <input type="text" id="project-name-input" placeholder="שם הפרויקט" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700" required>
+                        <input type="date" id="project-due-date-input" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    </div>
+                    <textarea id="project-desc-input" rows="3" placeholder="תיאור קצר של הפרויקט (אופציונלי)" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף פרויקט</button>
+                </form>
+            </div>
+             <!-- חיפוש פרויקטים -->
+             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+                 <input type="search" id="project-search-input" placeholder="🔍 חפש פרויקט לפי שם או תיאור..." class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+             </div>
+            <!-- רשימת פרויקטים (כרטיסים) -->
+            <div id="project-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- כרטיסי פרויקטים יטענו כאן -->
             </div>
         </div>
 
@@ -266,6 +302,11 @@
                 
                 <label for="edit-client-select" class="block text-sm font-medium mb-1">שיוך לקוח (לעסק)</label>
                 <select id="edit-client-select" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                    <option value="">ללא שיוך</option>
+                </select>
+
+                <label for="edit-project-select" class="block text-sm font-medium mb-1">שיוך פרויקט (לעסק)</label>
+                <select id="edit-project-select" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
                     <option value="">ללא שיוך</option>
                 </select>
 
@@ -288,36 +329,66 @@
             </form>
         </div>
     </div>
-    <!-- חלון פרטי לקוח (Modal) -->
+    
+    <!-- חלון פרטי לקוח (Modal) - שודרג לדאשבורד -->
     <div id="client-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-30">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
             <h2 id="client-modal-name" class="text-3xl font-bold mb-4">שם לקוח</h2>
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow overflow-y-auto border-t border-b border-gray-200 dark:border-gray-700 py-4 mb-4">
                 
+                <!-- אזור משימות פתוחות -->
                 <div>
-                     <h3 id="client-tasks-header" class="text-xl font-semibold mb-3 clickable-header" title="לחץ לצפייה בטבלת המשימות של לקוח זה">משימות פתוחות (<span id="client-open-tasks-count">0</span>)</h3>
-                    <div id="client-task-list" class="space-y-3 max-h-64 overflow-y-auto pr-2"></div>
+                     <h3 id="client-tasks-header" class="text-xl font-semibold mb-3">משימות פתוחות (<span id="client-open-tasks-count">0</span>)</h3>
+                    <div id="client-task-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                        <!-- משימות הלקוח יטענו כאן -->
+                    </div>
                     <button id="add-task-for-client-btn" class="mt-4 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-4 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800">+ הוסף משימה ללקוח זה</button>
                 </div>
 
+                <!-- אזור היסטוריית שיחות -->
                 <div>
                     <h3 class="text-xl font-semibold mb-3">היסטוריית שיחות</h3>
-                    <div id="call-summary-list" class="space-y-3 max-h-64 overflow-y-auto pr-2"></div>
+                    <div id="call-summary-list" class="space-y-3 max-h-64 overflow-y-auto pr-2">
+                        <!-- סיכומים יטענו כאן -->
+                    </div>
                 </div>
 
             </div>
             
+            <!-- טופס הוספת סיכום שיחה -->
             <form id="add-summary-form">
                 <h3 class="text-xl font-semibold mb-3">הוספת סיכום שיחה חדש</h3>
                 <input type="hidden" id="summary-client-id">
-                 <input type="hidden" id="summary-client-name"> 
+                 <input type="hidden" id="summary-client-name"> <!-- Add hidden input for client name -->
                 <textarea id="summary-text-input" rows="3" placeholder="כתוב כאן את סיכום השיחה..." class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
                 <div class="flex justify-end gap-4">
                     <button type="button" id="cancel-summary-btn" class="bg-gray-300 dark:bg-gray-600 py-2 px-4 rounded-md">סגור</button>
                     <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md">הוסף סיכום</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- חלון פרטי פרויקט (Modal) -->
+    <div id="project-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-30">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h2 id="project-modal-name" class="text-3xl font-bold">שם פרויקט</h2>
+                    <p id="project-modal-desc" class="text-gray-600 dark:text-gray-400 mt-1"></p>
+                    <p id="project-modal-due-date" class="text-sm font-semibold text-blue-600 dark:text-blue-400 mt-2"></p>
+                </div>
+                <button type="button" id="cancel-project-modal-btn" class="text-2xl text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">&times;</button>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto border-t border-b border-gray-200 dark:border-gray-700 py-4 mb-4">
+                 <h3 id="project-tasks-header" class="text-xl font-semibold mb-3 clickable-header" title="לחץ לצפייה בטבלת המשימות של פרויקט זה">משימות פתוחות (<span id="project-open-tasks-count">0</span>)</h3>
+                <div id="project-task-list" class="space-y-3 max-h-80 overflow-y-auto pr-2">
+                    <!-- משימות הפרויקט יטענו כאן -->
+                </div>
+                <button id="add-task-for-project-btn" class="mt-4 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-4 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800">+ הוסף משימה לפרויקט זה</button>
+            </div>
         </div>
     </div>
 
@@ -331,15 +402,15 @@
     // --- DOM Elements ---
     const loadingSpinner = document.getElementById('loading-spinner');
     const greetingHeader = document.getElementById('greeting-header');
+    const dashboard = document.getElementById('dashboard');
     
-    // Views & Nav 
+    // Views
     const tasksView = document.getElementById('tasks-view');
     const clientsView = document.getElementById('clients-view');
-    const navTasks = document.getElementById('nav-tasks'); 
-    const navClients = document.getElementById('nav-clients'); 
-
-    // Dashboard
-    const dashboard = document.getElementById('dashboard'); 
+    const projectsView = document.getElementById('projects-view');
+    const navTasks = document.getElementById('nav-tasks');
+    const navClients = document.getElementById('nav-clients');
+    const navProjects = document.getElementById('nav-projects');
 
     // Task Form
     const addTaskForm = document.getElementById('add-task-form');
@@ -352,6 +423,8 @@
     const dueDateContainer = document.getElementById('due-date-container');
     const clientSelectContainer = document.getElementById('client-select-container');
     const clientSelect = document.getElementById('client-select');
+    const projectSelectContainer = document.getElementById('project-select-container');
+    const projectSelect = document.getElementById('project-select');
 
     // Task Display & Filtering
     const filterButtonsContainer = document.getElementById('filter-buttons');
@@ -362,58 +435,90 @@
     const tagFilterContainer = document.getElementById('tag-filter-container');
     const clientFilterContainer = document.getElementById('client-filter-container');
     const clientFilterSelect = document.getElementById('client-filter-select');
+    const projectFilterContainer = document.getElementById('project-filter-container');
+    const projectFilterSelect = document.getElementById('project-filter-select');
 
     // Task Edit Modal
     const editModal = document.getElementById('edit-modal');
     const editTaskForm = document.getElementById('edit-task-form');
     const cancelEditBtn = document.getElementById('cancel-edit-btn');
     const editClientSelect = document.getElementById('edit-client-select');
+    const editProjectSelect = document.getElementById('edit-project-select');
 
     // Client View
     const addClientForm = document.getElementById('add-client-form');
     const clientNameInput = document.getElementById('client-name-input');
-    const clientClassificationInput = document.getElementById('client-classification-input'); 
-    const clientSearchInput = document.getElementById('client-search-input'); 
     const clientTableBody = document.getElementById('client-table-body');
 
     // Client Details Modal
     const clientDetailsModal = document.getElementById('client-details-modal');
     const clientModalName = document.getElementById('client-modal-name');
     const clientTaskList = document.getElementById('client-task-list'); 
-    const clientTasksHeader = document.getElementById('client-tasks-header'); 
-    const clientOpenTasksCount = document.getElementById('client-open-tasks-count'); 
-    const addTaskForClientBtn = document.getElementById('add-task-for-client-btn'); 
+    const clientTasksHeader = document.getElementById('client-tasks-header'); // For clickable header
+    const clientOpenTasksCount = document.getElementById('client-open-tasks-count'); // Span for count
+    const addTaskForClientBtn = document.getElementById('add-task-for-client-btn'); // New button
     const callSummaryList = document.getElementById('call-summary-list');
     const addSummaryForm = document.getElementById('add-summary-form');
     const summaryClientId = document.getElementById('summary-client-id');
-    const summaryClientName = document.getElementById('summary-client-name'); 
+    const summaryClientName = document.getElementById('summary-client-name'); // Hidden input for name
     const summaryTextInput = document.getElementById('summary-text-input');
     const cancelSummaryBtn = document.getElementById('cancel-summary-btn');
     
+    // Project View
+    const addProjectForm = document.getElementById('add-project-form');
+    const projectNameInput = document.getElementById('project-name-input');
+    const projectDescInput = document.getElementById('project-desc-input');
+    const projectDueDateInput = document.getElementById('project-due-date-input');
+    const projectSearchInput = document.getElementById('project-search-input');
+    const projectListContainer = document.getElementById('project-list-container');
+
+    // Project Details Modal
+    const projectDetailsModal = document.getElementById('project-details-modal');
+    const projectModalName = document.getElementById('project-modal-name');
+    const projectModalDesc = document.getElementById('project-modal-desc');
+    const projectModalDueDate = document.getElementById('project-modal-due-date');
+    const projectTaskList = document.getElementById('project-task-list');
+    const projectTasksHeader = document.getElementById('project-tasks-header');
+    const projectOpenTasksCount = document.getElementById('project-open-tasks-count');
+    const addTaskForProjectBtn = document.getElementById('add-task-for-project-btn');
+    const cancelProjectModalBtn = document.getElementById('cancel-project-modal-btn');
+
     // --- App State ---
     let tasks = [];
     let clients = [];
+    let projects = [];
     let currentViewFilter = 'active';
     let currentTagFilter = null;
     let currentClientFilter = "";
+    let currentProjectFilter = "";
     let currentLayout = 'cards';
     let currentSort = { key: 'priority', direction: 'asc' };
-    let db, auth, tasksCollectionRef, clientsCollectionRef;
-    let unsubscribeFromTasks, unsubscribeFromClients;
+    let db, auth, tasksCollectionRef, clientsCollectionRef, projectsCollectionRef;
+    let unsubscribeFromTasks, unsubscribeFromClients, unsubscribeFromProjects;
     let subtaskListeners = {};
     let callSummaryListeners = {};
     let clientTaskListeners = {}; 
+    let projectTaskListeners = {};
     let currentUserId;
 
     // --- Helper Functions ---
-     const getGreeting = () => { /* ... */ };
-     const formatTimestamp = (timestamp) => { /* ... */ };
-     const isToday = (dateStr) => { /* ... */ };
-     const isOverdue = (dateStr, completed) => { /* ... */ };
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        const name = "אלירן";
+        if (hour >= 5 && hour < 12) return `בוקר טוב, ${name}`;
+        if (hour >= 12 && hour < 18) return `צהריים טובים, ${name}`;
+        if (hour >= 18 && hour < 22) return `ערב טוב, ${name}`;
+        return `לילה טוב, ${name}`;
+    };
+    const formatTimestamp = (timestamp) => {
+        if (!timestamp) return '---';
+        const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+        return date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+    };
 
     // --- Firebase Initialization ---
     async function initializeFirebase() {
-        greetingHeader.textContent = getGreeting(); 
+        greetingHeader.textContent = getGreeting();
         const firebaseConfig = {
           apiKey: "AIzaSyDFYvzKavhrf4bnoFI0GckLk-dO40_ftJ4",
           authDomain: "eliran-apps.firebaseapp.com",
@@ -432,214 +537,1088 @@
                 currentUserId = user.uid;
                 const tasksPath = `users/${currentUserId}/tasks`;
                 const clientsPath = `users/${currentUserId}/clients`;
+                const projectsPath = `users/${currentUserId}/projects`;
                 tasksCollectionRef = collection(db, tasksPath);
                 clientsCollectionRef = collection(db, clientsPath);
+                projectsCollectionRef = collection(db, projectsPath);
                 
                 listenForTasks();
                 listenForClients();
+                listenForProjects();
                 
                 loadingSpinner.classList.add('hidden');
-
-                // Moved initial check here
-                const categoryBusinessRadio = document.getElementById('category-business');
-                if (categoryBusinessRadio && categoryBusinessRadio.checked) {
-                     clientSelectContainer?.classList.remove('hidden');
-                     clientFilterContainer?.classList.remove('hidden');
-                }
-
-            } else {
-                 console.log("User not signed in yet.");
             }
         });
-        try {
-            await signInAnonymously(auth);
-            console.log("Signed in anonymously.");
-        } catch(error) {
-             console.error("Anonymous authentication failed:", error);
-             loadingSpinner.innerHTML = `<p class="text-red-500 font-semibold">שגיאת אימות. בדוק חיבור לרשת.</p>`;
-        }
+        await signInAnonymously(auth).catch(error => console.error("Authentication failed:", error));
     }
 
     // --- Core Functions ---
-    const render = () => { /* ... */ };
-    function listenForTasks() { /* ... */ }
-    function listenForClients() { /* ... */ }
-    const updateDashboard = () => { /* ... */ };
-    const populateClientDropdowns = () => { /* ... */ };
-    const manageSubtaskListeners = () => { /* ... */ };
-    const getFilteredAndSortedTasks = () => { /* ... */ };
-    const sortTasks = (tasksToSort) => { /* ... */ };
+    const render = () => {
+        if (currentLayout === 'cards') {
+            taskListContainer.classList.remove('hidden');
+            taskTableContainer.classList.add('hidden');
+            renderTasks();
+        } else {
+            taskListContainer.classList.add('hidden');
+            taskTableContainer.classList.remove('hidden');
+            renderTable();
+        }
+        renderTagFilters();
+        updateDashboard();
+    };
+
+    function listenForTasks() {
+        if (unsubscribeFromTasks) unsubscribeFromTasks();
+        const q = query(tasksCollectionRef, orderBy("createdAt", "desc"));
+        unsubscribeFromTasks = onSnapshot(q, (snapshot) => {
+            tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            manageSubtaskListeners();
+            render();
+
+            // --- שינוי ---
+            // רענון רשימת הלקוחות כדי לעדכן נעצים, אם התצוגה פעילה
+            if (!clientsView.classList.contains('hidden')) {
+                renderClientList();
+            }
+            // --- סוף שינוי ---
+
+            // Update client dashboard if open
+            const openClientId = summaryClientId.value;
+            if (openClientId && !clientDetailsModal.classList.contains('hidden')) {
+                // No need for a separate listener if the main listener updates it
+                // const openClientTasks = tasks.filter(t => !t.completed && t.clientId === openClientId);
+                // renderClientTasks(openClientTasks); // render() will handle this
+            }
+        }, (error) => console.error("Firestore permission error: ", error));
+    }
+
+    function listenForClients() {
+        if (unsubscribeFromClients) unsubscribeFromClients();
+        const q = query(clientsCollectionRef, orderBy("name", "asc"));
+        unsubscribeFromClients = onSnapshot(q, (snapshot) => {
+            clients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderClientList();
+            populateDropdowns();
+        }, (error) => console.error("Firestore permission error (Clients): ", error));
+    }
+
+    function listenForProjects() {
+        if (unsubscribeFromProjects) unsubscribeFromProjects();
+        const q = query(projectsCollectionRef, orderBy("name", "asc"));
+        unsubscribeFromProjects = onSnapshot(q, (snapshot) => {
+            projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderProjectList();
+            populateDropdowns();
+        }, (error) => console.error("Firestore permission error (Projects): ", error));
+    }
+    
+    const updateDashboard = () => {
+        const openTasks = tasks.filter(t => !t.completed).length;
+        document.getElementById('open-tasks-count').textContent = openTasks;
+    };
+    
+    const populateDropdowns = () => {
+        const clientOptions = clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        clientSelect.innerHTML = `<option value="">בחר לקוח...</option>${clientOptions}`;
+        clientFilterSelect.innerHTML = `<option value="">כל הלקוחות</option>${clientOptions}`;
+        editClientSelect.innerHTML = `<option value="">ללא שיוך</option>${clientOptions}`;
+
+        const projectOptions = projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        projectSelect.innerHTML = `<option value="">בחר פרויקט (אופציונלי)...</option>${projectOptions}`;
+        projectFilterSelect.innerHTML = `<option value="">כל הפרויקטים</option>${projectOptions}`;
+        editProjectSelect.innerHTML = `<option value="">ללא שיוך</option>${projectOptions}`;
+    };
+
+    const manageSubtaskListeners = () => {
+        const currentTaskIds = new Set(tasks.map(t => t.id));
+        for (const taskId in subtaskListeners) {
+            if (!currentTaskIds.has(taskId)) {
+                subtaskListeners[taskId]();
+                delete subtaskListeners[taskId];
+            }
+        }
+        tasks.forEach(task => {
+            if (!subtaskListeners[task.id]) {
+                const subtasksRef = collection(db, tasksCollectionRef.path, task.id, 'subtasks');
+                const q = query(subtasksRef, orderBy("createdAt", "asc"));
+                subtaskListeners[task.id] = onSnapshot(q, subtaskSnapshot => {
+                    const subtasks = subtaskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderSubtasks(task.id, subtasks);
+                }, console.error);
+            }
+        });
+    };
+
+    const getFilteredAndSortedTasks = () => {
+        let filteredTasks;
+        if (currentViewFilter === 'completed') {
+            filteredTasks = tasks.filter(task => task.completed);
+        } else {
+            filteredTasks = tasks.filter(task => !task.completed);
+            if (currentViewFilter !== 'active') {
+                filteredTasks = filteredTasks.filter(task => task.category === currentViewFilter);
+            }
+        }
+        if (currentTagFilter) {
+            filteredTasks = filteredTasks.filter(task => task.tags && task.tags.includes(currentTagFilter));
+        }
+        if (currentClientFilter) {
+            filteredTasks = filteredTasks.filter(task => task.clientId === currentClientFilter);
+        }
+        if (currentProjectFilter) {
+            filteredTasks = filteredTasks.filter(task => task.projectId === currentProjectFilter);
+        }
+        return sortTasks(filteredTasks);
+    };
+
+    const sortTasks = (tasksToSort) => {
+        const { key, direction } = currentSort;
+        const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+
+        return tasksToSort.sort((a, b) => {
+            let valA, valB;
+            switch (key) {
+                case 'priority': valA = priorityOrder[a.priority]; valB = priorityOrder[b.priority]; break;
+                case 'dueDate': valA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity; valB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity; break;
+                case 'createdAt': valA = a.createdAt?.toMillis() || 0; valB = b.createdAt?.toMillis() || 0; break;
+                case 'status': valA = a.completed; valB = b.completed; break;
+                case 'clientName': valA = a.clientName || ''; valB = b.clientName || ''; break;
+                case 'projectName': valA = a.projectName || ''; valB = b.projectName || ''; break;
+                default: valA = a[key] || ''; valB = b[key] || '';
+            }
+            if (valA < valB) return direction === 'asc' ? -1 : 1;
+            if (valA > valB) return direction === 'asc' ? 1 : -1;
+            return 0;
+        });
+    };
     
     // --- Render Functions ---
-     const renderTasks = () => { /* ... */ };
-     const renderTable = () => { /* ... */ };
-     const renderTagFilters = () => { /* ... */ };
-     const renderSubtasks = (taskId, subtasks) => { /* ... */ };
-     const renderClientList = (clientsToRender = clients) => { /* ... */ };
-     const renderCallSummaries = (summaries) => { /* ... */ };
-     const renderClientTasks = (clientTasks) => { /* ... */ };
+    const renderTasks = () => {
+        currentSort = { key: 'priority', direction: 'asc' };
+        const filteredTasks = getFilteredAndSortedTasks();
+        
+        taskListContainer.innerHTML = '';
+        if (filteredTasks.length === 0) {
+            taskListContainer.innerHTML = `<div class="text-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-gray-500">אין משימות להצגה.</div>`;
+            return;
+        }
+        filteredTasks.forEach(task => {
+            const taskEl = createTaskElement(task);
+            taskListContainer.appendChild(taskEl);
+        });
+    };
+    
+    const renderTable = () => {
+        const filteredTasks = getFilteredAndSortedTasks();
+        taskTableBody.innerHTML = '';
+        if (filteredTasks.length === 0) {
+            taskTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500 py-6">אין משימות להצגה.</td></tr>`;
+            return;
+        }
+        filteredTasks.forEach(task => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>${task.text}</td>
+                <td>${task.clientName || '---'}</td>
+                <td>${task.projectName || '---'}</td>
+                <td>${createStatusBadge(task.completed)}</td>
+                <td>${createPriorityBadge(task.priority)}</td>
+                <td>${task.dueDate ? formatTimestamp(new Date(task.dueDate)) : '---'}</td>
+                <td>${formatTimestamp(task.createdAt)}</td>
+                <td class="flex items-center gap-2">
+                    <button title="${task.completed ? 'פתח מחדש' : 'השלם משימה'}" class="complete-btn p-2 rounded-full hover:bg-green-200 dark:hover:bg-green-800/50">${task.completed ? '↩️' : '✅'}</button>
+                    <button title="ערוך" class="edit-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">✏️</button>
+                    <button title="מחק" class="delete-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
+                </td>
+            `;
+            tr.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+            tr.querySelector('.edit-btn').onclick = () => openEditModal(task);
+            tr.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+            taskTableBody.appendChild(tr);
+        });
+    };
+    
+    const renderTagFilters = () => {
+        const allTags = [...new Set(tasks.flatMap(t => t.tags || []))];
+        tagFilterContainer.innerHTML = '';
+        if (allTags.length > 0) {
+            const allTagBtn = createTagFilterButton('הכל');
+            allTagBtn.onclick = () => setTagFilter(null);
+            if (currentTagFilter === null) allTagBtn.classList.add('bg-blue-600', 'text-white');
+            tagFilterContainer.appendChild(allTagBtn);
+            allTags.forEach(tag => {
+                const tagBtn = createTagFilterButton(tag);
+                tagBtn.onclick = () => setTagFilter(tag);
+                if (currentTagFilter === tag) tagBtn.classList.add('bg-blue-600', 'text-white');
+                tagFilterContainer.appendChild(tagBtn);
+            });
+        }
+    };
+    
+    const renderSubtasks = (taskId, subtasks) => {
+        const subtaskListEl = document.querySelector(`[data-task-id="${taskId}"] .subtask-list`);
+        const progressBar = document.querySelector(`[data-task-id="${taskId}"] .progress-bar-fg`);
+        const progressContainer = document.querySelector(`[data-task-id="${taskId}"] .progress-bar-container`);
 
+        if (!subtaskListEl) return;
+
+        subtaskListEl.innerHTML = '';
+        if (subtasks.length > 0) {
+            progressContainer.classList.remove('hidden');
+            subtasks.forEach(st => subtaskListEl.appendChild(createSubtaskElement(taskId, st)));
+            const completedCount = subtasks.filter(st => st.completed).length;
+            progressBar.style.width = `${(completedCount / subtasks.length) * 100}%`;
+        } else {
+            progressContainer.classList.add('hidden');
+        }
+    };
+
+    const renderClientList = () => {
+        clientTableBody.innerHTML = '';
+        if (clients.length === 0) {
+            clientTableBody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 py-6">לא נוספו לקוחות.</td></tr>`;
+            return;
+        }
+        clients.forEach(client => {
+            const tr = document.createElement('tr');
+
+            // --- שינוי ---
+            // בדיקה אם ללקוח זה יש משימות פתוחות
+            const hasOpenTasks = tasks.some(task => task.clientId === client.id && !task.completed);
+            const pinIcon = hasOpenTasks ? '<span class="mr-2 text-blue-500" title="יש משימות פתוחות">📌</span>' : '';
+
+            tr.innerHTML = `
+                <td class="font-semibold flex items-center">
+                    ${pinIcon}
+                    <span>${client.name}</span>
+                </td>
+                <td class="flex items-center gap-2">
+                    <button title="צפה בפרטים וסיכומים" class="details-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">📋</button>
+                    <button title="מחק לקוח" class="delete-client-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
+                </td>
+            `;
+            // --- סוף שינוי ---
+
+            tr.querySelector('.details-btn').onclick = () => openClientDetailsModal(client);
+            tr.querySelector('.delete-client-btn').onclick = () => deleteClient(client.id);
+            clientTableBody.appendChild(tr);
+        });
+    };
+    
+    const renderCallSummaries = (summaries) => {
+        callSummaryList.innerHTML = '';
+        if (summaries.length === 0) {
+            callSummaryList.innerHTML = `<p class="text-gray-500">אין סיכומי שיחה עבור לקוח זה.</p>`;
+            return;
+        }
+        summaries.forEach(summary => {
+            const div = document.createElement('div');
+            div.className = 'p-3 bg-gray-100 dark:bg-gray-700 rounded-lg';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-sm font-bold text-blue-600 dark:text-blue-400">${formatTimestamp(summary.createdAt)}</span>
+                </div>
+                <p class="whitespace-pre-wrap">${summary.text}</p>
+            `;
+            callSummaryList.appendChild(div);
+        });
+    };
+
+    const renderClientTasks = (clientTasks) => {
+        clientOpenTasksCount.textContent = clientTasks.length; // Update count
+        clientTaskList.innerHTML = '';
+        if (clientTasks.length === 0) {
+            clientTaskList.innerHTML = `<p class="text-gray-500">אין משימות פתוחות ללקוח זה.</p>`;
+            return;
+        }
+         // Sort tasks within the modal as well, perhaps by priority then due date
+        clientTasks.sort((a, b) => {
+             const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+             if (priorityOrder[a.priority] !== priorityOrder[b.priority]) return priorityOrder[a.priority] - priorityOrder[b.priority];
+             if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+             if (a.dueDate) return -1; if (b.dueDate) return 1;
+             return 0;
+         });
+        clientTasks.forEach(task => {
+            const taskEl = createClientTaskElement(task);
+            clientTaskList.appendChild(taskEl);
+        });
+    };
+
+    // --- Project Render Functions ---
+    const renderProjectList = () => {
+        const searchTerm = projectSearchInput.value.toLowerCase();
+        const filteredProjects = projects.filter(p => 
+            p.name.toLowerCase().includes(searchTerm) || 
+            (p.description && p.description.toLowerCase().includes(searchTerm))
+        );
+
+        projectListContainer.innerHTML = '';
+        if (filteredProjects.length === 0) {
+            projectListContainer.innerHTML = `<div class="text-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-gray-500 col-span-full">אין פרויקטים להצגה.</div>`;
+            return;
+        }
+        filteredProjects.forEach(project => {
+            const projectCard = createProjectCardElement(project);
+            projectListContainer.appendChild(projectCard);
+        });
+    };
+
+    const createProjectCardElement = (project) => {
+        const div = document.createElement('div');
+        div.className = 'bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg flex flex-col justify-between transition-all hover:shadow-xl hover:transform hover:-translate-y-1';
+        
+        const projectTasks = tasks.filter(t => t.projectId === project.id);
+        const openTasks = projectTasks.filter(t => !t.completed);
+        const progress = projectTasks.length > 0 ? (projectTasks.length - openTasks.length) / projectTasks.length * 100 : 0;
+
+        div.innerHTML = `
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <h3 class="text-xl font-bold text-blue-700 dark:text-blue-400">${project.name}</h3>
+                    <button title="מחק פרויקט" class="delete-project-btn p-2 rounded-full text-gray-400 hover:bg-red-200 dark:hover:bg-red-800/50 hover:text-red-600">🗑️</button>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 min-h-[40px]">${project.description || 'אין תיאור לפרויקט זה.'}</p>
+                ${project.dueDate ? `<p class="text-sm font-semibold text-gray-500 dark:text-gray-300 mb-4">תאריך יעד: ${formatTimestamp(new Date(project.dueDate))}</p>` : ''}
+            </div>
+            <div>
+                <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
+                    <span>התקדמות</span>
+                    <span>${Math.round(progress)}%</span>
+                </div>
+                <div class="w-full h-3 rounded-full progress-bar-bg dark:bg-gray-700">
+                    <div class="progress-bar-fg h-full rounded-full transition-all duration-300" style="width: ${progress}%;"></div>
+                </div>
+                <button class="details-btn w-full mt-4 text-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-4 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800 font-semibold">
+                    פרטים וניהול משימות (${openTasks.length})
+                </button>
+            </div>
+        `;
+        
+        div.querySelector('.details-btn').onclick = () => openProjectDetailsModal(project);
+        div.querySelector('.delete-project-btn').onclick = (e) => {
+            e.stopPropagation(); // Prevent modal from opening
+            deleteProject(project.id);
+        };
+        return div;
+    };
+
+    const renderProjectTasks = (projectTasks) => {
+        projectOpenTasksCount.textContent = projectTasks.length; // Update count
+        projectTaskList.innerHTML = '';
+        if (projectTasks.length === 0) {
+            projectTaskList.innerHTML = `<p class="text-gray-500">אין משימות פתוחות לפרויקט זה.</p>`;
+            return;
+        }
+         // Sort tasks within the modal
+        projectTasks.sort((a, b) => {
+             const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+             if (priorityOrder[a.priority] !== priorityOrder[b.priority]) return priorityOrder[a.priority] - priorityOrder[b.priority];
+             if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+             if (a.dueDate) return -1; if (b.dueDate) return 1;
+             return 0;
+         });
+        projectTasks.forEach(task => {
+            const taskEl = createClientTaskElement(task); // Re-using the same element creator
+            projectTaskList.appendChild(taskEl);
+        });
+    };
 
     // --- Element Creation ---
-    const createTaskElement = (task) => { /* ... */ };
-    const createClientTaskElement = (task) => { /* ... */ };
-    const createSubtaskElement = (parentId, subtask) => { /* ... */ };
-    const createStatusBadge = (completed) => { /* ... */ };
-    const createPriorityBadge = (priority) => { /* ... */ };
-    const createBadge = (text, color) => { /* ... */ };
-    const createDateBadge = (dateStr, completed) => { /* ... */ };
-    const createTagFilterButton = (tag) => { /* ... */ };
+    const createTaskElement = (task) => {
+        const div = document.createElement('div');
+        div.className = `p-4 rounded-lg shadow-md transition-all duration-200 bg-white dark:bg-gray-800 priority-${task.priority}`;
+        div.setAttribute('data-task-id', task.id);
+        div.innerHTML = `
+            <div class="flex items-center justify-between gap-2">
+                <div class="flex-grow flex items-center gap-3">
+                    <button title="סמן כהושלמה" class="complete-btn text-2xl">${task.completed ? '✅' : '⚪️'}</button>
+                    <div class="flex-grow">
+                        <p class="${task.completed ? 'task-completed' : ''}">${task.text}</p>
+                        <div class="flex items-center gap-2 mt-2 flex-wrap">
+                            ${createBadge(task.category === 'personal' ? 'אישי' : 'עסק', task.category === 'personal' ? 'purple' : 'blue')}
+                            ${task.clientName ? createBadge(task.clientName, 'green') : ''}
+                            ${task.projectName ? createBadge(task.projectName, 'purple') : ''}
+                            ${task.dueDate ? createDateBadge(task.dueDate, task.completed) : ''}
+                            ${(task.tags || []).map(tag => createBadge(tag, 'gray')).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button title="ערוך" class="edit-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">✏️</button>
+                    <button title="מחק" class="delete-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
+                </div>
+            </div>
+            <div class="progress-bar-container hidden w-full h-2 rounded-full mt-3 progress-bar-bg dark:bg-gray-700">
+                <div class="progress-bar-fg h-full rounded-full transition-all duration-300"></div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <ul class="subtask-list space-y-2"></ul>
+                <form class="add-subtask-form mt-2 flex gap-2">
+                    <input type="text" placeholder="הוסף תת-משימה..." class="flex-grow p-2 text-sm border rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-500 text-white px-3 rounded-md text-sm font-bold">+</button>
+                </form>
+            </div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between w-full">
+                <span>נוצר: ${formatTimestamp(task.createdAt)}</span>
+                ${task.completed && task.completedAt ? `<span>הושלם: ${formatTimestamp(task.completedAt)}</span>` : ''}
+            </div>
+        `;
+        div.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+        div.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+        div.querySelector('.edit-btn').onclick = () => openEditModal(task);
+        div.querySelector('.add-subtask-form').onsubmit = (e) => {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            if (input.value.trim()) {
+                addSubtask(task.id, input.value.trim());
+                input.value = '';
+            }
+        };
+        return div;
+    };
 
+    const createClientTaskElement = (task) => {
+        const div = document.createElement('div');
+        div.className = 'p-3 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-between gap-2';
+        div.innerHTML = `
+            <div class="flex-grow">
+                <p>${task.text}</p>
+                <div class="flex items-center gap-2 mt-1">
+                    ${createPriorityBadge(task.priority)}
+                    ${task.dueDate ? createDateBadge(task.dueDate, task.completed) : ''}
+                </div>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+                <button title="השלם משימה" class="complete-btn p-2 rounded-full hover:bg-green-200 dark:hover:bg-green-800/50">✅</button>
+                <button title="ערוך" class="edit-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">✏️</button>
+                <button title="מחק" class="delete-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
+            </div>
+        `;
+        div.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+        div.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+        div.querySelector('.edit-btn').onclick = () => {
+            closeClientDetailsModal(); // Close this modal first
+            openEditModal(task); // Then open the edit modal
+        };
+        return div;
+    };
+    
+    const createSubtaskElement = (parentId, subtask) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between text-sm pr-4';
+        li.innerHTML = `
+            <div class="flex items-center gap-2">
+                <input type="checkbox" ${subtask.completed ? 'checked' : ''} class="form-checkbox h-4 w-4 rounded text-blue-600">
+                <span class="${subtask.completed ? 'task-completed' : ''}">${subtask.text}</span>
+            </div>
+            <button class="delete-subtask-btn text-red-500 opacity-50 hover:opacity-100">✖</button>
+        `;
+        li.querySelector('input[type="checkbox"]').onchange = () => toggleSubtaskComplete(parentId, subtask.id, subtask.completed);
+        li.querySelector('.delete-subtask-btn').onclick = () => deleteSubtask(parentId, subtask.id);
+        return li;
+    };
+    
+    const createStatusBadge = (completed) => {
+        const color = completed ? 'green' : 'blue';
+        const text = completed ? 'הושלמה' : 'פתוחה';
+        return createBadge(text, color);
+    };
+
+    const createPriorityBadge = (priority) => {
+        const priorityMap = { high: 'גבוהה', normal: 'רגילה', low: 'נמוכה' };
+        const colorMap = { high: 'red', normal: 'blue', low: 'green' };
+        return createBadge(priorityMap[priority] || 'רגילה', colorMap[priority] || 'blue');
+    };
+
+    const createBadge = (text, color) => {
+        const colors = {
+            purple: 'bg-purple-200 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+            blue: 'bg-blue-200 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+            gray: 'bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+            green: 'bg-green-200 text-green-800 dark:bg-green-900 dark:text-green-200',
+            red: 'bg-red-200 text-red-800 dark:bg-red-900 dark:text-red-200'
+        };
+        return `<span class="text-xs font-bold px-2 py-1 rounded-full ${colors[color] || colors.gray}">${text}</span>`;
+    };
+    
+    const createDateBadge = (dateStr, completed) => {
+        const date = new Date(dateStr); const today = new Date(); today.setHours(0,0,0,0); date.setHours(23,59,59,999);
+        const isOverdue = date < today && !completed;
+        const color = isOverdue ? 'bg-red-200 text-red-800 animate-pulse' : 'bg-green-200 text-green-800';
+        return `<span class="text-xs font-bold px-2 py-1 rounded-full ${color}">${new Date(dateStr).toLocaleDateString('he-IL')}</span>`;
+    };
+    
+    const createTagFilterButton = (tag) => {
+        const button = document.createElement('button'); button.textContent = tag;
+        button.className = 'py-1 px-3 rounded-full text-sm font-semibold bg-gray-200 dark:bg-gray-700';
+        return button;
+    };
 
     // --- Firestore Logic Functions ---
-    const addTask = async (text, category, dueDate, tags, priority, clientId, clientName) => { /* ... */ };
-    const toggleTaskComplete = async (id, currentStatus) => { /* ... */ };
-    const deleteTask = async (id) => { /* ... */ };
-    const addSubtask = async (parentId, text) => { /* ... */ };
-    const toggleSubtaskComplete = async (parentId, subtaskId, currentStatus) => { /* ... */ };
-    const deleteSubtask = async (parentId, subtaskId) => { /* ... */ };
-    const addClient = async (name, classification) => { /* ... */ };
-    const deleteClient = async (id) => { /* ... */ };
-    const addCallSummary = async (clientId, text) => { /* ... */ };
+    const addTask = async (text, category, dueDate, tags, priority, clientId, clientName, projectId, projectName) => {
+        try { 
+            await addDoc(tasksCollectionRef, { 
+                text, 
+                category, 
+                priority, 
+                dueDate: dueDate || null, 
+                tags: tags || [], 
+                completed: false, 
+                createdAt: serverTimestamp(), 
+                completedAt: null,
+                clientId: clientId || null,
+                clientName: clientName || null,
+                projectId: projectId || null,
+                projectName: projectName || null
+            }); 
+        } catch (e) { console.error("Error adding task: ", e); }
+    };
+    const toggleTaskComplete = async (id, currentStatus) => {
+        try { await updateDoc(doc(db, tasksCollectionRef.path, id), { completed: !currentStatus, completedAt: !currentStatus ? serverTimestamp() : null }); } catch (e) { console.error("Error updating task: ", e); }
+    };
+    const deleteTask = async (id) => {
+        try { await deleteDoc(doc(db, tasksCollectionRef.path, id)); } catch (e) { console.error("Error deleting task: ", e); }
+    };
+    const addSubtask = async (parentId, text) => {
+        const subtasksRef = collection(db, tasksCollectionRef.path, parentId, 'subtasks');
+        try { await addDoc(subtasksRef, { text, completed: false, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding subtask: ", e); }
+    };
+    const toggleSubtaskComplete = async (parentId, subtaskId, currentStatus) => {
+        const subtaskRef = doc(db, tasksCollectionRef.path, parentId, 'subtasks', subtaskId);
+        try { await updateDoc(subtaskRef, { completed: !currentStatus }); } catch (e) { console.error("Error updating subtask: ", e); }
+    };
+    const deleteSubtask = async (parentId, subtaskId) => {
+        const subtaskRef = doc(db, tasksCollectionRef.path, parentId, 'subtasks', subtaskId);
+        try { await deleteDoc(subtaskRef); } catch (e) { console.error("Error deleting subtask: ", e); }
+    };
 
+    const addClient = async (name) => {
+        try { await addDoc(clientsCollectionRef, { name, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding client: ", e); }
+    };
+    const deleteClient = async (id) => {
+        // Note: This only deletes the client, not their tasks. 
+        // Consider adding a confirmation or logic to handle associated tasks.
+        // if (confirm(`האם אתה בטוח שברצונך למחוק לקוח זה? פעולה זו אינה הפיכה.`)) { // <--- REMOVED
+             try { 
+                await deleteDoc(doc(db, clientsCollectionRef.path, id)); 
+            } catch (e) { 
+                console.error("Error deleting client: ", e); 
+            }
+        // } // <--- REMOVED
+    };
+    const addCallSummary = async (clientId, text) => {
+        const summariesRef = collection(db, clientsCollectionRef.path, clientId, 'callSummaries');
+        try { await addDoc(summariesRef, { text, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding call summary: ", e); }
+    };
+
+    const addProject = async (name, description, dueDate) => {
+        try { 
+            await addDoc(projectsCollectionRef, { 
+                name, 
+                description: description || null,
+                dueDate: dueDate || null,
+                createdAt: serverTimestamp() 
+            }); 
+        } catch (e) { console.error("Error adding project: ", e); }
+    };
+
+    const deleteProject = async (id) => {
+        // This only deletes the project, not tasks. 
+        // Tasks will just become "orphaned" from this project.
+         try { 
+            await deleteDoc(doc(db, projectsCollectionRef.path, id)); 
+        } catch (e) { 
+            console.error("Error deleting project: ", e); 
+        }
+    };
+    
     // --- Filter Logic ---
-     const setViewFilter = (filter) => { /* ... */ };
-     const setTagFilter = (tag) => { /* ... */ };
-     const setClientFilter = (clientId) => { /* ... */ };
-     const switchToTasksViewWithOptions = (clientId, layout = 'table', filter = 'active') => { /* ... */ };
+    const setViewFilter = (filter) => {
+        currentViewFilter = filter;
+        document.querySelectorAll('#filter-buttons .filter-btn').forEach(btn => {
+            btn.classList.toggle('bg-blue-600', btn.dataset.filter === filter);
+            btn.classList.toggle('text-white', btn.dataset.filter === filter);
+            btn.classList.toggle('bg-gray-200', btn.dataset.filter !== filter);
+            btn.classList.toggle('dark:bg-gray-700', btn.dataset.filter !== filter);
+        });
+        
+        // Show/Hide client filter
+        if (filter === 'business' || filter === 'active') {
+            clientFilterContainer.classList.remove('hidden');
+            projectFilterContainer.classList.remove('hidden');
+        } else {
+            clientFilterContainer.classList.add('hidden');
+            currentClientFilter = "";
+            clientFilterSelect.value = "";
+            projectFilterContainer.classList.add('hidden');
+            currentProjectFilter = "";
+            projectFilterSelect.value = "";
+        }
+        
+        render();
+    };
+    const setTagFilter = (tag) => { currentTagFilter = tag; render(); };
+    const setClientFilter = (clientId) => { currentClientFilter = clientId; render(); };
+    const setProjectFilter = (projectId) => { currentProjectFilter = projectId; render(); };
+
+    // Function to switch to tasks view with specific filters
+    const switchToTasksViewWithOptions = (clientId, layout = 'table') => {
+        // Switch main view
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+
+        // Set filters
+        setViewFilter('active'); // Ensure we are showing active tasks
+        setClientFilter(clientId); // Set the client filter
+        clientFilterSelect.value = clientId; // Update the dropdown selection
+
+        // Set layout
+        currentLayout = layout;
+        document.querySelectorAll('.view-btn').forEach(btn => {
+             btn.classList.toggle('bg-white', btn.dataset.view === layout);
+             btn.classList.toggle('dark:bg-gray-800', btn.dataset.view === layout);
+             btn.classList.toggle('text-blue-600', btn.dataset.view === layout);
+             btn.classList.toggle('shadow', btn.dataset.view === layout);
+             btn.classList.toggle('text-gray-600', btn.dataset.view !== layout);
+             btn.classList.toggle('dark:text-gray-300', btn.dataset.view !== layout);
+         });
+
+        render(); // Re-render with new settings
+    };
+
+    const switchToProjectTasksView = (projectId, layout = 'table') => {
+        // Switch main view
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        projectsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+        navProjects.classList.remove('active');
+
+        // Set filters
+        setViewFilter('active'); // Ensure we are showing active tasks
+        setProjectFilter(projectId); // Set the project filter
+        projectFilterSelect.value = projectId; // Update the dropdown selection
+
+        // Set layout
+        currentLayout = layout;
+        document.querySelectorAll('.view-btn').forEach(btn => {
+             btn.classList.toggle('bg-white', btn.dataset.view === layout);
+             btn.classList.toggle('dark:bg-gray-800', btn.dataset.view === layout);
+             btn.classList.toggle('text-blue-600', btn.dataset.view === layout);
+             btn.classList.toggle('shadow', btn.dataset.view === layout);
+             btn.classList.toggle('text-gray-600', btn.dataset.view !== layout);
+             btn.classList.toggle('dark:text-gray-300', btn.dataset.view !== layout);
+         });
+
+        render(); // Re-render with new settings
+    };
     
     // --- Modal Logic ---
-     const openEditModal = (task) => { /* ... */ };
-     const closeEditModal = () => { /* ... */ };
-     const saveTaskChanges = async (e) => { /* ... */ };
-     const openClientDetailsModal = (client) => { /* ... */ };
-     const closeClientDetailsModal = () => { /* ... */ };
+    const openEditModal = (task) => {
+        document.getElementById('edit-task-id').value = task.id;
+        document.getElementById('edit-task-input').value = task.text;
+        document.getElementById('edit-tags-input').value = (task.tags || []).join(', ');
+        document.getElementById('edit-due-date-input').value = task.dueDate || '';
+        document.getElementById('edit-priority-input').value = task.priority || 'normal';
+        
+        // Populate and set client dropdown
+        editClientSelect.innerHTML = clientSelect.innerHTML; // Clone options from add form
+        editClientSelect.value = task.clientId || "";
+        editClientSelect.parentElement.style.display = (task.category === 'business') ? 'block' : 'none';
+
+        // Populate and set project dropdown
+        editProjectSelect.innerHTML = projectSelect.innerHTML; // Clone options from add form
+        editProjectSelect.value = task.projectId || "";
+        editProjectSelect.parentElement.style.display = (task.category === 'business') ? 'block' : 'none';
+
+        editModal.classList.remove('hidden');
+    };
+    const closeEditModal = () => { editModal.classList.add('hidden'); };
+    const saveTaskChanges = async (e) => {
+        e.preventDefault();
+        const id = document.getElementById('edit-task-id').value;
+        const taskRef = doc(db, tasksCollectionRef.path, id);
+        
+        const selectedClientOption = editClientSelect.options[editClientSelect.selectedIndex];
+        const clientId = selectedClientOption.value;
+        const clientName = clientId ? selectedClientOption.text : null;
+
+        const selectedProjectOption = editProjectSelect.options[editProjectSelect.selectedIndex];
+        const projectId = selectedProjectOption.value;
+        const projectName = projectId ? selectedProjectOption.text : null;
+
+        try {
+            await updateDoc(taskRef, {
+                text: document.getElementById('edit-task-input').value.trim(),
+                tags: document.getElementById('edit-tags-input').value.trim().split(',').filter(Boolean).map(t => t.trim()),
+                dueDate: document.getElementById('edit-due-date-input').value || null,
+                priority: document.getElementById('edit-priority-input').value,
+                clientId: clientId || null,
+                clientName: clientName || null,
+                projectId: projectId || null,
+                projectName: projectName || null
+            });
+        } catch (error) { console.error("Error saving task changes: ", error); }
+        closeEditModal();
+    };
+
+    const openClientDetailsModal = (client) => {
+        clientModalName.textContent = client.name;
+        summaryClientId.value = client.id;
+        summaryClientName.value = client.name; // Store name for adding tasks
+        callSummaryList.innerHTML = '<p>טוען סיכומים...</p>';
+        clientTaskList.innerHTML = '<p>טוען משימות...</p>'; 
+        clientDetailsModal.classList.remove('hidden');
+        
+        // Listen for summaries
+        const summariesRef = collection(db, clientsCollectionRef.path, client.id, 'callSummaries');
+        const qSummaries = query(summariesRef, orderBy("createdAt", "desc"));
+        
+        if (callSummaryListeners[client.id]) callSummaryListeners[client.id]();
+        callSummaryListeners[client.id] = onSnapshot(qSummaries, summarySnapshot => {
+            const summaries = summarySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderCallSummaries(summaries);
+        });
+
+        // Listen for client-specific tasks 
+        const qTasks = query(tasksCollectionRef, where("clientId", "==", client.id), where("completed", "==", false));
+        if(clientTaskListeners[client.id]) clientTaskListeners[client.id]();
+        clientTaskListeners[client.id] = onSnapshot(qTasks, taskSnapshot => {
+             const clientTasks = taskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+             renderClientTasks(clientTasks);
+        }, (error) => {
+            console.error("Error querying client tasks:", error);
+            clientTaskList.innerHTML = `<p class="text-red-500">שגיאה בטעינת משימות. ייתכן שנדרש אינדקס ב-Firestore.</p>`;
+        });
+    };
+    
+    const closeClientDetailsModal = () => {
+        const clientId = summaryClientId.value;
+        if (callSummaryListeners[clientId]) {
+            callSummaryListeners[clientId]();
+            delete callSummaryListeners[clientId];
+        }
+        if (clientTaskListeners[clientId]) { 
+            clientTaskListeners[clientId]();
+            delete clientTaskListeners[clientId];
+        }
+        clientDetailsModal.classList.add('hidden');
+    };
+
+    const openProjectDetailsModal = (project) => {
+        projectModalName.textContent = project.name;
+        projectModalDesc.textContent = project.description || '';
+        projectModalDueDate.textContent = project.dueDate ? `תאריך יעד: ${formatTimestamp(new Date(project.dueDate))}` : '';
+        addTaskForProjectBtn.dataset.projectId = project.id; // Store IDs for later
+        addTaskForProjectBtn.dataset.projectName = project.name;
+        projectTasksHeader.dataset.projectId = project.id; // For clickable header
+
+        projectTaskList.innerHTML = '<p>טוען משימות...</p>'; 
+        projectDetailsModal.classList.remove('hidden');
+        
+        // Listen for project-specific tasks 
+        const qTasks = query(tasksCollectionRef, where("projectId", "==", project.id), where("completed", "==", false));
+        if(projectTaskListeners[project.id]) projectTaskListeners[project.id]();
+        projectTaskListeners[project.id] = onSnapshot(qTasks, taskSnapshot => {
+             const projectTasks = taskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+             renderProjectTasks(projectTasks);
+        }, (error) => {
+            console.error("Error querying project tasks:", error);
+            projectTaskList.innerHTML = `<p class="text-red-500">שגיאה בטעינת משימות. ייתכן שנדרש אינדקס ב-Firestore.</p>`;
+        });
+    };
+
+    const closeProjectDetailsModal = () => {
+        const projectId = addTaskForProjectBtn.dataset.projectId; // Get ID from button
+        if (projectTaskListeners[projectId]) { 
+            projectTaskListeners[projectId]();
+            delete projectTaskListeners[projectId];
+        }
+        projectDetailsModal.classList.add('hidden');
+    };
 
     // --- Event Listeners ---
     
-    // Moved attaching listeners inside DOMContentLoaded
-    document.addEventListener('DOMContentLoaded', () => {
-         initializeFirebase(); // Initialize Firebase first
+    // Main Navigation
+    navTasks.onclick = () => {
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+    };
+    navClients.onclick = () => {
+        tasksView.classList.add('hidden');
+        clientsView.classList.remove('hidden');
+        projectsView.classList.add('hidden');
+        navTasks.classList.remove('active');
+        navClients.classList.add('active');
+        navProjects.classList.remove('active');
+        renderClientList(); // <--- ADDED THIS LINE
+    };
 
-        // Attach listeners only after DOM is ready
-        if(navTasks) navTasks.onclick = () => {
-            tasksView.classList.remove('hidden'); 
-            clientsView.classList.add('hidden'); 
-            navTasks.classList.add('active'); 
-            navClients.classList.remove('active'); 
-        };
-        if(navClients) navClients.onclick = () => {
-            tasksView.classList.add('hidden'); 
-            clientsView.classList.remove('hidden'); 
-            navTasks.classList.remove('active'); 
-            navClients.classList.add('active'); 
-        };
-        
-        if(dashboard) dashboard.onclick = () => {
-            switchToTasksViewWithOptions(null, 'table', 'active');
-        };
+    navProjects.onclick = () => {
+        tasksView.classList.add('hidden');
+        clientsView.classList.add('hidden');
+        projectsView.classList.remove('hidden');
+        navTasks.classList.remove('active');
+        navClients.classList.remove('active');
+        navProjects.classList.add('active');
+        renderProjectList();
+    };
 
-        if(addTaskForm) addTaskForm.addEventListener('submit', (e) => {
-            e.preventDefault(); 
-            const text = taskInput.value.trim(); if (!text) return;
-            const category = document.querySelector('input[name="category"]:checked').value;
-            const dueDate = dueDateInput.value;
-            const tags = tagsInput.value.trim().split(',').filter(Boolean).map(t => t.trim());
-            const priority = priorityInput.value;
-            const selectedClientOption = clientSelect.options[clientSelect.selectedIndex];
-            const clientId = selectedClientOption.value;
-            const clientName = clientId ? selectedClientOption.text : null;
-            
-            addTask(text, category, dueDate, tags, priority, clientId, clientName); 
-            
-            addTaskForm.reset(); 
-            priorityInput.value = 'normal';
-            clientSelectContainer.classList.add('hidden'); 
-            dueDateContainer.classList.add('hidden'); 
-            addDateBtn.classList.remove('hidden');
-            document.getElementById('category-business').checked = true; 
-            if (document.getElementById('category-business').checked) {
-                 clientSelectContainer?.classList.remove('hidden');
-                 clientFilterContainer?.classList.remove('hidden');
-            }
-         });
-        
-        document.querySelectorAll('input[name="category"]').forEach(radio => {
-            radio.onchange = (e) => {
-                const isBusiness = e.target.value === 'business';
-                clientSelectContainer?.classList.toggle('hidden', !isBusiness);
-                clientFilterContainer?.classList.toggle('hidden', !isBusiness);
-                if (!isBusiness) { 
-                     if(clientFilterSelect) clientFilterSelect.value = ""; 
-                     currentClientFilter = "";
-                     render();
-                }
-            };
+    dashboard.onclick = () => {
+        // 1. הגדרת התצוגה לטבלה
+        currentLayout = 'table';
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            const isTable = btn.dataset.view === 'table';
+            btn.classList.toggle('bg-white', isTable);
+            btn.classList.toggle('dark:bg-gray-800', isTable);
+            btn.classList.toggle('text-blue-600', isTable);
+            btn.classList.toggle('shadow', isTable);
+            btn.classList.toggle('text-gray-600', !isTable);
+            btn.classList.toggle('dark:text-gray-300', !isTable);
         });
+
+        // 2. הגדרת הפילטר ל"פעילות" (פעולה זו קוראת גם ל-render)
+        setViewFilter('active');
+
+        // 3. גלילה מטה לטבלה (עם השהייה קטנה כדי לוודא שהרינדור הסתיים)
+        setTimeout(() => {
+            taskTableContainer.scrollIntoView({ behavior: 'smooth' });
+        }, 100); 
+    };
+
+    // Task Form
+    addTaskForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const text = taskInput.value.trim(); if (!text) return;
+        const category = document.querySelector('input[name="category"]:checked').value;
+        const dueDate = dueDateInput.value;
+        const tags = tagsInput.value.trim().split(',').filter(Boolean).map(t => t.trim());
+        const priority = priorityInput.value;
         
-        if(filterButtonsContainer) filterButtonsContainer.addEventListener('click', (e) => { if (e.target.matches('.filter-btn')) setViewFilter(e.target.dataset.filter); });
-        if(clientFilterSelect) clientFilterSelect.onchange = (e) => setClientFilter(e.target.value);
-        if(addDateBtn) addDateBtn.onclick = () => { dueDateContainer?.classList.remove('hidden'); addDateBtn?.classList.add('hidden'); };
-        if(removeDateBtn) removeDateBtn.onclick = () => { if(dueDateInput) dueDateInput.value = ''; dueDateContainer?.classList.add('hidden'); addDateBtn?.classList.remove('hidden'); };
-        if(editTaskForm) editTaskForm.addEventListener('submit', saveTaskChanges);
-        if(cancelEditBtn) cancelEditBtn.addEventListener('click', closeEditModal);
-        if(viewSwitcher) viewSwitcher.addEventListener('click', (e) => { 
-             if (e.target.matches('.view-btn')) {
-                const view = e.target.dataset.view;
-                currentLayout = view;
-                document.querySelectorAll('.view-btn').forEach(btn => {
-                    btn.classList.toggle('bg-white', btn.dataset.view === view);
-                    btn.classList.toggle('dark:bg-gray-800', btn.dataset.view === view);
-                    btn.classList.toggle('text-blue-600', btn.dataset.view === view);
-                    btn.classList.toggle('shadow', btn.dataset.view === view);
-                    btn.classList.toggle('text-gray-600', btn.dataset.view !== view);
-                    btn.classList.toggle('dark:text-gray-300', btn.dataset.view !== view);
-                });
+        const selectedClientOption = clientSelect.options[clientSelect.selectedIndex];
+        const clientId = selectedClientOption.value;
+        const clientName = clientId ? selectedClientOption.text : null;
+
+        const selectedProjectOption = projectSelect.options[projectSelect.selectedIndex];
+        const projectId = selectedProjectOption.value;
+        const projectName = projectId ? selectedProjectOption.text : null;
+
+        addTask(text, category, dueDate, tags, priority, clientId, clientName, projectId, projectName);
+        
+        addTaskForm.reset(); 
+        priorityInput.value = 'normal';
+        clientSelectContainer.classList.add('hidden'); // Reset to hidden initially
+        projectSelectContainer.classList.add('hidden'); // Reset to hidden initially
+        dueDateContainer.classList.add('hidden'); 
+        addDateBtn.classList.remove('hidden');
+        document.getElementById('category-business').checked = true; // Default to business
+        // Manually trigger the category change logic to show client select if needed
+        if (document.getElementById('category-business').checked) {
+             clientSelectContainer.classList.remove('hidden');
+             clientFilterContainer.classList.remove('hidden');
+             projectSelectContainer.classList.remove('hidden');
+             projectFilterContainer.classList.remove('hidden');
+        }
+    });
+    
+    // Show/Hide client dropdown based on category
+    document.querySelectorAll('input[name="category"]').forEach(radio => {
+        radio.onchange = (e) => {
+            if (e.target.value === 'business') {
+                clientSelectContainer.classList.remove('hidden');
+                clientFilterContainer.classList.remove('hidden');
+                projectSelectContainer.classList.remove('hidden');
+                projectFilterContainer.classList.remove('hidden');
+            } else {
+                clientSelectContainer.classList.add('hidden');
+                clientFilterContainer.classList.add('hidden');
+                clientFilterSelect.value = "";
+                currentClientFilter = "";
+                projectSelectContainer.classList.add('hidden');
+                projectFilterContainer.classList.add('hidden');
+                projectFilterSelect.value = "";
+                currentProjectFilter = "";
                 render();
             }
-         });
-         const taskTableHead = document.querySelector('#task-table thead');
-         if(taskTableHead) taskTableHead.addEventListener('click', (e) => { 
-             if (e.target.matches('.sortable-header')) {
-                const sortKey = e.target.dataset.sort;
-                if (currentSort.key === sortKey) {
-                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSort.key = sortKey;
-                    currentSort.direction = 'asc';
-                }
-                document.querySelectorAll('#task-table thead .sortable-header').forEach(th => { 
-                    th.classList.remove('asc', 'desc');
-                    if (th.dataset.sort === currentSort.key) {
-                        th.classList.add(currentSort.direction);
-                    }
-                });
-                renderTable(); // Use renderTable directly
-            }
-          });
+        };
+    });
+    // Initial check on load
+    if (document.getElementById('category-business').checked) {
+        clientSelectContainer.classList.remove('hidden');
+        clientFilterContainer.classList.remove('hidden');
+        projectSelectContainer.classList.remove('hidden');
+        projectFilterContainer.classList.remove('hidden');
+    }
 
-        if(addClientForm) addClientForm.addEventListener('submit', (e) => { 
-             e.preventDefault();
-            const name = clientNameInput.value.trim();
-            const classification = clientClassificationInput.value.trim(); 
-            if (name) {
-                addClient(name, classification); 
-                addClientForm.reset(); 
-            }
-         });
+    // Task Filters
+    filterButtonsContainer.addEventListener('click', (e) => { if (e.target.matches('.filter-btn')) setViewFilter(e.target.dataset.filter); });
+    clientFilterSelect.onchange = (e) => setClientFilter(e.target.value);
+    projectFilterSelect.onchange = (e) => setProjectFilter(e.target.value);
+    addDateBtn.onclick = () => { dueDateContainer.classList.remove('hidden'); addDateBtn.classList.add('hidden'); };
+    removeDateBtn.onclick = () => { dueDateInput.value = ''; dueDateContainer.classList.add('hidden'); addDateBtn.classList.remove('hidden'); };
+    
+    // Task Edit Modal
+    editTaskForm.addEventListener('submit', saveTaskChanges);
+    cancelEditBtn.addEventListener('click', closeEditModal);
 
-        if(clientSearchInput) clientSearchInput.addEventListener('input', () => { 
-             renderClientList(); 
-         });
-        
-        if(addSummaryForm) addSummaryForm.addEventListener('submit', (e) => { /* ... */ });
-        if(cancelSummaryBtn) cancelSummaryBtn.onclick = closeClientDetailsModal;
-        if(addTaskForClientBtn) addTaskForClientBtn.onclick = () => { /* ... */ };
-        if(clientTasksHeader) clientTasksHeader.onclick = () => { /* ... */ };
-
-        // Initial check moved inside initializeFirebase's onAuthStateChanged
+    // View Switcher
+    viewSwitcher.addEventListener('click', (e) => {
+        if (e.target.matches('.view-btn')) {
+            const view = e.target.dataset.view;
+            currentLayout = view;
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('bg-white', btn.dataset.view === view);
+                btn.classList.toggle('dark:bg-gray-800', btn.dataset.view === view);
+                btn.classList.toggle('text-blue-600', btn.dataset.view === view);
+                btn.classList.toggle('shadow', btn.dataset.view === view);
+                btn.classList.toggle('text-gray-600', btn.dataset.view !== view);
+                btn.classList.toggle('dark:text-gray-300', btn.dataset.view !== view);
+            });
+            render();
+        }
     });
 
+    // Table Sorting
+    document.querySelector('#task-table thead').addEventListener('click', (e) => {
+        if (e.target.matches('.sortable-header')) {
+            const sortKey = e.target.dataset.sort;
+            if (currentSort.key === sortKey) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.key = sortKey;
+                currentSort.direction = 'asc';
+            }
+            document.querySelectorAll('#task-table thead .sortable-header').forEach(th => { // Target only headers in task table
+                th.classList.remove('asc', 'desc');
+                if (th.dataset.sort === currentSort.key) {
+                    th.classList.add(currentSort.direction);
+                }
+            });
+            renderTable();
+        }
+    });
+
+    // Client Form
+    addClientForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = clientNameInput.value.trim();
+        if (name) {
+            addClient(name);
+            addClientForm.reset(); // Clear the form after adding
+        }
+    });
+    
+    // Project Form
+    addProjectForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = projectNameInput.value.trim();
+        const description = projectDescInput.value.trim();
+        const dueDate = projectDueDateInput.value;
+        if (name) {
+            addProject(name, description, dueDate);
+            addProjectForm.reset();
+        }
+    });
+
+    projectSearchInput.addEventListener('input', () => { 
+         renderProjectList(); 
+     });
+
+    // Client Details Modal
+    addSummaryForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const clientId = summaryClientId.value;
+        const text = summaryTextInput.value.trim();
+        if (clientId && text) {
+            addCallSummary(clientId, text);
+            summaryTextInput.value = '';
+        }
+    });
+    cancelSummaryBtn.onclick = closeClientDetailsModal;
+
+    // New: Add Task button inside Client Modal
+    addTaskForClientBtn.onclick = () => {
+        const clientId = summaryClientId.value;
+        const clientName = summaryClientName.value; // Get name from hidden input
+        if (!clientId || !clientName) return; 
+
+        closeClientDetailsModal();
+
+        // Switch to tasks view
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+        
+        // Pre-fill the form
+        document.getElementById('category-business').checked = true; // Select business
+        clientSelectContainer.classList.remove('hidden'); // Show client dropdown
+        clientFilterContainer.classList.remove('hidden'); // Ensure filter is visible
+        clientSelect.value = clientId; // Pre-select the client
+        taskInput.focus(); // Focus on task description
+        
+        // Optional: Scroll to the add task form if needed
+        addTaskForm.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    // New: Clickable header to view client tasks in table
+        clientTasksHeader.onclick = () => {
+        const clientId = summaryClientId.value;
+        if (!clientId) return;
+        
+        closeClientDetailsModal();
+        switchToTasksViewWithOptions(clientId, 'table'); // Switch view and filter
+    };
+    clientTasksHeader.classList.add('clickable-header'); // Add styling
+
+    // New: Project Details Modal
+    cancelProjectModalBtn.onclick = closeProjectDetailsModal;
+    
+    addTaskForProjectBtn.onclick = () => {
+        const projectId = addTaskForProjectBtn.dataset.projectId;
+        const projectName = addTaskForProjectBtn.dataset.projectName;
+        if (!projectId || !projectName) return; 
+
+        closeProjectDetailsModal();
+
+        // Switch to tasks view
+        tasksView.classList.remove('hidden');
+        clientsView.classList.add('hidden');
+        projectsView.classList.add('hidden');
+        navTasks.classList.add('active');
+        navClients.classList.remove('active');
+        navProjects.classList.remove('active');
+        
+        // Pre-fill the form
+        document.getElementById('category-business').checked = true; // Select business
+        clientSelectContainer.classList.remove('hidden');
+        projectSelectContainer.classList.remove('hidden');
+        clientFilterContainer.classList.remove('hidden');
+        projectFilterContainer.classList.remove('hidden');
+        
+        projectSelect.value = projectId; // Pre-select the project
+        taskInput.focus(); // Focus on task description
+        
+        addTaskForm.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    projectTasksHeader.onclick = () => {
+        const projectId = projectTasksHeader.dataset.projectId;
+        if (!projectId) return;
+        
+        closeProjectDetailsModal();
+        switchToProjectTasksView(projectId, 'table'); // Switch view and filter
+    };
+
+
+    // --- Initial Load ---
+    document.addEventListener('DOMContentLoaded', initializeFirebase);
 </script>
 </body>
 </html>
