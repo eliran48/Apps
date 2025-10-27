@@ -18,6 +18,35 @@
             opacity: 0.5;
         }
         .hidden { display: none; }
+        /* START OF NEW STYLES */
+        .task-card.overdue {
+            border-left: 4px solid #ef4444; /* red-500 */
+            background-color: #fee2e2; /* red-100 */
+        }
+        .dark .task-card.overdue {
+            background-color: #3f2222; /* dark red */
+        }
+        .task-card.due-today {
+            border-left: 4px solid #f59e0b; /* yellow-500 */
+            background-color: #fef3c7; /* yellow-100 */
+        }
+        .dark .task-card.due-today {
+            background-color: #4a3a1a; /* dark yellow */
+        }
+        
+        #task-table tr.overdue {
+             background-color: #fee2e2 !important; /* red-100 */
+        }
+        #task-table tr.due-today {
+             background-color: #fef3c7 !important; /* yellow-100 */
+        }
+        .dark #task-table tr.overdue {
+             background-color: #3f2222 !important; /* dark red */
+        }
+        .dark #task-table tr.due-today {
+             background-color: #4a3a1a !important; /* dark yellow */
+        }
+        /* END OF NEW STYLES */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(-10px); }
             to { opacity: 1; transform: translateY(0); }
@@ -103,6 +132,21 @@
         .dark .clickable-header:hover {
             color: #3b82f6;
         }
+        .link-icon {
+             display: inline-block;
+             margin-right: 4px;
+             color: #6b7280; /* gray-500 */
+             transition: color 0.2s;
+        }
+        .link-icon:hover {
+             color: #3b82f6; /* blue-500 */
+        }
+        .dark .link-icon {
+             color: #9ca3af; /* gray-400 */
+        }
+         .dark .link-icon:hover {
+              color: #60a5fa; /* blue-400 */
+         }
     </style>
 </head>
 <body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
@@ -129,6 +173,7 @@
             <button id="nav-tasks" class="nav-tab active" data-view="tasks-view">ניהול משימות</button>
             <button id="nav-clients" class="nav-tab" data-view="clients-view">ניהול לקוחות</button>
             <button id="nav-projects" class="nav-tab" data-view="projects-view">ניהול פרויקטים</button>
+            <button id="nav-ideas" class="nav-tab" data-view="ideas-view">רעיונות עסקיים</button>
         </nav>
 
         <!-- תצוגת משימות -->
@@ -138,6 +183,12 @@
                 <h2 class="text-2xl font-bold mb-2 text-blue-800 dark:text-blue-200">משימות פתוחות</h2>
                 <p id="open-tasks-count" class="text-6xl font-bold text-blue-600 dark:text-blue-400">0</p>
             </div>
+
+            <!-- START OF NEW SECTION: Reminders -->
+            <div id="reminders-container" class="mb-6">
+                <!-- תזכורות יטענו כאן -->
+            </div>
+            <!-- END OF NEW SECTION: Reminders -->
 
             <!-- טופס הוספת משימה -->
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
@@ -244,8 +295,9 @@
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
                 <form id="add-client-form">
                     <h2 class="text-2xl font-semibold mb-4">הוספת לקוח חדש</h2>
-                    <div class="grid grid-cols-1 gap-4 mb-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                         <input type="text" id="client-name-input" placeholder="שם הלקוח" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="text" id="client-classification-input" placeholder="סיווג (למשל: פרטי, חברה)" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
                     </div>
                     <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף לקוח</button>
                 </form>
@@ -257,6 +309,7 @@
                     <thead>
                         <tr>
                             <th>שם לקוח</th>
+                            <th>סיווג</th>
                             <th>פעולות</th>
                         </tr>
                     </thead>
@@ -271,11 +324,13 @@
             <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
                 <form id="add-project-form">
                     <h2 class="text-2xl font-semibold mb-4">הוספת פרויקט חדש</h2>
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                        <input type="text" id="project-name-input" placeholder="שם הפרויקט" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700" required>
-                        <input type="date" id="project-due-date-input" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <input type="text" id="project-name-input" placeholder="שם הפרויקט" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700 md:col-span-1" required>
+                        <input type="text" id="project-classification-input" placeholder="סיווג (למשל: פרטי, חברה)" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700 md:col-span-1">
+                        <input type="date" id="project-due-date-input" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700 md:col-span-1">
                     </div>
                     <textarea id="project-desc-input" rows="3" placeholder="תיאור קצר של הפרויקט (אופציונלי)" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
+                    <input type="url" id="project-link-input" placeholder="קישור (אופציונלי)" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
                     <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף פרויקט</button>
                 </form>
             </div>
@@ -286,6 +341,38 @@
             <!-- רשימת פרויקטים (כרטיסים) -->
             <div id="project-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 <!-- כרטיסי פרויקטים יטענו כאן -->
+            </div>
+        </div>
+
+        <!-- תצוגת רעיונות עסקיים -->
+        <div id="ideas-view" class="hidden">
+            <!-- טופס הוספת רעיון -->
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg mb-6">
+                <form id="add-idea-form">
+                    <h2 class="text-2xl font-semibold mb-4">הוספת רעיון עסקי חדש</h2>
+                    <input type="text" id="idea-name-input" placeholder="שם הרעיון (לדוגמה: אפליקציה לשיתוף חניות)" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700" required>
+                    <textarea id="idea-description-input" rows="4" placeholder="תיאור מפורט של הרעיון..." class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <select id="idea-potential-input" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                            <option value="medium" selected>פוטנציאל בינוני</option>
+                            <option value="high">פוטנציאל גבוה</option>
+                            <option value="low">פוטנציאל נמוך</option>
+                        </select>
+                        <input type="text" id="idea-stage-input" placeholder="שלב נוכחי (למשל: מחקר)" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                        <input type="date" id="idea-target-date-input" title="תאריך יעד (מטרה)" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    </div>
+                     <input type="url" id="idea-link-input" placeholder="קישור (אופציונלי)" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">שמור רעיון</button>
+                </form>
+            </div>
+             <!-- חיפוש רעיונות -->
+             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg mb-6">
+                 <input type="search" id="idea-search-input" placeholder="🔍 חפש רעיון לפי שם, תיאור או שלב..." class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+             </div>
+            <!-- רשימת רעיונות (כרטיסים) -->
+            <div id="idea-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <!-- כרטיסי רעיונות יטענו כאן -->
             </div>
         </div>
 
@@ -408,9 +495,11 @@
     const tasksView = document.getElementById('tasks-view');
     const clientsView = document.getElementById('clients-view');
     const projectsView = document.getElementById('projects-view');
+    const ideasView = document.getElementById('ideas-view');
     const navTasks = document.getElementById('nav-tasks');
     const navClients = document.getElementById('nav-clients');
     const navProjects = document.getElementById('nav-projects');
+    const navIdeas = document.getElementById('nav-ideas');
 
     // Task Form
     const addTaskForm = document.getElementById('add-task-form');
@@ -429,6 +518,7 @@
     // Task Display & Filtering
     const filterButtonsContainer = document.getElementById('filter-buttons');
     const taskListContainer = document.getElementById('task-list-container');
+    const remindersContainer = document.getElementById('reminders-container'); // <-- NEW
     const taskTableContainer = document.getElementById('task-table-container');
     const taskTableBody = document.getElementById('task-table-body');
     const viewSwitcher = document.getElementById('view-switcher');
@@ -448,6 +538,7 @@
     // Client View
     const addClientForm = document.getElementById('add-client-form');
     const clientNameInput = document.getElementById('client-name-input');
+    const clientClassificationInput = document.getElementById('client-classification-input');
     const clientTableBody = document.getElementById('client-table-body');
 
     // Client Details Modal
@@ -467,8 +558,10 @@
     // Project View
     const addProjectForm = document.getElementById('add-project-form');
     const projectNameInput = document.getElementById('project-name-input');
+    const projectClassificationInput = document.getElementById('project-classification-input');
     const projectDescInput = document.getElementById('project-desc-input');
     const projectDueDateInput = document.getElementById('project-due-date-input');
+    const projectLinkInput = document.getElementById('project-link-input'); // New field
     const projectSearchInput = document.getElementById('project-search-input');
     const projectListContainer = document.getElementById('project-list-container');
 
@@ -483,18 +576,31 @@
     const addTaskForProjectBtn = document.getElementById('add-task-for-project-btn');
     const cancelProjectModalBtn = document.getElementById('cancel-project-modal-btn');
 
+    // Business Ideas View
+    const addIdeaForm = document.getElementById('add-idea-form');
+    const ideaNameInput = document.getElementById('idea-name-input');
+    const ideaDescriptionInput = document.getElementById('idea-description-input');
+    const ideaPotentialInput = document.getElementById('idea-potential-input');
+    const ideaStageInput = document.getElementById('idea-stage-input');
+    const ideaTargetDateInput = document.getElementById('idea-target-date-input');
+    const ideaLinkInput = document.getElementById('idea-link-input'); // New field
+    const ideaSearchInput = document.getElementById('idea-search-input');
+    const ideaListContainer = document.getElementById('idea-list-container');
+
+
     // --- App State ---
     let tasks = [];
     let clients = [];
     let projects = [];
+    let ideas = [];
     let currentViewFilter = 'active';
     let currentTagFilter = null;
     let currentClientFilter = "";
     let currentProjectFilter = "";
     let currentLayout = 'cards';
     let currentSort = { key: 'priority', direction: 'asc' };
-    let db, auth, tasksCollectionRef, clientsCollectionRef, projectsCollectionRef;
-    let unsubscribeFromTasks, unsubscribeFromClients, unsubscribeFromProjects;
+    let db, auth, tasksCollectionRef, clientsCollectionRef, projectsCollectionRef, ideasCollectionRef;
+    let unsubscribeFromTasks, unsubscribeFromClients, unsubscribeFromProjects, unsubscribeFromIdeas;
     let subtaskListeners = {};
     let callSummaryListeners = {};
     let clientTaskListeners = {}; 
@@ -515,6 +621,37 @@
         const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
         return date.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
     };
+
+    // --- START OF NEW HELPER FUNCTIONS ---
+    const getTodayString = () => {
+        const today = new Date();
+        const y = today.getFullYear();
+        const m = String(today.getMonth() + 1).padStart(2, '0');
+        const d = String(today.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    const isToday = (dateStr) => {
+        if (!dateStr) return false;
+        return dateStr === getTodayString();
+    };
+
+    const isOverdue = (dateStr, completed) => {
+        if (!dateStr || completed) return false;
+        const todayStr = getTodayString();
+        return dateStr < todayStr;
+    };
+    
+    const isOld = (createdAt, daysOld = 14) => {
+        if (!createdAt || !createdAt.toDate) return false;
+        const now = new Date();
+        const createdDate = createdAt.toDate();
+        const diffTime = Math.abs(now - createdDate);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)); 
+        return diffDays > daysOld;
+    };
+    // --- END OF NEW HELPER FUNCTIONS ---
+
 
     // --- Firebase Initialization ---
     async function initializeFirebase() {
@@ -538,13 +675,16 @@
                 const tasksPath = `users/${currentUserId}/tasks`;
                 const clientsPath = `users/${currentUserId}/clients`;
                 const projectsPath = `users/${currentUserId}/projects`;
+                const ideasPath = `users/${currentUserId}/businessIdeas`;
                 tasksCollectionRef = collection(db, tasksPath);
                 clientsCollectionRef = collection(db, clientsPath);
                 projectsCollectionRef = collection(db, projectsPath);
+                ideasCollectionRef = collection(db, ideasPath);
                 
                 listenForTasks();
                 listenForClients();
                 listenForProjects();
+                listenForIdeas();
                 
                 loadingSpinner.classList.add('hidden');
             }
@@ -574,12 +714,17 @@
             tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
             manageSubtaskListeners();
             render();
+            renderReminders(); // <-- NEW: Call reminder renderer
 
             // --- שינוי ---
             // רענון רשימת הלקוחות כדי לעדכן נעצים, אם התצוגה פעילה
             if (!clientsView.classList.contains('hidden')) {
                 renderClientList();
             }
+             // Refresh project list to update progress bars
+             if (!projectsView.classList.contains('hidden')) {
+                  renderProjectList();
+              }
             // --- סוף שינוי ---
 
             // Update client dashboard if open
@@ -610,6 +755,15 @@
             renderProjectList();
             populateDropdowns();
         }, (error) => console.error("Firestore permission error (Projects): ", error));
+    }
+
+    function listenForIdeas() {
+        if (unsubscribeFromIdeas) unsubscribeFromIdeas();
+        const q = query(ideasCollectionRef, orderBy("createdAt", "desc"));
+        unsubscribeFromIdeas = onSnapshot(q, (snapshot) => {
+            ideas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderIdeaList();
+        }, (error) => console.error("Firestore permission error (Ideas): ", error));
     }
     
     const updateDashboard = () => {
@@ -712,11 +866,21 @@
         const filteredTasks = getFilteredAndSortedTasks();
         taskTableBody.innerHTML = '';
         if (filteredTasks.length === 0) {
-            taskTableBody.innerHTML = `<tr><td colspan="7" class="text-center text-gray-500 py-6">אין משימות להצגה.</td></tr>`;
+            taskTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 py-6">אין משימות להצגה.</td></tr>`;
             return;
         }
         filteredTasks.forEach(task => {
             const tr = document.createElement('tr');
+
+            // --- START OF MODIFICATION ---
+            // Add highlight classes
+            if (isOverdue(task.dueDate, task.completed)) {
+                tr.classList.add('overdue');
+            } else if (isToday(task.dueDate)) {
+                tr.classList.add('due-today');
+            }
+            // --- END OF MODIFICATION ---
+
             tr.innerHTML = `
                 <td>${task.text}</td>
                 <td>${task.clientName || '---'}</td>
@@ -755,6 +919,58 @@
         }
     };
     
+    // --- START OF NEW REMINDER FUNCTIONS ---
+    const renderReminders = () => {
+        const overdueTasks = tasks.filter(t => isOverdue(t.dueDate, t.completed));
+        const dueTodayTasks = tasks.filter(t => isToday(t.dueDate) && !t.completed);
+        const oldTasks = tasks.filter(t => isOld(t.createdAt, 14) && !t.completed && !t.dueDate); // Only show old tasks if they don't have a due date (to avoid duplicates)
+
+        remindersContainer.innerHTML = ''; // Clear previous reminders
+
+        let html = '';
+
+        if (overdueTasks.length > 0) {
+            html += createReminderSection('משימות שעבר זמנן (Overdue)', overdueTasks, 'red');
+        }
+        if (dueTodayTasks.length > 0) {
+            html += createReminderSection('משימות להיום', dueTodayTasks, 'yellow');
+        }
+        if (oldTasks.length > 0) {
+             html += createReminderSection('משימות ישנות ללא תאריך יעד', oldTasks, 'gray');
+        }
+
+        if (html === '') {
+            remindersContainer.innerHTML = ''; // Keep it empty if no reminders
+        } else {
+            remindersContainer.innerHTML = `<div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-lg">${html}</div>`;
+        }
+    };
+
+    const createReminderSection = (title, tasks, color) => {
+        const colorClasses = {
+            red: 'border-red-500 text-red-700 dark:text-red-400',
+            yellow: 'border-yellow-500 text-yellow-700 dark:text-yellow-400',
+            gray: 'border-gray-500 text-gray-700 dark:text-gray-400'
+        };
+
+        let tasksHtml = tasks.map(task => 
+            `<li class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md">
+                <span class="flex-grow">${task.text} ${task.clientName ? `(${task.clientName})` : ''}</span>
+                <span class="text-sm font-semibold">${task.dueDate || `נוצר: ${task.createdAt.toDate().toLocaleDateString('he-IL')}`}</span>
+            </li>`
+        ).join('');
+
+        return `
+            <div class="mb-4">
+                <h3 class="text-lg font-bold ${colorClasses[color]} border-b-2 ${colorClasses[color]} pb-1 mb-2">${title} (${tasks.length})</h3>
+                <ul class="space-y-1">
+                    ${tasksHtml}
+                </ul>
+            </div>
+        `;
+    };
+    // --- END OF NEW REMINDER FUNCTIONS ---
+
     const renderSubtasks = (taskId, subtasks) => {
         const subtaskListEl = document.querySelector(`[data-task-id="${taskId}"] .subtask-list`);
         const progressBar = document.querySelector(`[data-task-id="${taskId}"] .progress-bar-fg`);
@@ -776,7 +992,7 @@
     const renderClientList = () => {
         clientTableBody.innerHTML = '';
         if (clients.length === 0) {
-            clientTableBody.innerHTML = `<tr><td colspan="2" class="text-center text-gray-500 py-6">לא נוספו לקוחות.</td></tr>`;
+            clientTableBody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 py-6">לא נוספו לקוחות.</td></tr>`;
             return;
         }
         clients.forEach(client => {
@@ -792,6 +1008,7 @@
                     ${pinIcon}
                     <span>${client.name}</span>
                 </td>
+                <td>${client.classification || '---'}</td>
                 <td class="flex items-center gap-2">
                     <button title="צפה בפרטים וסיכומים" class="details-btn p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600">📋</button>
                     <button title="מחק לקוח" class="delete-client-btn p-2 rounded-full hover:bg-red-200 dark:hover:bg-red-800/50">🗑️</button>
@@ -845,12 +1062,98 @@
         });
     };
 
+    // --- START OF ADDED FUNCTIONS ---
+    const createProjectCardElement = (project) => {
+        const div = document.createElement('div');
+        div.className = 'bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg flex flex-col justify-between transition-all hover:shadow-xl hover:transform hover:-translate-y-1';
+        
+        // Calculate progress
+        const projectTasks = tasks.filter(t => t.projectId === project.id);
+        const completedTasks = projectTasks.filter(t => t.completed).length;
+        const totalTasks = projectTasks.length;
+        const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+        // Link icon
+        const linkIcon = project.link ? `
+            <a href="${project.link}" target="_blank" class="link-icon" title="פתח קישור">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+            </a>
+        ` : '';
+
+        div.innerHTML = `
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                    <div class="flex items-center gap-2">
+                        ${linkIcon}
+                        <h3 class="text-xl font-bold text-blue-700 dark:text-blue-400">${project.name}</h3>
+                        ${project.classification ? createBadge(project.classification, 'gray') : ''}
+                    </div>
+                    <button title="מחק פרויקט" class="delete-project-btn p-2 rounded-full text-gray-400 hover:bg-red-200 dark:hover:bg-red-800/50 hover:text-red-600">🗑️</button>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 min-h-[40px]">${project.description || 'אין תיאור לפרויקט זה.'}</p>
+                ${project.dueDate ? `<p class="text-sm font-semibold text-gray-500 dark:text-gray-300 mb-4">תאריך יעד: ${formatTimestamp(new Date(project.dueDate))}</p>` : ''}
+            </div>
+            
+            <div>
+                <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
+                    <span>התקדמות</span>
+                    <span>${completedTasks}/${totalTasks} משימות</span>
+                </div>
+                <div class="w-full h-3 rounded-full progress-bar-bg dark:bg-gray-700">
+                    <div class="progress-bar-fg h-full rounded-full transition-all duration-300" style="width: ${progress}%"></div>
+                </div>
+                <div class="text-xs text-gray-400 dark:text-gray-500 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <span>נוצר: ${formatTimestamp(project.createdAt)}</span>
+                </div>
+            </div>
+        `;
+        
+        div.querySelector('.delete-project-btn').onclick = (e) => {
+            e.stopPropagation();
+            deleteProject(project.id);
+        };
+        
+        // Make card clickable to open modal (ensure link icon doesn't trigger modal)
+        div.onclick = (e) => {
+            if (!e.target.closest('a')) { // Only open modal if click is not on the link icon
+                openProjectDetailsModal(project);
+            }
+        };
+        
+        return div;
+    };
+
+    const renderProjectTasks = (projectTasks) => {
+        projectOpenTasksCount.textContent = projectTasks.length; // Update count
+        projectTaskList.innerHTML = '';
+        if (projectTasks.length === 0) {
+            projectTaskList.innerHTML = `<p class="text-gray-500">אין משימות פתוחות לפרויקט זה.</p>`;
+            return;
+        }
+         // Sort tasks
+        projectTasks.sort((a, b) => {
+             const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+             if (priorityOrder[a.priority] !== priorityOrder[b.priority]) return priorityOrder[a.priority] - priorityOrder[b.priority];
+             if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
+             if (a.dueDate) return -1; if (b.dueDate) return 1;
+             return 0;
+         });
+        projectTasks.forEach(task => {
+            const taskEl = createClientTaskElement(task); // Re-use the same task element creation
+            projectTaskList.appendChild(taskEl);
+        });
+    };
+    // --- END OF ADDED FUNCTIONS ---
+
     // --- Project Render Functions ---
     const renderProjectList = () => {
         const searchTerm = projectSearchInput.value.toLowerCase();
         const filteredProjects = projects.filter(p => 
             p.name.toLowerCase().includes(searchTerm) || 
-            (p.description && p.description.toLowerCase().includes(searchTerm))
+            (p.description && p.description.toLowerCase().includes(searchTerm)) ||
+            (p.classification && p.classification.toLowerCase().includes(searchTerm))
         );
 
         projectListContainer.innerHTML = '';
@@ -864,70 +1167,83 @@
         });
     };
 
-    const createProjectCardElement = (project) => {
+    // --- Business Idea Render Functions ---
+    const renderIdeaList = () => {
+        const searchTerm = ideaSearchInput.value.toLowerCase();
+        const filteredIdeas = ideas.filter(idea => 
+            idea.name.toLowerCase().includes(searchTerm) || 
+            (idea.description && idea.description.toLowerCase().includes(searchTerm)) ||
+            (idea.stage && idea.stage.toLowerCase().includes(searchTerm))
+        );
+
+        ideaListContainer.innerHTML = '';
+        if (filteredIdeas.length === 0) {
+            ideaListContainer.innerHTML = `<div class="text-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-lg text-gray-500 col-span-full">אין רעיונות להצגה.</div>`;
+            return;
+        }
+        filteredIdeas.forEach(idea => {
+            const ideaCard = createIdeaCardElement(idea);
+            ideaListContainer.appendChild(ideaCard);
+        });
+    };
+
+    const createIdeaCardElement = (idea) => {
         const div = document.createElement('div');
         div.className = 'bg-white dark:bg-gray-800 p-5 rounded-lg shadow-lg flex flex-col justify-between transition-all hover:shadow-xl hover:transform hover:-translate-y-1';
         
-        const projectTasks = tasks.filter(t => t.projectId === project.id);
-        const openTasks = projectTasks.filter(t => !t.completed);
-        const progress = projectTasks.length > 0 ? (projectTasks.length - openTasks.length) / projectTasks.length * 100 : 0;
+        const potentialMap = { high: 'גבוה', medium: 'בינוני', low: 'נמוך' };
+        const colorMap = { high: 'red', medium: 'blue', low: 'green' };
+
+        // Link icon
+        const linkIcon = idea.link ? `
+            <a href="${idea.link}" target="_blank" class="link-icon" title="פתח קישור">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+            </a>
+        ` : '';
 
         div.innerHTML = `
             <div>
                 <div class="flex justify-between items-center mb-2">
-                    <h3 class="text-xl font-bold text-blue-700 dark:text-blue-400">${project.name}</h3>
-                    <button title="מחק פרויקט" class="delete-project-btn p-2 rounded-full text-gray-400 hover:bg-red-200 dark:hover:bg-red-800/50 hover:text-red-600">🗑️</button>
+                     <div class="flex items-center gap-2">
+                        ${linkIcon}
+                        <h3 class="text-xl font-bold text-blue-700 dark:text-blue-400">${idea.name}</h3>
+                    </div>
+                    <button title="מחק רעיון" class="delete-idea-btn p-2 rounded-full text-gray-400 hover:bg-red-200 dark:hover:bg-red-800/50 hover:text-red-600">🗑️</button>
                 </div>
-                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 min-h-[40px]">${project.description || 'אין תיאור לפרויקט זה.'}</p>
-                ${project.dueDate ? `<p class="text-sm font-semibold text-gray-500 dark:text-gray-300 mb-4">תאריך יעד: ${formatTimestamp(new Date(project.dueDate))}</p>` : ''}
+                <div class="flex items-center gap-2 mb-3 flex-wrap">
+                    ${createBadge(`פוטנציאל: ${potentialMap[idea.potential] || 'בינוני'}`, colorMap[idea.potential] || 'blue')}
+                    ${idea.stage ? createBadge(`שלב: ${idea.stage}`, 'gray') : ''}
+                </div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 min-h-[60px]">${idea.description || 'אין תיאור לרעיון זה.'}</p>
+                ${idea.targetDate ? `<p class="text-sm font-semibold text-gray-500 dark:text-gray-300 mb-4">תאריך יעד: ${formatTimestamp(new Date(idea.targetDate))}</p>` : ''}
             </div>
-            <div>
-                <div class="flex justify-between items-center text-sm text-gray-500 dark:text-gray-400 mb-2">
-                    <span>התקדמות</span>
-                    <span>${Math.round(progress)}%</span>
-                </div>
-                <div class="w-full h-3 rounded-full progress-bar-bg dark:bg-gray-700">
-                    <div class="progress-bar-fg h-full rounded-full transition-all duration-300" style="width: ${progress}%;"></div>
-                </div>
-                <button class="details-btn w-full mt-4 text-center bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-4 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800 font-semibold">
-                    פרטים וניהול משימות (${openTasks.length})
-                </button>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                <span>נוצר: ${formatTimestamp(idea.createdAt)}</span>
             </div>
         `;
         
-        div.querySelector('.details-btn').onclick = () => openProjectDetailsModal(project);
-        div.querySelector('.delete-project-btn').onclick = (e) => {
-            e.stopPropagation(); // Prevent modal from opening
-            deleteProject(project.id);
+        div.querySelector('.delete-idea-btn').onclick = (e) => {
+            e.stopPropagation();
+            deleteIdea(idea.id);
         };
         return div;
     };
 
-    const renderProjectTasks = (projectTasks) => {
-        projectOpenTasksCount.textContent = projectTasks.length; // Update count
-        projectTaskList.innerHTML = '';
-        if (projectTasks.length === 0) {
-            projectTaskList.innerHTML = `<p class="text-gray-500">אין משימות פתוחות לפרויקט זה.</p>`;
-            return;
-        }
-         // Sort tasks within the modal
-        projectTasks.sort((a, b) => {
-             const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
-             if (priorityOrder[a.priority] !== priorityOrder[b.priority]) return priorityOrder[a.priority] - priorityOrder[b.priority];
-             if (a.dueDate && b.dueDate) return new Date(a.dueDate) - new Date(b.dueDate);
-             if (a.dueDate) return -1; if (b.dueDate) return 1;
-             return 0;
-         });
-        projectTasks.forEach(task => {
-            const taskEl = createClientTaskElement(task); // Re-using the same element creator
-            projectTaskList.appendChild(taskEl);
-        });
-    };
 
     // --- Element Creation ---
     const createTaskElement = (task) => {
         const div = document.createElement('div');
-        div.className = `p-4 rounded-lg shadow-md transition-all duration-200 bg-white dark:bg-gray-800 priority-${task.priority}`;
+        // --- START OF MODIFICATION ---
+        let highlightClass = '';
+        if (isOverdue(task.dueDate, task.completed)) {
+            highlightClass = 'overdue';
+        } else if (isToday(task.dueDate)) {
+            highlightClass = 'due-today';
+        }
+        div.className = `task-card p-4 rounded-lg shadow-md transition-all duration-200 bg-white dark:bg-gray-800 priority-${task.priority} ${highlightClass}`;
+        // --- END OF MODIFICATION ---
         div.setAttribute('data-task-id', task.id);
         div.innerHTML = `
             <div class="flex items-center justify-between gap-2">
@@ -1093,8 +1409,12 @@
         try { await deleteDoc(subtaskRef); } catch (e) { console.error("Error deleting subtask: ", e); }
     };
 
-    const addClient = async (name) => {
-        try { await addDoc(clientsCollectionRef, { name, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding client: ", e); }
+    const addClient = async (name, classification) => {
+        try { await addDoc(clientsCollectionRef, { 
+            name, 
+            classification: classification || null,
+            createdAt: serverTimestamp() 
+        }); } catch (e) { console.error("Error adding client: ", e); }
     };
     const deleteClient = async (id) => {
         // Note: This only deletes the client, not their tasks. 
@@ -1112,12 +1432,14 @@
         try { await addDoc(summariesRef, { text, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding call summary: ", e); }
     };
 
-    const addProject = async (name, description, dueDate) => {
+    const addProject = async (name, classification, description, dueDate, link) => {
         try { 
             await addDoc(projectsCollectionRef, { 
                 name, 
+                classification: classification || null,
                 description: description || null,
                 dueDate: dueDate || null,
+                link: link || null, // Save link
                 createdAt: serverTimestamp() 
             }); 
         } catch (e) { console.error("Error adding project: ", e); }
@@ -1130,6 +1452,28 @@
             await deleteDoc(doc(db, projectsCollectionRef.path, id)); 
         } catch (e) { 
             console.error("Error deleting project: ", e); 
+        }
+    };
+
+    const addIdea = async (name, description, potential, stage, targetDate, link) => {
+        try { 
+            await addDoc(ideasCollectionRef, { 
+                name, 
+                description: description || null,
+                potential: potential || 'medium',
+                stage: stage || null,
+                targetDate: targetDate || null,
+                link: link || null, // Save link
+                createdAt: serverTimestamp() 
+            }); 
+        } catch (e) { console.error("Error adding idea: ", e); }
+    };
+
+    const deleteIdea = async (id) => {
+         try { 
+            await deleteDoc(doc(db, ideasCollectionRef.path, id)); 
+        } catch (e) { 
+            console.error("Error deleting idea: ", e); 
         }
     };
     
@@ -1347,16 +1691,22 @@
     navTasks.onclick = () => {
         tasksView.classList.remove('hidden');
         clientsView.classList.add('hidden');
+        projectsView.classList.add('hidden');
+        ideasView.classList.add('hidden');
         navTasks.classList.add('active');
         navClients.classList.remove('active');
+        navProjects.classList.remove('active');
+        navIdeas.classList.remove('active');
     };
     navClients.onclick = () => {
         tasksView.classList.add('hidden');
         clientsView.classList.remove('hidden');
         projectsView.classList.add('hidden');
+        ideasView.classList.add('hidden');
         navTasks.classList.remove('active');
         navClients.classList.add('active');
         navProjects.classList.remove('active');
+        navIdeas.classList.remove('active');
         renderClientList(); // <--- ADDED THIS LINE
     };
 
@@ -1364,10 +1714,24 @@
         tasksView.classList.add('hidden');
         clientsView.classList.add('hidden');
         projectsView.classList.remove('hidden');
+        ideasView.classList.add('hidden');
         navTasks.classList.remove('active');
         navClients.classList.remove('active');
         navProjects.classList.add('active');
+        navIdeas.classList.remove('active');
         renderProjectList();
+    };
+
+    navIdeas.onclick = () => {
+        tasksView.classList.add('hidden');
+        clientsView.classList.add('hidden');
+        projectsView.classList.add('hidden');
+        ideasView.classList.remove('hidden');
+        navTasks.classList.remove('active');
+        navClients.classList.remove('active');
+        navProjects.classList.remove('active');
+        navIdeas.classList.add('active');
+        renderIdeaList();
     };
 
     dashboard.onclick = () => {
@@ -1508,8 +1872,9 @@
     addClientForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = clientNameInput.value.trim();
+        const classification = clientClassificationInput.value.trim();
         if (name) {
-            addClient(name);
+            addClient(name, classification);
             addClientForm.reset(); // Clear the form after adding
         }
     });
@@ -1518,16 +1883,39 @@
     addProjectForm.addEventListener('submit', (e) => {
         e.preventDefault();
         const name = projectNameInput.value.trim();
+        const classification = projectClassificationInput.value.trim();
         const description = projectDescInput.value.trim();
         const dueDate = projectDueDateInput.value;
+        const link = projectLinkInput.value.trim(); // Get link value
         if (name) {
-            addProject(name, description, dueDate);
+            addProject(name, classification, description, dueDate, link); // Pass link
             addProjectForm.reset();
         }
     });
 
     projectSearchInput.addEventListener('input', () => { 
          renderProjectList(); 
+     });
+
+    // Business Idea Form
+    addIdeaForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = ideaNameInput.value.trim();
+        const description = ideaDescriptionInput.value.trim();
+        const potential = ideaPotentialInput.value;
+        const stage = ideaStageInput.value.trim();
+        const targetDate = ideaTargetDateInput.value;
+        const link = ideaLinkInput.value.trim(); // Get link value
+        
+        if (name) {
+            addIdea(name, description, potential, stage, targetDate, link); // Pass link
+            addIdeaForm.reset();
+            ideaPotentialInput.value = 'medium'; // Reset select to default
+        }
+    });
+
+    ideaSearchInput.addEventListener('input', () => { 
+         renderIdeaList(); 
      });
 
     // Client Details Modal
