@@ -105,6 +105,9 @@
             color: white;
             transition: background-color 0.3s ease;
         }
+        .theme-galaxy .btn-primary {
+             color: #1A202C;
+        }
         .btn-primary:hover {
             background-color: var(--primary-hover-color);
         }
@@ -144,6 +147,9 @@
             color: white;
             border-radius: 50%;
         }
+        .theme-galaxy .selected-day {
+             color: #1A202C;
+        }
         .toast-notification {
             transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
             transform: translateY(100%);
@@ -156,42 +162,62 @@
         .settings-panel {
             transition: opacity 0.3s, transform 0.3s;
         }
+
+        /* Galaxy Theme Overrides */
+        body.theme-galaxy #journal-view label.font-semibold,
+        body.theme-galaxy #journal-date-display,
+        body.theme-galaxy #calendar-month-year,
+        body.theme-galaxy #entry-date,
+        body.theme-galaxy #inspiration-title {
+            color: #FFFFFF;
+        }
+        body.theme-galaxy nav { background-color: rgba(26, 32, 44, 0.7); backdrop-filter: blur(5px); border: 1px solid #4A5568; }
+        body.theme-galaxy #history-entry-display,
+        body.theme-galaxy #modal-content { background-color: #1A202C; }
+        body.theme-galaxy #settings-panel { background-color: #2D3748; }
+        body.theme-galaxy .theme-btn { color: var(--text-color); }
+        body.theme-galaxy .theme-btn:hover { background-color: #4A5568; }
+        body.theme-galaxy .bg-yellow-100 { background-color: rgba(74, 85, 104, 0.5); border-color: var(--primary-color); color: var(--text-color); }
+        body.theme-galaxy label[for="image-upload"] { background-color: #2D3748; border-color: #4A5568; color: var(--text-color); }
+        body.theme-galaxy #entry-content .text-green-600 { color: #68D391; }
+        body.theme-galaxy #entry-content .text-blue-600 { color: #63B3ED; }
+        body.theme-galaxy #entry-content .text-pink-500 { color: #ED64A6; }
+        body.theme-galaxy .inspiration-card {
+            background-color: rgba(45, 55, 72, 0.7);
+            border-color: #4A5568;
+        }
+        body.theme-galaxy .inspiration-card-date {
+            color: var(--subtle-text-color);
+        }
+        
+        .inspiration-card {
+            background-color: rgba(255, 255, 255, 0.7);
+            border-right-width: 4px;
+            transition: all 0.3s ease;
+        }
+        .inspiration-card:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .inspiration-card-good { border-color: #68D391; }
+        .inspiration-card-success { border-color: #63B3ED; }
+        .inspiration-card-gratitude { border-color: #ED64A6; }
+
     </style>
 </head>
 <body class="text-gray-800">
 
-    <!-- Auth Overlay -->
-    <div id="auth-overlay" class="fixed inset-0 bg-gray-200 z-50 flex items-center justify-center transition-opacity duration-500">
-        <div class="text-center p-8 bg-white/70 backdrop-blur-sm rounded-2xl shadow-xl">
-            <h2 class="text-3xl font-bold header-text mb-4">ברוך הבא ליומן הטוב שלך</h2>
-            <p class="text-lg subtle-text mb-8">התחבר/י כדי לשמור את הרגעים הטובים ולסנכרן בין כל המכשירים.</p>
-            <button id="login-btn" class="flex items-center justify-center gap-3 bg-white text-gray-700 font-semibold py-3 px-6 border border-gray-300 rounded-full shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all">
-                <svg class="w-6 h-6" viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"></path><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"></path><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"></path><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"></path><path fill="none" d="M0 0h48v48H0z"></path></svg>
-                <span>התחבר/י באמצעות חשבון גוגל</span>
-            </button>
-        </div>
-    </div>
-
     <div id="app" class="max-w-xl mx-auto p-4 sm:p-6 min-h-screen">
         <!-- Header -->
         <header class="text-center mb-6 relative">
-            <div class="absolute top-0 left-0 flex items-center gap-2">
-                 <div id="user-profile" class="hidden items-center gap-2">
-                    <img id="user-avatar" class="w-10 h-10 rounded-full" src="">
-                    <span id="user-name" class="font-semibold"></span>
-                    <button id="logout-btn" class="p-2 text-gray-500 hover:text-red-500 hover:bg-red-100 rounded-full transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" /></svg>
-                    </button>
-                </div>
-            </div>
             <h1 class="text-4xl sm:text-5xl font-bold header-text">יומן הטוב שלי</h1>
             <p class="text-lg subtle-text">המקום לטפח חשיבה חיובית, ערך עצמי והודיה</p>
              <!-- Settings Button and Panel -->
-            <div class="absolute top-0 right-0">
+            <div class="absolute top-0 left-0">
                 <button id="settings-btn" class="p-2 rounded-full hover:bg-gray-200 transition">
                      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
                 </button>
-                <div id="settings-panel" class="settings-panel hidden absolute right-0 mt-2 w-40 bg-white rounded-lg shadow-xl p-2 z-10 opacity-0 transform -translate-y-2">
+                <div id="settings-panel" class="settings-panel hidden absolute left-0 mt-2 w-40 bg-white rounded-lg shadow-xl p-2 z-10 opacity-0 transform -translate-y-2">
                     <h4 class="text-sm font-bold text-gray-600 px-2 pb-1 text-right">ערכת צבעים</h4>
                     <button class="theme-btn w-full text-right p-2 hover:bg-gray-100 rounded" data-theme="default">🔵 ברירת מחדל</button>
                     <button class="theme-btn w-full text-right p-2 hover:bg-gray-100 rounded" data-theme="ocean">🌊 אוקיינוס</button>
@@ -218,7 +244,7 @@
 
                 <!-- Inspiration Corner -->
                 <div class="bg-yellow-100 border-r-4 border-yellow-400 text-yellow-800 p-4 rounded-lg mb-6 text-center italic">
-                    <p id="quote-text">"הדרך הטובה ביותר לחזות את העתיד היא ליצור אותו."</p>
+                    <p id="quote-text">טעינת ציטוט...</p>
                     <p id="quote-author" class="text-sm mt-1 not-italic font-semibold"></p>
                 </div>
 
@@ -265,6 +291,20 @@
                         ✨ מסר למחר
                     </button>
                 </div>
+                
+                <!-- Inspiration Feed -->
+                <div id="inspiration-feed" class="mt-12 pt-6 border-t border-[var(--border-color)]">
+                    <h2 id="inspiration-title" class="text-2xl font-bold text-center mb-4">בנק ההשראה מהעבר שלך</h2>
+                    <div id="inspiration-content" class="space-y-3">
+                        <!-- Content will be injected by JS -->
+                    </div>
+                    <div class="text-center mt-4">
+                        <button id="refresh-inspiration" class="btn-secondary font-semibold py-2 px-4 rounded-full text-sm">
+                            רענן השראה
+                        </button>
+                    </div>
+                </div>
+
             </div>
 
             <!-- History View -->
@@ -300,7 +340,7 @@
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, onAuthStateChanged, GoogleAuthProvider, signInWithPopup, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // --- CONFIG & STATE ---
@@ -321,17 +361,28 @@
         let calendarDate = dayjs();
         let activeDate = dayjs().format('YYYY-MM-DD');
 
-        const tomorrowMessages = [ "מחר הוא דף חלק. צייר/י עליו יצירת מופת.", "זכור/זכרי את ההצלחות של היום. הן הדלק שלך למחר.", "האתגרים של מחר הם ההזדמנויות של מחרתיים. גש/י אליהם בסקרנות.", "מחר מביא איתו אנרגיה חדשה. קבל/י אותה בזרועות פתוחות.", "תכנן/י לעצמך רגע אחד של שמחה טהורה למחר. מגיע לך.", "גם אם היום היה קשה, מחר השמש תזרח שוב. זו הבטחה.", "הטוב שזרעת היום, יפרח מחר. המשך/המשיכי לזרוע טוב." ];
-        const quotes = [ { text: "האושר תלוי בנו.", author: "אריסטו" }, { text: "כל יום הוא הזדמנות חדשה.", author: "סנקה" }, { text: "הכרת תודה הופכת את מה שיש לנו למספיק.", author: "מלודי ביטי" }, { text: "הצלחה היא סך המאמצים הקטנים, שחוזרים על עצמם יום יום.", author: "רוברט קולייר" }, { text: "האמינו שאתם יכולים, וכבר עברתם חצי מהדרך.", author: "תאודור רוזוולט" }, { text: "העתיד שייך לאלה המאמינים ביופיים של חלומותיהם.", author: "אלינור רוזוולט" } ];
+        // --- UPDATED ARRAYS ---
+        const tomorrowMessages = [
+            "תן/י לעצמך לנוח הלילה. מחר יום חדש מלא באפשרויות.",
+            "כל צעד קטן שעשית היום בונה את ההצלחה הגדולה של מחר.",
+            "הכוח לשנות את מחר נמצא בהחלטות הקטנות של היום.",
+            "התמקד/י בטוב שהיה, והיפתח/י לטוב שעוד יגיע מחר.",
+            "מחר הוא הזדמנות נוספת להיות הגרסה הטובה ביותר שלך.",
+            "השלם/השלימי עם מה שהיה היום, והתרגש/י לקראת מה שיהיה מחר.",
+            "אל תשכח/י - כל יום הוא מתנה. פתח/י את זו של מחר בסקרנות."
+        ];
+        const quotes = [
+            { text: "ההווה הוא המתנה היקרה ביותר שיש לנו.", author: "ספנסר ג'ונסון" },
+            { text: "שום דבר לא יכול לעמעם את האור שזורח מבפנים.", author: "מאיה אנג'לו" }, 
+            { text: "מסע של אלף מייל מתחיל בצעד אחד.", author: "לאו דזה" },
+            { text: "הדבר היחיד שעומד בינך לבין החלום שלך הוא הסיפור שאתה ממשיך לספר לעצמך למה אתה לא יכול להשיג אותו.", author: "ג'ורדן בלפורט" },
+            { text: "החיים הם 10% מה שקורה לך ו-90% איך שאתה מגיב לזה.", author: "צ'ארלס ר. סווינדול" },
+            { text: "אל תחכה. הזמן לעולם לא יהיה 'בדיוק מתאים'.", author: "נפוליאון היל" },
+            { text: "הדרך הטובה ביותר לחזות את העתיד היא ליצור אותו.", author: "פיטר דרוקר" }
+        ];
 
         // --- ELEMENTS ---
         const bodyEl = document.body;
-        const authOverlay = document.getElementById('auth-overlay');
-        const loginBtn = document.getElementById('login-btn');
-        const userProfile = document.getElementById('user-profile');
-        const userAvatar = document.getElementById('user-avatar');
-        const userName = document.getElementById('user-name');
-        const logoutBtn = document.getElementById('logout-btn');
         const journalView = document.getElementById('journal-view');
         const historyView = document.getElementById('history-view');
         const journalBtn = document.getElementById('journal-view-btn');
@@ -356,6 +407,8 @@
         const closeModalBtn = document.getElementById('close-modal-btn');
         const journalDateDisplay = document.getElementById('journal-date-display');
         const backToTodayBtn = document.getElementById('back-to-today-btn');
+        const inspirationContent = document.getElementById('inspiration-content');
+        const refreshInspirationBtn = document.getElementById('refresh-inspiration');
 
         // --- INITIALIZATION ---
         function init() {
@@ -379,63 +432,19 @@
 
                 onAuthStateChanged(auth, user => {
                     if (user) {
-                        // User is signed in.
                         userId = user.uid;
                         isFirebaseReady = true;
-                        
-                        authOverlay.style.opacity = '0';
-                        setTimeout(() => authOverlay.style.display = 'none', 500);
-
-                        userAvatar.src = user.photoURL;
-                        userName.textContent = user.displayName.split(' ')[0]; // Show first name
-                        userProfile.classList.remove('hidden');
-                        userProfile.classList.add('flex');
-                        
                         loadUserSettings();
                         listenToEntries();
                         loadEntryForDate(activeDate); 
                         updateJournalHeader();
                     } else {
-                        // User is signed out.
-                        userId = null;
-                        isFirebaseReady = false;
-                        if(entriesUnsubscribe) entriesUnsubscribe();
-                        userEntries = {};
-
-                        authOverlay.style.display = 'flex';
-                        setTimeout(() => authOverlay.style.opacity = '1', 10);
-                        
-                        userProfile.classList.add('hidden');
-                        userProfile.classList.remove('flex');
+                        signInAnonymously(auth).catch(error => console.error("Anonymous sign-in failed:", error));
                     }
                 });
             } catch (error) {
                 console.error("Error initializing Firebase:", error);
                 showToast("שגיאה באתחול החיבור למסד הנתונים.");
-            }
-        }
-
-        // --- AUTHENTICATION ---
-        async function handleGoogleLogin() {
-            const provider = new GoogleAuthProvider();
-            try {
-                await signInWithPopup(auth, provider);
-            } catch (error) {
-                console.error("Google sign-in error", error);
-                if (error.code === 'auth/unauthorized-domain') {
-                    showToast("שגיאה: הדומיין אינו מורשה. יש להוסיף אותו לרשימת הדומיינים המורשים ב-Firebase.");
-                } else {
-                    showToast("שגיאה בעת ההתחברות עם גוגל.");
-                }
-            }
-        }
-
-        async function handleLogout() {
-            try {
-                await signOut(auth);
-                // Auth state listener will handle UI changes.
-            } catch (error) {
-                console.error("Sign out error", error);
             }
         }
 
@@ -583,6 +592,7 @@
                 userEntries = {};
                 snapshot.forEach(doc => { userEntries[doc.id] = doc.data(); });
                 if (!historyView.classList.contains('hidden')) { renderCalendar(); }
+                renderInspirationFeed(); // Refresh inspiration feed on data change
             }, (error) => { console.error("Error listening to entries:", error); });
         }
 
@@ -691,14 +701,67 @@
                  historyEntryDisplay.classList.remove('hidden');
             }
         }
+        
+        // --- INSPIRATION FEED ---
+        function renderInspirationFeed() {
+            inspirationContent.innerHTML = '';
+            
+            const allPositives = [];
+            Object.values(userEntries).forEach(entry => {
+                const date = entry.date;
+                if (entry.goodThings) {
+                    entry.goodThings.split('\n').filter(Boolean).forEach(text => {
+                        allPositives.push({ type: 'good', text, date });
+                    });
+                }
+                if (entry.successes) {
+                    entry.successes.split('\n').filter(Boolean).forEach(text => {
+                        allPositives.push({ type: 'success', text, date });
+                    });
+                }
+                if (entry.gratitude) {
+                    entry.gratitude.split('\n').filter(Boolean).forEach(text => {
+                        allPositives.push({ type: 'gratitude', text, date });
+                    });
+                }
+            });
+
+            if (allPositives.length === 0) {
+                inspirationContent.innerHTML = `<p class="text-center subtle-text">עדיין לא כתבת כלום. התחל/י לכתוב כדי למלא את בנק ההשראה!</p>`;
+                return;
+            }
+
+            // Shuffle and pick 5
+            const shuffled = allPositives.sort(() => 0.5 - Math.random());
+            const itemsToShow = shuffled.slice(0, 5);
+
+            itemsToShow.forEach(item => {
+                let icon = '🌱';
+                let styleClass = 'inspiration-card-good';
+                if (item.type === 'success') {
+                    icon = '🏆';
+                    styleClass = 'inspiration-card-success';
+                } else if (item.type === 'gratitude') {
+                    icon = '💖';
+                    styleClass = 'inspiration-card-gratitude';
+                }
+
+                const card = document.createElement('div');
+                card.className = `inspiration-card p-4 rounded-lg shadow ${styleClass}`;
+                card.innerHTML = `
+                    <p class="text-lg font-semibold">${icon} ${item.text}</p>
+                    <p class="text-sm inspiration-card-date subtle-text text-left">${dayjs(item.date).format('D MMMM YYYY')}</p>
+                `;
+                inspirationContent.appendChild(card);
+            });
+        }
 
         // --- EVENT LISTENERS ---
         function setupEventListeners() {
-            loginBtn.addEventListener('click', handleGoogleLogin);
-            logoutBtn.addEventListener('click', handleLogout);
             journalBtn.addEventListener('click', () => showView('journal'));
             historyBtn.addEventListener('click', () => showView('history'));
             saveButton.addEventListener('click', saveEntry);
+            refreshInspirationBtn.addEventListener('click', renderInspirationFeed);
 
             document.getElementById('prev-month').addEventListener('click', () => { calendarDate = calendarDate.subtract(1, 'month'); renderCalendar(); });
             document.getElementById('next-month').addEventListener('click', () => { calendarDate = calendarDate.add(1, 'month'); renderCalendar(); });
