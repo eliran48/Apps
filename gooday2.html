@@ -8,7 +8,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/locale/he.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/isSameOrBefore.js"></script> <!-- Added for streak calculation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/isSameOrBefore.js"></script>
+
+    <!-- === Favicons / Home Screen Icons (Updated with Plant Emoji) === -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><style>text { font-size: 24px; text-anchor: middle; dominant-baseline: central; }</style><text x='50%' y='50%'>🌱</text></svg>">
+    <link rel="apple-touch-icon" sizes="180x180" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><style>text { font-size: 140px; text-anchor: middle; dominant-baseline: central; }</style><rect width='100%' height='100%' fill='%23F0F4F8'/><text x='50%' y='50%'>🌱</text></svg>">
+    <!-- Fallback PNG favicons if needed (using placehold.co temporarily) -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://placehold.co/32x32/38A169/FFFFFF?text=%F0%9F%8C%B1">
+    <link rel="icon" type="image/png" sizes="16x16" href="https://placehold.co/16x16/38A169/FFFFFF?text=%F0%9F%8C%B1">
+    <!-- === End of Favicons === -->
+
     <style>
         :root {
             --bg-gradient-start: #E6F3FF;
@@ -129,10 +138,11 @@
         }
         .calendar-day {
             transition: all 0.2s ease-in-out;
+            color: var(--text-color); /* Ensure default text color */
         }
-        .calendar-day:hover {
-            transform: scale(1.05);
-            background-color: var(--border-color);
+        body.theme-galaxy .calendar-day:hover {
+             background-color: var(--border-color);
+             color: #1A202C; /* Darker text on hover for galaxy */
         }
         .has-entry {
             background-color: #68D391;
@@ -140,16 +150,16 @@
             border-radius: 50%;
             font-weight: bold;
         }
-        .theme-galaxy .has-entry {
-            color: #1A202C;
+        body.theme-galaxy .has-entry {
+            color: #1A202C; /* Ensure dark text on green background */
         }
         .selected-day {
             background-color: var(--primary-color);
             color: white;
             border-radius: 50%;
         }
-        .theme-galaxy .selected-day {
-             color: #1A202C;
+        body.theme-galaxy .selected-day {
+             color: #1A202C; /* Ensure dark text on primary background */
         }
         .toast-notification {
             transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
@@ -170,10 +180,10 @@
         body.theme-galaxy #calendar-month-year,
         body.theme-galaxy #entry-date,
         body.theme-galaxy #inspiration-title {
-            color: #FFFFFF;
+            color: #FFFFFF; /* White titles */
         }
         body.theme-galaxy nav { background-color: rgba(26, 32, 44, 0.7); backdrop-filter: blur(5px); border: 1px solid #4A5568; }
-        body.theme-galaxy #streak-display { background-color: rgba(26, 32, 44, 0.7); color: var(--subtle-text-color); border: 1px solid #4A5568; } /* Added galaxy style for streak */
+        body.theme-galaxy #streak-display { background-color: rgba(26, 32, 44, 0.7); color: var(--text-color); border: 1px solid #4A5568; } /* Corrected streak color */
         body.theme-galaxy #history-entry-display,
         body.theme-galaxy #modal-content { background-color: #1A202C; }
         body.theme-galaxy #settings-panel { background-color: #2D3748; }
@@ -190,6 +200,9 @@
         }
         body.theme-galaxy .inspiration-card-date {
             color: var(--subtle-text-color);
+        }
+        body.theme-galaxy .calendar-day { /* Ensure calendar days are light */
+             color: var(--text-color);
         }
         
         .inspiration-card {
