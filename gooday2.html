@@ -8,6 +8,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/dayjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/locale/he.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dayjs/1.11.10/plugin/isSameOrBefore.js"></script> <!-- Added for streak calculation -->
     <style>
         :root {
             --bg-gradient-start: #E6F3FF;
@@ -172,6 +173,7 @@
             color: #FFFFFF;
         }
         body.theme-galaxy nav { background-color: rgba(26, 32, 44, 0.7); backdrop-filter: blur(5px); border: 1px solid #4A5568; }
+        body.theme-galaxy #streak-display { background-color: rgba(26, 32, 44, 0.7); color: var(--subtle-text-color); border: 1px solid #4A5568; } /* Added galaxy style for streak */
         body.theme-galaxy #history-entry-display,
         body.theme-galaxy #modal-content { background-color: #1A202C; }
         body.theme-galaxy #settings-panel { background-color: #2D3748; }
@@ -203,6 +205,11 @@
         .inspiration-card-success { border-color: #63B3ED; }
         .inspiration-card-gratitude { border-color: #ED64A6; }
 
+        .streak-counter {
+            color: var(--subtle-text-color);
+            white-space: nowrap; /* Prevent text wrapping */
+        }
+        /* Removed .active style as it's less relevant now */
     </style>
 </head>
 <body class="text-gray-800">
@@ -228,11 +235,17 @@
             </div>
         </header>
 
-        <!-- Navigation -->
-        <nav class="flex justify-center bg-white rounded-full shadow-md p-1 mb-6">
-            <button id="journal-view-btn" class="px-6 py-2 rounded-full text-lg font-semibold flex-1 text-center btn-primary">יומן יומי</button>
-            <button id="history-view-btn" class="px-6 py-2 rounded-full text-lg font-semibold flex-1 text-center btn-secondary">היסטוריה</button>
-        </nav>
+        <!-- Navigation & Streak Container -->
+        <div class="flex flex-col items-center mb-6 gap-2">
+            <nav class="flex justify-center bg-white rounded-full shadow-md p-1 w-full max-w-sm">
+                <button id="journal-view-btn" class="px-6 py-2 rounded-full text-lg font-semibold flex-1 text-center btn-primary">יומן יומי</button>
+                <button id="history-view-btn" class="px-6 py-2 rounded-full text-lg font-semibold flex-1 text-center btn-secondary">היסטוריה</button>
+            </nav>
+            <!-- Streak Display Below Navigation -->
+            <div id="streak-display" class="streak-counter p-1 px-3 bg-white rounded-full shadow-md text-sm">
+                 ימי כתיבה ברצף: <span id="streak-count" class="font-bold">0</span>
+            </div>
+        </div>
 
         <!-- Main Content -->
         <main id="main-content" class="main-container rounded-2xl shadow-lg p-6 sm:p-8">
@@ -343,6 +356,8 @@
         import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        dayjs.extend(window.dayjs_plugin_isSameOrBefore); // Extend dayjs for streak calculation
+
         // --- CONFIG & STATE ---
         const firebaseConfig = {
             apiKey: "AIzaSyDFYvzKavhrf4bnoFI0GckLk-dO40_ftJ4",
@@ -409,6 +424,8 @@
         const backToTodayBtn = document.getElementById('back-to-today-btn');
         const inspirationContent = document.getElementById('inspiration-content');
         const refreshInspirationBtn = document.getElementById('refresh-inspiration');
+        const streakDisplay = document.getElementById('streak-display');
+        const streakCountEl = document.getElementById('streak-count');
 
         // --- INITIALIZATION ---
         function init() {
@@ -435,7 +452,7 @@
                         userId = user.uid;
                         isFirebaseReady = true;
                         loadUserSettings();
-                        listenToEntries();
+                        listenToEntries(); // This will now also calculate and display the streak
                         loadEntryForDate(activeDate); 
                         updateJournalHeader();
                     } else {
@@ -591,8 +608,12 @@
             entriesUnsubscribe = onSnapshot(entriesCol, (snapshot) => {
                 userEntries = {};
                 snapshot.forEach(doc => { userEntries[doc.id] = doc.data(); });
+                
+                // Update UI elements that depend on entries
                 if (!historyView.classList.contains('hidden')) { renderCalendar(); }
-                renderInspirationFeed(); // Refresh inspiration feed on data change
+                renderInspirationFeed(); 
+                calculateAndDisplayStreak(); // Calculate and display streak
+
             }, (error) => { console.error("Error listening to entries:", error); });
         }
 
@@ -755,6 +776,40 @@
                 inspirationContent.appendChild(card);
             });
         }
+
+        // --- STREAK CALCULATION ---
+        function calculateAndDisplayStreak() {
+             const entryDates = Object.keys(userEntries).sort().reverse(); // Get dates sorted newest first
+             let streak = 0;
+             let currentDate = dayjs();
+
+             // Check if today has an entry OR if yesterday has an entry (streak counts if you wrote yesterday)
+             const todayStr = currentDate.format('YYYY-MM-DD');
+             const yesterdayStr = currentDate.subtract(1, 'day').format('YYYY-MM-DD');
+
+             let lastEntryDate = null;
+
+             if (userEntries[todayStr]) {
+                 lastEntryDate = currentDate;
+             } else if (userEntries[yesterdayStr]) {
+                 lastEntryDate = currentDate.subtract(1, 'day');
+             } else {
+                 // No entry today or yesterday, streak is 0
+                 streak = 0;
+                 streakCountEl.textContent = streak;
+                 return;
+             }
+
+             // Start counting from the last entry date found
+             streak = 1;
+             let checkDate = lastEntryDate.subtract(1, 'day');
+             while (userEntries[checkDate.format('YYYY-MM-DD')]) {
+                 streak++;
+                 checkDate = checkDate.subtract(1, 'day');
+             }
+
+             streakCountEl.textContent = streak;
+         }
 
         // --- EVENT LISTENERS ---
         function setupEventListeners() {
