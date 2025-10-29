@@ -6,8 +6,214 @@
     <title>לוח הכנסות חזוי</title>
     <!-- טעינת Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- טעינת Firebase SDK -->
+    
+    <style>
+        /* סגנון עברי וכללי */
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f7fafc; /* אפור בהיר */
+        }
+        /* הסתרת סרגל הגלילה של הקרוסלה */
+        #months-carousel::-webkit-scrollbar {
+            display: none;
+        }
+        #months-carousel {
+            -ms-overflow-style: none;  /* IE and Edge */
+            scrollbar-width: none;  /* Firefox */
+        }
+        /* תיקון קל לכפתור ההסדרה ברשימת הגבייה */
+        #collection-list button {
+            flex-shrink: 0; /* מונע מהכפתור להתכווץ */
+        }
+        #collection-list div {
+            overflow-wrap: break-word; /* גורם לשמות ארוכים להישבר */
+            min-width: 0; /* עוזר לגלישה */
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <!-- מסך טעינה התחלתי -->
+    <div id="loading-spinner" class="flex justify-center items-center min-h-screen">
+        <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
+    </div>
+
+    <!-- קונטיינר ראשי של האפליקציה (מוסתר בהתחלה) -->
+    <div id="app-container" class="max-w-4xl mx-auto p-4 hidden">
+
+        <!-- ===== 1. תצוגת דאשבורד (ראשית) ===== -->
+        <div id="dashboard-view" style="display: none;">
+            <header class="flex justify-between items-center mb-6 flex-wrap gap-2">
+                <h1 class="text-3xl font-bold text-gray-800">לוח הכנסות</h1>
+                <div class="space-x-2 space-x-reverse flex items-center flex-wrap gap-2">
+                    <!-- שיניתי את הכפתור להכיל תגית -->
+                    <button id="collection-btn" class="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-600 transition-all flex items-center space-x-2 space-x-reverse">
+                        <span>חלון גבייה</span>
+                        <span id="collection-total-badge" class="bg-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full hidden">₪0</span>
+                    </button>
+                    <!-- כפתור דוחות חדש -->
+                    <button id="reports-btn" class="bg-gray-600 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-700 transition-all">
+                        דוחות
+                    </button>
+                    <button id="add-payment-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-all">
+                        + קליטת תשלום
+                    </button>
+                </div>
+            </header>
+
+            <!-- ניווט חודשים -->
+            <div class="flex justify-between items-center mb-4">
+                <button id="next-month-btn" class="bg-gray-200 p-3 rounded-full hover:bg-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                </button>
+                <h2 class="text-xl font-semibold">תחזית חודשית</h2>
+                <button id="prev-month-btn" class="bg-gray-200 p-3 rounded-full hover:bg-gray-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                </button>
+            </div>
+
+            <!-- קרוסלת חודשים -->
+            <div id="months-carousel" class="flex overflow-x-auto gap-4 p-4 justify-center items-center snap-x snap-mandatory">
+                <!-- כרטיסיות החודשים יוכנסו כאן על ידי JS -->
+            </div>
+            
+            <p class="text-center text-gray-500 mt-4 text-sm">מוצגים 3 חודשים בכל פעם. לחצו על החיצים לניווט.</p>
+        </div>
+
+        <!-- ===== 2. תצוגת טופס קליטת תשלום ===== -->
+        <div id="payment-form-view" style="display: none;">
+            <h2 id="form-title" class="text-2xl font-bold mb-6">קליטת תשלום חדש</h2>
+            <form id="payment-form" class="bg-white p-6 rounded-lg shadow-md space-y-4">
+                
+                <div>
+                    <label for="customer-name-input" class="block text-sm font-medium text-gray-700">שם לקוח (בחר או הקלד חדש)</label>
+                    <input list="customers-list" id="customer-name-input" name="customer-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                    <datalist id="customers-list">
+                        <!-- אופציות לקוח יוכנסו כאן על ידי JS -->
+                    </datalist>
+                </div>
+
+                <div>
+                    <label for="payment-amount" class="block text-sm font-medium text-gray-700">סכום (בש"ח)</label>
+                    <input type="number" id="payment-amount" name="payment-amount" min="0" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                </div>
+
+                <div>
+                    <label for="payment-type" class="block text-sm font-medium text-gray-700">סוג תשלום</label>
+                    <select id="payment-type" name="payment-type" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
+                        <option value="" disabled selected>בחר סוג תשלום...</option>
+                        <option value="immediate">מיידי</option>
+                        <option value="current">שוטף (במהלך חודש הבא)</option>
+                        <option value="current_30">שוטף + 30 (סוף חודש הבא)</option>
+                        <option value="current_45">שוטף + 45</option>
+                        <option value="current_60">שוטף + 60</option>
+                        <!-- הוספת אפשרות חדשה -->
+                        <option value="split_50_50">50% מיידי, 50% בגמר (בחר תאריך)</option>
+                        <option value="future">תשלום עתידי (לגבייה)</option>
+                    </select>
+                </div>
+
+                <!-- שדה חדש לבחירת תאריך (מוסתר) -->
+                <div id="payment-due-date-container" style="display: none;">
+                    <label for="payment-due-date" class="block text-sm font-medium text-gray-700">תאריך יעד לגמר (עבור 50% שניים)</label>
+                    <input type="date" id="payment-due-date" name="payment-due-date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <!-- סוף שדה חדש -->
+
+                <!-- ===== שינוי - הוספת אזור להודעת שגיאה ===== -->
+                <div id="form-error-message" class="text-red-600 text-sm p-3 bg-red-50 rounded-lg hidden">
+                    <!-- הודעת השגיאה תופיע כאן -->
+                </div>
+                <!-- ===== סוף שינוי ===== -->
+
+
+                <div class="flex justify-start space-x-4 space-x-reverse pt-4">
+                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition-all">שמור תשלום</button>
+                    <button type="button" id="cancel-form-btn" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-all">ביטול</button>
+                </div>
+            </form>
+        </div>
+
+        <!-- ===== 3. תצוגת חלון גבייה ===== -->
+        <div id="collection-view" style="display: none;">
+            <header class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">חלון גבייה</h2>
+                <button id="back-to-dashboard-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
+                    חזור לדאשבורד
+                </button>
+            </header>
+            
+            <div class="bg-white p-6 rounded-lg shadow-md mb-4">
+                <h3 class="text-lg font-semibold">סך הכל לגבייה</h3>
+                <div id="collection-total" class="text-3xl font-bold text-yellow-600">₪0</div>
+            </div>
+
+            <ul id="collection-list" class="space-y-3">
+                <!-- רשימת התשלומים לגבייה תוכנס כאן על ידי JS -->
+            </ul>
+        </div>
+
+        <!-- ===== 4. תצוגת דוחות (חדש) ===== -->
+        <div id="reports-view" style="display: none;">
+            <header class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">דוחות הכנסה</h2>
+                <button id="back-to-dashboard-from-reports-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
+                    חזור לדאשבורד
+                </button>
+            </header>
+
+            <div class="space-y-6">
+                <!-- דוח לפי לקוח -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">הכנסות לפי לקוח</h3>
+                    <ul id="report-by-customer-list" class="max-h-60 overflow-y-auto">
+                        <!-- תוכן יוכנס על ידי JS -->
+                    </ul>
+                </div>
+                
+                <!-- דוח לפי חודש -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">הכנסות לפי חודש</h3>
+                    <ul id="report-by-month-list" class="max-h-60 overflow-y-auto">
+                        <!-- תוכן יוכנס על ידי JS -->
+                    </ul>
+                </div>
+                
+                <!-- דוח לפי שנה -->
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">הכנסות לפי שנה</h3>
+                    <ul id="report-by-year-list" class="max-h-60 overflow-y-auto">
+                        <!-- תוכן יוכנס על ידי JS -->
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- ===== 5. חלון קופץ - פירוט חודש (חדש) ===== -->
+    <div id="month-details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center p-4 hidden z-50">
+        <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col">
+            <!-- כותרת -->
+            <header class="flex justify-between items-center p-4 border-b">
+                <h3 id="month-details-title" class="text-xl font-bold">פירוט חודש</h3>
+                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </header>
+            <!-- תוכן -->
+            <div id="month-details-list-container" class="p-6 overflow-y-auto">
+                <ul id="month-details-list" class="space-y-3">
+                    <!-- תוכן יוכנס על ידי JS -->
+                </ul>
+            </div>
+        </div>
+    </div>
+    <!-- ===== סוף חלון קופץ ===== -->
+    
+    <!-- ===== שינוי: העברת הסקריפט לסוף ה-BODY ===== -->
     <script type="module">
+        /* --- תיקון: החזרת הייבואים החסרים --- */
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
             getAuth, 
@@ -27,6 +233,7 @@
             where, 
             getDocs 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        /* --- סוף תיקון --- */
 
         // --- קבועים גלובליים ---
         let db, auth, userId, appId;
@@ -73,6 +280,25 @@
                     if (user) {
                         userId = user.uid;
                         console.log("משתמש מחובר:", userId);
+                        
+                        // --- שינוי: חיבור מאזינים *אחרי* שה-DOM מוכן ---
+                        // חיבור Event Listeners
+                        document.getElementById('add-payment-btn').onclick = () => showPaymentFormView(null);
+                        document.getElementById('collection-btn').onclick = showCollectionView;
+                        document.getElementById('reports-btn').onclick = showReportsView; // הוספת ליסנר לכפתור דוחות
+                        document.getElementById('payment-form').onsubmit = handlePaymentFormSubmit;
+                        document.getElementById('payment-type').onchange = toggleDueDateInput;
+                        document.getElementById('cancel-form-btn').onclick = () => {
+                            toggleDueDateInput(null, true); // איפוס שדה תאריך
+                            showDashboardView();
+                        };
+                        document.getElementById('back-to-dashboard-btn').onclick = showDashboardView;
+                        document.getElementById('back-to-dashboard-from-reports-btn').onclick = showDashboardView; // הוספת ליסנר לכפתור חזרה מדוחות
+                        document.getElementById('prev-month-btn').onclick = () => changeMonth(-1);
+                        document.getElementById('next-month-btn').onclick = () => changeMonth(1);
+                        document.getElementById('close-modal-btn').onclick = closeMonthDetailsModal;
+                        // --- סוף שינוי ---
+
                         // טעינת נתונים ראשונית לאחר התחברות
                         setupSnapshots(); // --- This will now only attach listeners
                         
@@ -362,6 +588,7 @@
 
         function createMonthCard(monthIndex, year) {
             const card = document.createElement('div');
+            /* --- תיקון: החזרת תוכן הפונקציה --- */
             card.className = "month-card min-w-[280px] w-full max-w-sm bg-white p-6 rounded-lg shadow-lg border border-gray-200 transition-all duration-300 transform";
             
             const monthName = monthNames[monthIndex];
@@ -386,13 +613,21 @@
             
             const receivedSubtitleEl = document.createElement('div');
             receivedSubtitleEl.className = "text-sm text-center text-gray-500";
+            /* --- סוף תיקון --- */
             receivedSubtitleEl.innerText = "מתוכם התקבלו";
             
             card.append(title, totalEl, subtitleEl, receivedEl, receivedSubtitleEl);
+
+            // --- הוספה חדשה ---
+            // הוספת לחיצה לפתיחת המודאל
+            card.onclick = () => showMonthDetailsModal(monthIndex, year);
+            // --- סוף הוספה חדשה ---
+
             return card;
         }
 
         function getMonthTotals(monthIndex, year) {
+            /* --- תיקון: החזרת תוכן הפונקציה --- */
             let expectedTotal = 0;
             let receivedTotal = 0;
             
@@ -413,6 +648,7 @@
             });
             
             return { expectedTotal, receivedTotal };
+            /* --- סוף תיקון --- */
         }
         
         function renderCollectionView() {
@@ -712,224 +948,92 @@
             currentMonthOffset += direction;
             renderDashboard();
         }
+        
+        // --- פונקציות חדשות - חלון פירוט חודש ---
+        
+        function showMonthDetailsModal(monthIndex, year) {
+            const modal = document.getElementById('month-details-modal');
+            const titleEl = document.getElementById('month-details-title');
+            const listEl = document.getElementById('month-details-list');
+            
+            try {
+                // הגדרת כותרת
+                titleEl.innerText = `פירוט תשלומים - ${monthNames[monthIndex]} ${year}`;
+                listEl.innerHTML = ''; // נקה רשימה קודמת
+
+                // מצא את כל התשלומים לחודש זה
+                const startOfMonth = new Date(year, monthIndex, 1).getTime();
+                const endOfMonth = new Date(year, monthIndex + 1, 0, 23, 59, 59).getTime(); // ודא שזה סוף היום
+                
+                const monthPayments = allPayments.filter(p => {
+                    if (p.status === 'collection' || !p.expectedDate) return false;
+                    const expectedTime = new Date(p.expectedDate).getTime();
+                    return (expectedTime >= startOfMonth && expectedTime <= endOfMonth);
+                });
+
+                if (monthPayments.length === 0) {
+                    listEl.innerHTML = '<li class="text-gray-500">לא נמצאו תשלומים לחודש זה.</li>';
+                } else {
+                    // מיין מהחדש לישן לפי תאריך
+                    monthPayments.sort((a, b) => new Date(b.expectedDate) - new Date(a.expectedDate));
+                    
+                    monthPayments.forEach(p => {
+                        const li = document.createElement('li');
+                        li.className = "flex justify-between items-center p-3 bg-gray-50 rounded-md border";
+                        
+                        const statusColor = p.status === 'received' ? 'text-green-600' : 'text-blue-600';
+                        const statusText = p.status === 'received' ? 'התקבל' : 'צפוי';
+                        const date = new Date(p.expectedDate).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' });
+
+                        li.innerHTML = `
+                            <div>
+                                <div class="font-semibold">${p.customerName}</div>
+                                <div class="text-sm text-gray-500">${date} - ${p.paymentType}</div>
+                            </div>
+                            <div class="text-left">
+                                <div class="font-bold">₪${p.amount.toLocaleString()}</div>
+                                <div class="text-sm ${statusColor}">${statusText}</div>
+                            </div>
+                        `;
+                        listEl.appendChild(li);
+                    });
+                }
+                
+                // הצג את המודאל
+                modal.classList.remove('hidden');
+
+            } catch (error) {
+                console.error("שגיאה בפתיחת פירוט חודש:", error);
+                // הצג שגיאה בתוך המודאל במקום לקרוס
+                listEl.innerHTML = `<li class="text-red-500">אירעה שגיאה בטעינת הנתונים: ${error.message}</li>`;
+                modal.classList.remove('hidden'); // ודא שהוא מוצג כדי לראות את השגיאה
+            }
+        }
+
+        function closeMonthDetailsModal() {
+            const modal = document.getElementById('month-details-modal');
+            if (modal) { // בדיקה למניעת קריסה
+                modal.classList.add('hidden');
+            }
+        }
+        
+        // --- סוף פונקציות חדשות ---
 
         // --- איתחול כללי ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // חיבור Event Listeners
-            document.getElementById('add-payment-btn').onclick = () => showPaymentFormView(null);
-            document.getElementById('collection-btn').onclick = showCollectionView;
-            document.getElementById('reports-btn').onclick = showReportsView; // הוספת ליסנר לכפתור דוחות
-            document.getElementById('payment-form').onsubmit = handlePaymentFormSubmit;
-            
-            /* שינויים */
-            document.getElementById('payment-type').onchange = toggleDueDateInput;
-            
-            document.getElementById('cancel-form-btn').onclick = () => {
-                toggleDueDateInput(null, true); // איפוס שדה תאריך
-                showDashboardView();
-            };
-            /* סוף שינויים */
-            
-            document.getElementById('back-to-dashboard-btn').onclick = showDashboardView;
-            document.getElementById('back-to-dashboard-from-reports-btn').onclick = showDashboardView; // הוספת ליסנר לכפתור חזרה מדוחות
-            
-            document.getElementById('prev-month-btn').onclick = () => changeMonth(-1);
-            document.getElementById('next-month-btn').onclick = () => changeMonth(1);
-            
-            // הסתר את כל התצוגות והצג טעינה
-            showView(null); // מסתיר הכל
-            document.getElementById('app-container').classList.add('hidden'); // הסתר את האפליקציה
-            document.getElementById('loading-spinner').classList.remove('hidden'); // הצג ספינר
-            
-            // התחל את תהליך Firebase
-            initFirebase();
-        });
+        /* --- שינוי: הסרת ה-EventListener --- */
+        
+        // הסתר את כל התצוגות והצג טעינה
+        showView(null); // מסתיר הכל
+        /* --- תיקון: החזרת הקוד החסר --- */
+        document.getElementById('app-container').classList.add('hidden'); // הסתר את האפליקציה
+        document.getElementById('loading-spinner').classList.remove('hidden'); // הצג ספינר
+        
+        // התחל את תהליך Firebase
+        initFirebase();
+        /* --- סוף תיקון --- */
+        /* --- סוף שינוי --- */
 
     </script>
-    
-    <style>
-        /* סגנון עברי וכללי */
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f7fafc; /* אפור בהיר */
-        }
-        /* הסתרת סרגל הגלילה של הקרוסלה */
-        #months-carousel::-webkit-scrollbar {
-            display: none;
-        }
-        #months-carousel {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        /* תיקון קל לכפתור ההסדרה ברשימת הגבייה */
-        #collection-list button {
-            flex-shrink: 0; /* מונע מהכפתור להתכווץ */
-        }
-        #collection-list div {
-            overflow-wrap: break-word; /* גורם לשמות ארוכים להישבר */
-            min-width: 0; /* עוזר לגלישה */
-        }
-    </style>
-</head>
-<body class="bg-gray-100">
-
-    <!-- מסך טעינה התחלתי -->
-    <div id="loading-spinner" class="flex justify-center items-center min-h-screen">
-        <div class="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-    </div>
-
-    <!-- קונטיינר ראשי של האפליקציה (מוסתר בהתחלה) -->
-    <div id="app-container" class="max-w-4xl mx-auto p-4 hidden">
-
-        <!-- ===== 1. תצוגת דאשבורד (ראשית) ===== -->
-        <div id="dashboard-view" style="display: none;">
-            <header class="flex justify-between items-center mb-6 flex-wrap gap-2">
-                <h1 class="text-3xl font-bold text-gray-800">לוח הכנסות</h1>
-                <div class="space-x-2 space-x-reverse flex items-center flex-wrap gap-2">
-                    <!-- שיניתי את הכפתור להכיל תגית -->
-                    <button id="collection-btn" class="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-600 transition-all flex items-center space-x-2 space-x-reverse">
-                        <span>חלון גבייה</span>
-                        <span id="collection-total-badge" class="bg-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full hidden">₪0</span>
-                    </button>
-                    <!-- כפתור דוחות חדש -->
-                    <button id="reports-btn" class="bg-gray-600 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-700 transition-all">
-                        דוחות
-                    </button>
-                    <button id="add-payment-btn" class="bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-all">
-                        + קליטת תשלום
-                    </button>
-                </div>
-            </header>
-
-            <!-- ניווט חודשים -->
-            <div class="flex justify-between items-center mb-4">
-                <button id="next-month-btn" class="bg-gray-200 p-3 rounded-full hover:bg-gray-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                </button>
-                <h2 class="text-xl font-semibold">תחזית חודשית</h2>
-                <button id="prev-month-btn" class="bg-gray-200 p-3 rounded-full hover:bg-gray-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                </button>
-            </div>
-
-            <!-- קרוסלת חודשים -->
-            <div id="months-carousel" class="flex overflow-x-auto gap-4 p-4 justify-center items-center snap-x snap-mandatory">
-                <!-- כרטיסיות החודשים יוכנסו כאן על ידי JS -->
-            </div>
-            
-            <p class="text-center text-gray-500 mt-4 text-sm">מוצגים 3 חודשים בכל פעם. לחצו על החיצים לניווט.</p>
-        </div>
-
-        <!-- ===== 2. תצוגת טופס קליטת תשלום ===== -->
-        <div id="payment-form-view" style="display: none;">
-            <h2 id="form-title" class="text-2xl font-bold mb-6">קליטת תשלום חדש</h2>
-            <form id="payment-form" class="bg-white p-6 rounded-lg shadow-md space-y-4">
-                
-                <div>
-                    <label for="customer-name-input" class="block text-sm font-medium text-gray-700">שם לקוח (בחר או הקלד חדש)</label>
-                    <input list="customers-list" id="customer-name-input" name="customer-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-                    <datalist id="customers-list">
-                        <!-- אופציות לקוח יוכנסו כאן על ידי JS -->
-                    </datalist>
-                </div>
-
-                <div>
-                    <label for="payment-amount" class="block text-sm font-medium text-gray-700">סכום (בש"ח)</label>
-                    <input type="number" id="payment-amount" name="payment-amount" min="0" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-                </div>
-
-                <div>
-                    <label for="payment-type" class="block text-sm font-medium text-gray-700">סוג תשלום</label>
-                    <select id="payment-type" name="payment-type" class="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
-                        <option value="" disabled selected>בחר סוג תשלום...</option>
-                        <option value="immediate">מיידי</option>
-                        <option value="current">שוטף (במהלך חודש הבא)</option>
-                        <option value="current_30">שוטף + 30 (סוף חודש הבא)</option>
-                        <option value="current_45">שוטף + 45</option>
-                        <option value="current_60">שוטף + 60</option>
-                        <!-- הוספת אפשרות חדשה -->
-                        <option value="split_50_50">50% מיידי, 50% בגמר (בחר תאריך)</option>
-                        <option value="future">תשלום עתידי (לגבייה)</option>
-                    </select>
-                </div>
-
-                <!-- שדה חדש לבחירת תאריך (מוסתר) -->
-                <div id="payment-due-date-container" style="display: none;">
-                    <label for="payment-due-date" class="block text-sm font-medium text-gray-700">תאריך יעד לגמר (עבור 50% שניים)</label>
-                    <input type="date" id="payment-due-date" name="payment-due-date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                <!-- סוף שדה חדש -->
-
-                <!-- ===== שינוי - הוספת אזור להודעת שגיאה ===== -->
-                <div id="form-error-message" class="text-red-600 text-sm p-3 bg-red-50 rounded-lg hidden">
-                    <!-- הודעת השגיאה תופיע כאן -->
-                </div>
-                <!-- ===== סוף שינוי ===== -->
-
-
-                <div class="flex justify-start space-x-4 space-x-reverse pt-4">
-                    <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition-all">שמור תשלום</button>
-                    <button type="button" id="cancel-form-btn" class="bg-gray-200 text-gray-800 px-6 py-2 rounded-lg hover:bg-gray-300 transition-all">ביטול</button>
-                </div>
-            </form>
-        </div>
-
-        <!-- ===== 3. תצוגת חלון גבייה ===== -->
-        <div id="collection-view" style="display: none;">
-            <header class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">חלון גבייה</h2>
-                <button id="back-to-dashboard-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
-                    חזור לדאשבורד
-                </button>
-            </header>
-            
-            <div class="bg-white p-6 rounded-lg shadow-md mb-4">
-                <h3 class="text-lg font-semibold">סך הכל לגבייה</h3>
-                <div id="collection-total" class="text-3xl font-bold text-yellow-600">₪0</div>
-            </div>
-
-            <ul id="collection-list" class="space-y-3">
-                <!-- רשימת התשלומים לגבייה תוכנס כאן על ידי JS -->
-            </ul>
-        </div>
-
-        <!-- ===== 4. תצוגת דוחות (חדש) ===== -->
-        <div id="reports-view" style="display: none;">
-            <header class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">דוחות הכנסה</h2>
-                <button id="back-to-dashboard-from-reports-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
-                    חזור לדאשבורד
-                </button>
-            </header>
-
-            <div class="space-y-6">
-                <!-- דוח לפי לקוח -->
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">הכנסות לפי לקוח</h3>
-                    <ul id="report-by-customer-list" class="max-h-60 overflow-y-auto">
-                        <!-- תוכן יוכנס על ידי JS -->
-                    </ul>
-                </div>
-                
-                <!-- דוח לפי חודש -->
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">הכנסות לפי חודש</h3>
-                    <ul id="report-by-month-list" class="max-h-60 overflow-y-auto">
-                        <!-- תוכן יוכנס על ידי JS -->
-                    </ul>
-                </div>
-                
-                <!-- דוח לפי שנה -->
-                <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">הכנסות לפי שנה</h3>
-                    <ul id="report-by-year-list" class="max-h-60 overflow-y-auto">
-                        <!-- תוכן יוכנס על ידי JS -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-
-    </div>
 </body>
 </html>
 
