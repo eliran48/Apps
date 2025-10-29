@@ -29,6 +29,32 @@
             overflow-wrap: break-word; /* גורם לשמות ארוכים להישבר */
             min-width: 0; /* עוזר לגלישה */
         }
+        /* הוספת סגנון ל-checkbox */
+        .form-checkbox {
+            appearance: none;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 1.25rem;
+            height: 1.25rem;
+            display: inline-block;
+            vertical-align: middle;
+            position: relative;
+            cursor: pointer;
+        }
+        .form-checkbox:checked {
+            background-color: #3b82f6;
+            border-color: #3b82f6;
+        }
+        .form-checkbox:checked::after {
+            content: '✔';
+            font-size: 0.8rem;
+            color: white;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -43,15 +69,19 @@
 
         <!-- ===== 1. תצוגת דאשבורד (ראשית) ===== -->
         <div id="dashboard-view" style="display: none;">
-            <header class="flex justify-between items-center mb-6 flex-wrap gap-2">
+            <header class="flex justify-between items-center mb-6 flex-wrap gap-4">
                 <h1 class="text-3xl font-bold text-gray-800">לוח הכנסות</h1>
-                <div class="space-x-2 space-x-reverse flex items-center flex-wrap gap-2">
-                    <!-- שיניתי את הכפתור להכיל תגית -->
+                <div class="flex items-center flex-wrap gap-2 justify-end">
+                    <!-- כפתור V חדש -->
+                    <label class="flex items-center space-x-2 space-x-reverse text-sm text-gray-700 cursor-pointer p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+                        <input type="checkbox" id="vat-toggle-dashboard" class="form-checkbox h-5 w-5 rounded text-blue-600 focus:ring-0">
+                        <span>כולל מע"מ (18%)</span>
+                    </label>
+                    <!-- כפתורים קיימים -->
                     <button id="collection-btn" class="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-600 transition-all flex items-center space-x-2 space-x-reverse">
                         <span>חלון גבייה</span>
                         <span id="collection-total-badge" class="bg-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full hidden">₪0</span>
                     </button>
-                    <!-- כפתור דוחות חדש -->
                     <button id="reports-btn" class="bg-gray-600 text-white px-4 py-2 rounded-lg shadow hover:bg-gray-700 transition-all">
                         דוחות
                     </button>
@@ -85,6 +115,11 @@
             <h2 id="form-title" class="text-2xl font-bold mb-6">קליטת תשלום חדש</h2>
             <form id="payment-form" class="bg-white p-6 rounded-lg shadow-md space-y-4">
                 
+                <p class="text-sm text-gray-600 bg-blue-50 p-3 rounded-lg">
+                    הערה: יש להזין סכומים <span class="font-bold">לפני</span> מע"מ.
+                    ניתן להציג את הסכום כולל מע"מ בתצוגה הראשית.
+                </p>
+
                 <div>
                     <label for="customer-name-input" class="block text-sm font-medium text-gray-700">שם לקוח (בחר או הקלד חדש)</label>
                     <input list="customers-list" id="customer-name-input" name="customer-name" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
@@ -94,7 +129,7 @@
                 </div>
 
                 <div>
-                    <label for="payment-amount" class="block text-sm font-medium text-gray-700">סכום (בש"ח)</label>
+                    <label for="payment-amount" class="block text-sm font-medium text-gray-700">סכום (לפני מע"מ)</label>
                     <input type="number" id="payment-amount" name="payment-amount" min="0" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
                 </div>
 
@@ -136,11 +171,18 @@
 
         <!-- ===== 3. תצוגת חלון גבייה ===== -->
         <div id="collection-view" style="display: none;">
-            <header class="flex justify-between items-center mb-6">
+            <header class="flex justify-between items-center mb-6 flex-wrap gap-4">
                 <h2 class="text-2xl font-bold text-gray-800">חלון גבייה</h2>
-                <button id="back-to-dashboard-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
-                    חזור לדאשבורד
-                </button>
+                <div class="flex items-center gap-4">
+                    <!-- כפתור V חדש -->
+                    <label class="flex items-center space-x-2 space-x-reverse text-sm text-gray-700 cursor-pointer p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+                        <input type="checkbox" id="vat-toggle-collection" class="form-checkbox h-5 w-5 rounded text-blue-600 focus:ring-0">
+                        <span>כולל מע"מ (18%)</span>
+                    </label>
+                    <button id="back-to-dashboard-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
+                        חזור לדאשבורד
+                    </button>
+                </div>
             </header>
             
             <div class="bg-white p-6 rounded-lg shadow-md mb-4">
@@ -155,11 +197,18 @@
 
         <!-- ===== 4. תצוגת דוחות (חדש) ===== -->
         <div id="reports-view" style="display: none;">
-            <header class="flex justify-between items-center mb-6">
+            <header class="flex justify-between items-center mb-6 flex-wrap gap-4">
                 <h2 class="text-2xl font-bold text-gray-800">דוחות הכנסה</h2>
-                <button id="back-to-dashboard-from-reports-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
-                    חזור לדאשבורד
-                </button>
+                <div class="flex items-center gap-4">
+                    <!-- כפתור V חדש -->
+                    <label class="flex items-center space-x-2 space-x-reverse text-sm text-gray-700 cursor-pointer p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
+                        <input type="checkbox" id="vat-toggle-reports" class="form-checkbox h-5 w-5 rounded text-blue-600 focus:ring-0">
+                        <span>כולל מע"מ (18%)</span>
+                    </label>
+                    <button id="back-to-dashboard-from-reports-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
+                        חזור לדאשבורד
+                    </button>
+                </div>
             </header>
 
             <div class="space-y-6">
@@ -240,9 +289,41 @@
         let allPayments = [];
         let allCustomers = [];
         let currentMonthOffset = 0; // 0 = חודש נוכחי, 1 = חודש הבא, -1 = חודש קודם
+        let isVatIncluded = false; // --- חדש: משתנה גלובלי למע"מ
+        const VAT_RATE = 1.18; // --- חדש: קבוע למע"מ (18%)
 
         const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
         
+        // --- פונקציית עזר חדשה למע"מ ---
+        function applyVat(amount) {
+            return isVatIncluded ? amount * VAT_RATE : amount;
+        }
+
+        // --- פונקציה חדשה לטיפול במע"מ ---
+        function handleVatToggle(event) {
+            isVatIncluded = event.target.checked;
+            
+            // סנכרון כל תיבות הסימון
+            document.getElementById('vat-toggle-dashboard').checked = isVatIncluded;
+            document.getElementById('vat-toggle-collection').checked = isVatIncluded;
+            document.getElementById('vat-toggle-reports').checked = isVatIncluded;
+
+            // רענון התצוגה הנוכחית
+            if (document.getElementById('dashboard-view').style.display !== 'none') {
+                renderDashboard();
+            } else if (document.getElementById('collection-view').style.display !== 'none') {
+                renderCollectionView();
+            } else if (document.getElementById('reports-view').style.display !== 'none') {
+                renderReports();
+            }
+            
+            // אם המודאל פתוח, סגור אותו (המשתמש יצטרך לפתוח מחדש כדי לראות שינוי)
+            const modal = document.getElementById('month-details-modal');
+            if (!modal.classList.contains('hidden')) {
+                closeMonthDetailsModal(); 
+            }
+        }
+
         // --- איתחול Firebase ---
         async function initFirebase() {
             try {
@@ -297,6 +378,12 @@
                         document.getElementById('prev-month-btn').onclick = () => changeMonth(-1);
                         document.getElementById('next-month-btn').onclick = () => changeMonth(1);
                         document.getElementById('close-modal-btn').onclick = closeMonthDetailsModal;
+
+                        // --- הוספת ליסנרים למע"מ ---
+                        document.getElementById('vat-toggle-dashboard').onchange = handleVatToggle;
+                        document.getElementById('vat-toggle-collection').onchange = handleVatToggle;
+                        document.getElementById('vat-toggle-reports').onchange = handleVatToggle;
+                        // --- סוף הוספה ---
                         // --- סוף שינוי ---
 
                         // טעינת נתונים ראשונית לאחר התחברות
@@ -395,14 +482,19 @@
             const collectionPayments = allPayments.filter(p => p.status === 'collection');
             const collectionTotal = collectionPayments.reduce((sum, p) => sum + p.amount, 0);
             
+            // --- שינוי: החלת מע"מ על התצוגה ---
+            const displayCollectionTotal = applyVat(collectionTotal);
+            
             // 2. עדכון התגית
             const collectionBadge = document.getElementById('collection-total-badge');
-            if (collectionTotal > 0) {
-                collectionBadge.innerText = `₪${collectionTotal.toLocaleString()}`;
+            if (displayCollectionTotal > 0) {
+                // עיגול לאגורות הקרובות
+                collectionBadge.innerText = `₪${displayCollectionTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 collectionBadge.classList.remove('hidden');
             } else {
                 collectionBadge.classList.add('hidden');
             }
+            // --- סוף שינוי ---
 
             // 3. רינדור כרטיסיות חודשים
             const monthsContainer = document.getElementById('months-carousel');
@@ -493,10 +585,12 @@
             const customerTotals = {};
 
             validPayments.forEach(p => {
-                if (!customerTotals[p.customerName]) {
-                    customerTotals[p.customerName] = 0;
+                const customerName = p.customerName || 'לא ידוע';
+                if (!customerTotals[customerName]) {
+                    customerTotals[customerName] = 0;
                 }
-                customerTotals[p.customerName] += p.amount;
+                // --- שינוי: החלת מע"מ ---
+                customerTotals[customerName] += applyVat(p.amount);
             });
 
             // מיון לפי סכום, מהגבוה לנמוך
@@ -513,7 +607,8 @@
             sortedCustomers.forEach(([name, total]) => {
                 const li = document.createElement('li');
                 li.className = 'flex justify-between p-2 border-b last:border-b-0';
-                li.innerHTML = `<span>${name}</span><span class="font-semibold">₪${total.toLocaleString()}</span>`;
+                // --- שינוי: עיצוב המספר ---
+                li.innerHTML = `<span>${name}</span><span class="font-semibold">₪${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
                 listEl.appendChild(li);
             });
         }
@@ -528,7 +623,8 @@
                 if (!monthTotals[key]) {
                     monthTotals[key] = 0;
                 }
-                monthTotals[key] += p.amount;
+                // --- שינוי: החלת מע"מ ---
+                monthTotals[key] += applyVat(p.amount);
             });
 
             // מיון לפי מפתח (החודש), מהחדש לישן
@@ -548,7 +644,8 @@
                 
                 const li = document.createElement('li');
                 li.className = 'flex justify-between p-2 border-b last:border-b-0';
-                li.innerHTML = `<span>${monthName} ${year}</span><span class="font-semibold">₪${total.toLocaleString()}</span>`;
+                // --- שינוי: עיצוב המספר ---
+                li.innerHTML = `<span>${monthName} ${year}</span><span class="font-semibold">₪${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
                 listEl.appendChild(li);
             });
         }
@@ -562,7 +659,8 @@
                 if (!yearTotals[year]) {
                     yearTotals[year] = 0;
                 }
-                yearTotals[year] += p.amount;
+                // --- שינוי: החלת מע"מ ---
+                yearTotals[year] += applyVat(p.amount);
             });
 
             // מיון לפי שנה, מהחדשה לישנה
@@ -579,7 +677,8 @@
                 const total = yearTotals[year];
                 const li = document.createElement('li');
                 li.className = 'flex justify-between p-2 border-b last:border-b-0';
-                li.innerHTML = `<span>${year}</span><span class="font-semibold">₪${total.toLocaleString()}</span>`;
+                // --- שינוי: עיצוב המספר ---
+                li.innerHTML = `<span>${year}</span><span class="font-semibold">₪${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
                 listEl.appendChild(li);
             });
         }
@@ -588,20 +687,20 @@
 
         function createMonthCard(monthIndex, year) {
             const card = document.createElement('div');
-            /* --- תיקון: החזרת תוכן הפונקציה --- */
-            card.className = "month-card min-w-[280px] w-full max-w-sm bg-white p-6 rounded-lg shadow-lg border border-gray-200 transition-all duration-300 transform";
+            card.className = "month-card min-w-[280px] w-full max-w-sm bg-white p-6 rounded-lg shadow-lg border border-gray-200 transition-all duration-300 transform cursor-pointer hover:shadow-xl";
             
             const monthName = monthNames[monthIndex];
             const title = document.createElement('h3');
             title.className = "text-xl font-bold text-center mb-4";
             title.innerText = `${monthName} ${year}`;
             
-            // חישוב סכומים
+            // --- שינוי: חישוב סכומים (הפונקציה הפנימית תחיל מע"מ) ---
             const { expectedTotal, receivedTotal } = getMonthTotals(monthIndex, year);
             
             const totalEl = document.createElement('div');
             totalEl.className = "text-3xl font-bold text-center text-blue-600 mb-2";
-            totalEl.innerText = `₪${expectedTotal.toLocaleString()}`;
+            // עיגול המספר למספר שלם בתצוגה הראשית
+            totalEl.innerText = `₪${expectedTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
             
             const subtitleEl = document.createElement('div');
             subtitleEl.className = "text-sm text-center text-gray-500 mb-4";
@@ -609,30 +708,28 @@
             
             const receivedEl = document.createElement('div');
             receivedEl.className = "text-lg font-semibold text-center text-green-600";
-            receivedEl.innerText = `₪${receivedTotal.toLocaleString()}`;
+            // עיגול המספר למספר שלם בתצוגה הראשית
+            receivedEl.innerText = `₪${receivedTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
             
             const receivedSubtitleEl = document.createElement('div');
             receivedSubtitleEl.className = "text-sm text-center text-gray-500";
-            /* --- סוף תיקון --- */
             receivedSubtitleEl.innerText = "מתוכם התקבלו";
             
             card.append(title, totalEl, subtitleEl, receivedEl, receivedSubtitleEl);
 
-            // --- הוספה חדשה ---
             // הוספת לחיצה לפתיחת המודאל
             card.onclick = () => showMonthDetailsModal(monthIndex, year);
-            // --- סוף הוספה חדשה ---
 
             return card;
         }
 
         function getMonthTotals(monthIndex, year) {
-            /* --- תיקון: החזרת תוכן הפונקציה --- */
             let expectedTotal = 0;
             let receivedTotal = 0;
             
             const startOfMonth = new Date(year, monthIndex, 1).getTime();
-            const endOfMonth = new Date(year, monthIndex + 1, 0).getTime();
+            // --- תיקון: ודא שסוף החודש הוא באמת סוף החודש
+            const endOfMonth = new Date(year, monthIndex + 1, 0, 23, 59, 59).getTime();
 
             allPayments.forEach(p => {
                 if (p.status === 'collection' || !p.expectedDate) return;
@@ -647,8 +744,11 @@
                 }
             });
             
-            return { expectedTotal, receivedTotal };
-            /* --- סוף תיקון --- */
+            // --- שינוי: החלת מע"מ לפני החזרת הערך ---
+            return { 
+                expectedTotal: applyVat(expectedTotal), 
+                receivedTotal: applyVat(receivedTotal) 
+            };
         }
         
         function renderCollectionView() {
@@ -671,22 +771,21 @@
                 
                 const info = document.createElement('div');
                 
-                // --- שינוי ---
-                // הוספת תאריך יעד אם קיים
                 let dateInfo = '';
                 if (p.expectedDate) {
                     const date = new Date(p.expectedDate).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
                     dateInfo = `<div class="text-sm text-red-600 font-medium">תאריך יעד: ${date}</div>`;
                 }
                 
+                // --- שינוי: החלת מע"מ על הסכום בפריט ---
+                const displayAmount = applyVat(p.amount);
                 info.innerHTML = `
                     <div>
                         <span class="font-bold">${p.customerName}</span>
-                        <span class="text-gray-600"> - ₪${p.amount.toLocaleString()}</span>
+                        <span class="text-gray-600"> - ₪${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
                         ${dateInfo}
                     </div>
                 `;
-                // --- סוף שינוי ---
                 
                 const settleBtn = document.createElement('button');
                 settleBtn.innerText = "הסדר תשלום";
@@ -697,7 +796,9 @@
                 collectionList.appendChild(item);
             });
             
-            document.getElementById('collection-total').innerText = `₪${total.toLocaleString()}`;
+            // --- שינוי: החלת מע"מ על הסכום הכולל ---
+            const displayTotal = applyVat(total);
+            document.getElementById('collection-total').innerText = `₪${displayTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
         
         function populateCustomerDatalist() {
@@ -716,11 +817,9 @@
         async function handleSplitPayment(form, customerName, totalAmount, customerId) {
             const dueDate = document.getElementById('payment-due-date').value;
             if (!dueDate) {
-                // --- שינוי ---
                 console.error("יש לבחור תאריך יעד לגמר הפרויקט.");
                 showFormError("עבור תשלום 50/50, חובה לבחור תאריך יעד.");
                 return;
-                // --- סוף שינוי ---
             }
 
             const paymentsPath = `artifacts/${appId}/users/${userId}/payments`;
@@ -746,9 +845,7 @@
                 paymentType: 'split_50_50 (due date)',
                 logDate: logDate.toISOString(),
                 expectedDate: new Date(dueDate).toISOString(), // התאריך שנבחר
-                // --- שינוי ---
                 status: 'collection' // עובר לגבייה
-                // --- סוף שינוי ---
             };
 
             try {
@@ -764,10 +861,8 @@
                 showDashboardView();
 
             } catch (error) {
-                // --- שינוי ---
                 console.error("שגיאה בשמירת פיצול תשלום:", error);
                 showFormError(`שגיאה בשמירת הפיצול: ${error.message}`);
-                // --- סוף שינוי ---
             }
         }
         /* סוף פונקציה חדשה */
@@ -775,10 +870,7 @@
 
         async function handlePaymentFormSubmit(e) {
             e.preventDefault();
-            // --- שינוי ---
-            // הסתר הודעות שגיאה קודמות
             document.getElementById('form-error-message').classList.add('hidden');
-            // --- סוף שינוי ---
 
             if (!userId) {
                 console.error("שגיאה: המשתמש אינו מחובר.");
@@ -809,26 +901,19 @@
                     customerId = docRef.id;
                     console.log("לקוח חדש נוצר:", customerId);
                 } catch (error) {
-                    // --- שינוי ---
                     console.error("שגיאה ביצירת לקוח חדש:", error);
                     showFormError(`שגיאה ביצירת לקוח: ${error.message}`);
                     return;
-                    // --- סוף שינוי ---
                 }
             } else {
                 customerId = customer.id;
             }
 
-            // --- שינוי ---
             // 2. בדיקה אם זה תשלום מפוצל
             if (paymentType === 'split_50_50') {
-                // אם כן, טפל בזה בנפרד וסיים
                 if (editId) {
                     console.error("לא ניתן לפצל תשלום שנמצא בגבייה.");
-                    // --- שינוי ---
-                    // צריך להודיע למשתמש
                     showFormError("לא ניתן לפצל תשלום שנמצא בגבייה. אנא בחר סוג תשלום אחר להסדרה.");
-                    // --- סוף שינוי ---
                     return;
                 }
                 await handleSplitPayment(form, customerName, amount, customerId);
@@ -873,10 +958,8 @@
                 showDashboardView();
                 
             } catch (error) {
-                // --- שינוי ---
                 console.error("שגיאה בשמירת התשלום:", error);
                 showFormError(`שגיאה בשמירת התשלום: ${error.message}`);
-                // --- סוף שינוי ---
             }
         }
         
@@ -918,8 +1001,6 @@
             const paymentTypeSelect = document.getElementById('payment-type');
             const dueDateInput = document.getElementById('payment-due-date');
             
-            // --- שינוי ---
-            // בדיקה אם האירוע הוא null
             let paymentType;
             if (forceHide) {
                  paymentType = null;
@@ -928,7 +1009,6 @@
             } else {
                 paymentType = paymentTypeSelect.value;
             }
-            // --- סוף שינוי ---
 
             if (forceHide) {
                 container.style.display = 'none';
@@ -984,14 +1064,16 @@
                         const statusColor = p.status === 'received' ? 'text-green-600' : 'text-blue-600';
                         const statusText = p.status === 'received' ? 'התקבל' : 'צפוי';
                         const date = new Date(p.expectedDate).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' });
-
+                        
+                        // --- שינוי: החלת מע"מ ---
+                        const displayAmount = applyVat(p.amount);
                         li.innerHTML = `
                             <div>
                                 <div class="font-semibold">${p.customerName}</div>
                                 <div class="text-sm text-gray-500">${date} - ${p.paymentType}</div>
                             </div>
                             <div class="text-left">
-                                <div class="font-bold">₪${p.amount.toLocaleString()}</div>
+                                <div class="font-bold">₪${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
                                 <div class="text-sm ${statusColor}">${statusText}</div>
                             </div>
                         `;
@@ -1020,18 +1102,14 @@
         // --- סוף פונקציות חדשות ---
 
         // --- איתחול כללי ---
-        /* --- שינוי: הסרת ה-EventListener --- */
         
         // הסתר את כל התצוגות והצג טעינה
         showView(null); // מסתיר הכל
-        /* --- תיקון: החזרת הקוד החסר --- */
         document.getElementById('app-container').classList.add('hidden'); // הסתר את האפליקציה
         document.getElementById('loading-spinner').classList.remove('hidden'); // הצג ספינר
         
         // התחל את תהליך Firebase
         initFirebase();
-        /* --- סוף תיקון --- */
-        /* --- סוף שינוי --- */
 
     </script>
 </body>
