@@ -451,6 +451,61 @@
         }
 
         // --- לוגיקת טופס ---
+
+        /* פונקציה חדשה לטיפול בתשלום מפוצל */
+        async function handleSplitPayment(form, customerName, totalAmount, customerId) {
+            const dueDate = document.getElementById('payment-due-date').value;
+            if (!dueDate) {
+                console.error("יש לבחור תאריך יעד לגמר הפרויקט.");
+                // בעתיד אפשר להוסיף כאן הודעת שגיאה למשתמש
+                return;
+            }
+
+            const paymentsPath = `artifacts/${appId}/users/${userId}/payments`;
+            const logDate = new Date();
+            const amount50 = totalAmount / 2;
+
+            // 1. Payment 1: 50% Immediate
+            const payment1 = {
+                customerId,
+                customerName,
+                amount: amount50,
+                paymentType: 'split_50_50 (immediate)',
+                logDate: logDate.toISOString(),
+                expectedDate: logDate.toISOString(), // Today
+                status: 'received' // התקבל
+            };
+
+            // 2. Payment 2: 50% Due Date
+            const payment2 = {
+                customerId,
+                customerName,
+                amount: amount50,
+                paymentType: 'split_50_50 (due date)',
+                logDate: logDate.toISOString(),
+                expectedDate: new Date(dueDate).toISOString(), // התאריך שנבחר
+                status: 'expected' // צפוי
+            };
+
+            try {
+                // שמירת שני התשלומים
+                await addDoc(collection(db, paymentsPath), payment1);
+                await addDoc(collection(db, paymentsPath), payment2);
+
+                console.log("פיצול תשלום נשמר (2 רשומות)");
+                
+                // איפוס הטופס וחזרה לדאשבורד
+                form.reset();
+                toggleDueDateInput(null, true); // הסתר שדה תאריך
+                showDashboardView();
+
+            } catch (error) {
+                console.error("שגיאה בשמירת פיצול תשלום:", error);
+            }
+        }
+        /* סוף פונקציה חדשה */
+
+
         async function handlePaymentFormSubmit(e) {
             e.preventDefault();
             if (!userId) {
@@ -470,7 +525,7 @@
                 return;
             }
 
-            // 1. טיפול בלקוח
+            // 1. טיפול בלקוח (הועבר לכאן כדי ש-customerId יהיה זמין)
             let customerId;
             let customer = allCustomers.find(c => c.name === customerName);
             if (!customer) {
@@ -488,11 +543,24 @@
                 customerId = customer.id;
             }
 
-            // 2. חישוב תאריך וסטטוס
+            // --- שינוי ---
+            // 2. בדיקה אם זה תשלום מפוצל
+            if (paymentType === 'split_50_50') {
+                // אם כן, טפל בזה בנפרד וסיים
+                if (editId) {
+                    console.error("לא ניתן לפצל תשלום שנמצא בגבייה.");
+                    return;
+                }
+                await handleSplitPayment(form, customerName, amount, customerId);
+                return; // סיים את הפונקציה כאן
+            }
+            // --- סוף שינוי ---
+
+            // 3. חישוב תאריך וסטטוס (עבור תשלומים רגילים)
             const logDate = new Date();
             const { expectedDate, status } = calculatePaymentDetails(paymentType, logDate);
 
-            // 3. יצירת אובייקט תשלום
+            // 4. יצירת אובייקט תשלום
             const paymentData = {
                 customerId,
                 customerName,
@@ -503,7 +571,7 @@
                 status
             };
 
-            // 4. שמירה ב-Firestore
+            // 5. שמירה ב-Firestore
             try {
                 const paymentsPath = `artifacts/${appId}/users/${userId}/payments`;
                 if (editId) {
@@ -521,6 +589,7 @@
                 // איפוס הטופס וחזרה לדאשבורד
                 form.reset();
                 form.dataset.editId = "";
+                toggleDueDateInput(null, true); // הסתר שדה תאריך
                 showDashboardView();
                 
             } catch (error) {
@@ -558,6 +627,28 @@
             return { expectedDate, status };
         }
 
+        /* פונקציה חדשה להצגת/הסתרת שדה התאריך */
+        function toggleDueDateInput(event, forceHide = false) {
+            const container = document.getElementById('payment-due-date-container');
+            if (!container) return;
+            
+            const paymentTypeSelect = document.getElementById('payment-type');
+            const dueDateInput = document.getElementById('payment-due-date');
+            const paymentType = event ? event.target.value : paymentTypeSelect.value;
+
+            if (forceHide) {
+                container.style.display = 'none';
+                if (dueDateInput) dueDateInput.required = false;
+            } else if (paymentType === 'split_50_50') {
+                container.style.display = 'block';
+                if (dueDateInput) dueDateInput.required = true;
+            } else {
+                container.style.display = 'none';
+                if (dueDateInput) dueDateInput.required = false;
+            }
+        }
+        /* סוף פונקציה חדשה */
+
         // --- ניווט חודשים ---
         function changeMonth(direction) {
             currentMonthOffset += direction;
@@ -572,7 +663,15 @@
             document.getElementById('reports-btn').onclick = showReportsView; // הוספת ליסנר לכפתור דוחות
             document.getElementById('payment-form').onsubmit = handlePaymentFormSubmit;
             
-            document.getElementById('cancel-form-btn').onclick = showDashboardView;
+            /* שינויים */
+            document.getElementById('payment-type').onchange = toggleDueDateInput;
+            
+            document.getElementById('cancel-form-btn').onclick = () => {
+                toggleDueDateInput(null, true); // איפוס שדה תאריך
+                showDashboardView();
+            };
+            /* סוף שינויים */
+            
             document.getElementById('back-to-dashboard-btn').onclick = showDashboardView;
             document.getElementById('back-to-dashboard-from-reports-btn').onclick = showDashboardView; // הוספת ליסנר לכפתור חזרה מדוחות
             
@@ -690,9 +789,18 @@
                         <option value="current_30">שוטף + 30 (סוף חודש הבא)</option>
                         <option value="current_45">שוטף + 45</option>
                         <option value="current_60">שוטף + 60</option>
+                        <!-- הוספת אפשרות חדשה -->
+                        <option value="split_50_50">50% מיידי, 50% בגמר (בחר תאריך)</option>
                         <option value="future">תשלום עתידי (לגבייה)</option>
                     </select>
                 </div>
+
+                <!-- שדה חדש לבחירת תאריך (מוסתר) -->
+                <div id="payment-due-date-container" style="display: none;">
+                    <label for="payment-due-date" class="block text-sm font-medium text-gray-700">תאריך יעד לגמר (עבור 50% שניים)</label>
+                    <input type="date" id="payment-due-date" name="payment-due-date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                <!-- סוף שדה חדש -->
 
                 <div class="flex justify-start space-x-4 space-x-reverse pt-4">
                     <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition-all">שמור תשלום</button>
@@ -759,7 +867,4 @@
     </div>
 </body>
 </html>
-
-
-
 
