@@ -142,12 +142,9 @@
                     renderDashboard();
                 } else if (document.getElementById('collection-view').style.display !== 'none') {
                     renderCollectionView();
+                } else if (document.getElementById('reports-view').style.display !== 'none') {
+                    renderReports();
                 }
-                // --- שינוי ---
-                // הסרנו את הסתרת הספינר מכאן
-                // document.getElementById('loading-spinner').classList.add('hidden');
-                // document.getElementById('app-container').classList.remove('hidden');
-                // --- סוף שינוי ---
             }, (error) => console.error("שגיאה בטעינת תשלומים:", error));
         }
 
@@ -205,11 +202,26 @@
         }
         // --- סוף הפונקציה החסרה ---
 
+        // --- שינוי ---
+        // פונקציית עזר להצגת שגיאות בטופס
+        function showFormError(message) {
+            const errorEl = document.getElementById('form-error-message');
+            errorEl.innerText = message;
+            errorEl.classList.remove('hidden');
+        }
+        // --- סוף שינוי ---
+
         function showPaymentFormView(paymentToEdit = null) {
             const form = document.getElementById('payment-form');
             form.reset();
             document.getElementById('form-title').innerText = "קליטת תשלום חדש";
             form.dataset.editId = "";
+
+            // --- שינוי ---
+            // איפוס והסתרת שדה התאריך והודעת השגיאה
+            toggleDueDateInput(null, true);
+            document.getElementById('form-error-message').classList.add('hidden');
+            // --- סוף שינוי ---
 
             if (paymentToEdit) {
                 document.getElementById('form-title').innerText = "הסדרת תשלום לגבייה";
@@ -218,7 +230,6 @@
                 document.getElementById('customer-name-input').disabled = true;
                 document.getElementById('payment-amount').value = paymentToEdit.amount;
                 document.getElementById('payment-amount').disabled = true;
-                // אל תמלא את סוג התשלום, המשתמש צריך לבחור את התנאי *החדש*
             } else {
                 document.getElementById('customer-name-input').disabled = false;
                 document.getElementById('payment-amount').disabled = false;
@@ -423,10 +434,23 @@
                 item.className = "flex justify-between items-center bg-white p-4 rounded-lg shadow mb-2";
                 
                 const info = document.createElement('div');
+                
+                // --- שינוי ---
+                // הוספת תאריך יעד אם קיים
+                let dateInfo = '';
+                if (p.expectedDate) {
+                    const date = new Date(p.expectedDate).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    dateInfo = `<div class="text-sm text-red-600 font-medium">תאריך יעד: ${date}</div>`;
+                }
+                
                 info.innerHTML = `
-                    <span class="font-bold">${p.customerName}</span>
-                    <span class="text-gray-600"> - ₪${p.amount.toLocaleString()}</span>
+                    <div>
+                        <span class="font-bold">${p.customerName}</span>
+                        <span class="text-gray-600"> - ₪${p.amount.toLocaleString()}</span>
+                        ${dateInfo}
+                    </div>
                 `;
+                // --- סוף שינוי ---
                 
                 const settleBtn = document.createElement('button');
                 settleBtn.innerText = "הסדר תשלום";
@@ -456,9 +480,11 @@
         async function handleSplitPayment(form, customerName, totalAmount, customerId) {
             const dueDate = document.getElementById('payment-due-date').value;
             if (!dueDate) {
+                // --- שינוי ---
                 console.error("יש לבחור תאריך יעד לגמר הפרויקט.");
-                // בעתיד אפשר להוסיף כאן הודעת שגיאה למשתמש
+                showFormError("עבור תשלום 50/50, חובה לבחור תאריך יעד.");
                 return;
+                // --- סוף שינוי ---
             }
 
             const paymentsPath = `artifacts/${appId}/users/${userId}/payments`;
@@ -484,7 +510,9 @@
                 paymentType: 'split_50_50 (due date)',
                 logDate: logDate.toISOString(),
                 expectedDate: new Date(dueDate).toISOString(), // התאריך שנבחר
-                status: 'expected' // צפוי
+                // --- שינוי ---
+                status: 'collection' // עובר לגבייה
+                // --- סוף שינוי ---
             };
 
             try {
@@ -500,7 +528,10 @@
                 showDashboardView();
 
             } catch (error) {
+                // --- שינוי ---
                 console.error("שגיאה בשמירת פיצול תשלום:", error);
+                showFormError(`שגיאה בשמירת הפיצול: ${error.message}`);
+                // --- סוף שינוי ---
             }
         }
         /* סוף פונקציה חדשה */
@@ -508,9 +539,14 @@
 
         async function handlePaymentFormSubmit(e) {
             e.preventDefault();
+            // --- שינוי ---
+            // הסתר הודעות שגיאה קודמות
+            document.getElementById('form-error-message').classList.add('hidden');
+            // --- סוף שינוי ---
+
             if (!userId) {
-                // במקום alert, נשתמש בהודעה פנימית אם אפשר, אבל alert פשוט יותר כרגע
                 console.error("שגיאה: המשתמש אינו מחובר.");
+                showFormError("שגיאה: המשתמש אינו מחובר. נסה לרענן את הדף.");
                 return;
             }
 
@@ -521,7 +557,8 @@
             const editId = form.dataset.editId;
 
             if (!customerName || !amount || !paymentType) {
-                console.error("אנא מלא את כל השדות."); // עדיף להציג הודעה למשתמש
+                console.error("אנא מלא את כל השדות.");
+                showFormError("אנא מלא את כל השדות.");
                 return;
             }
 
@@ -536,8 +573,11 @@
                     customerId = docRef.id;
                     console.log("לקוח חדש נוצר:", customerId);
                 } catch (error) {
+                    // --- שינוי ---
                     console.error("שגיאה ביצירת לקוח חדש:", error);
+                    showFormError(`שגיאה ביצירת לקוח: ${error.message}`);
                     return;
+                    // --- סוף שינוי ---
                 }
             } else {
                 customerId = customer.id;
@@ -549,6 +589,10 @@
                 // אם כן, טפל בזה בנפרד וסיים
                 if (editId) {
                     console.error("לא ניתן לפצל תשלום שנמצא בגבייה.");
+                    // --- שינוי ---
+                    // צריך להודיע למשתמש
+                    showFormError("לא ניתן לפצל תשלום שנמצא בגבייה. אנא בחר סוג תשלום אחר להסדרה.");
+                    // --- סוף שינוי ---
                     return;
                 }
                 await handleSplitPayment(form, customerName, amount, customerId);
@@ -593,7 +637,10 @@
                 showDashboardView();
                 
             } catch (error) {
+                // --- שינוי ---
                 console.error("שגיאה בשמירת התשלום:", error);
+                showFormError(`שגיאה בשמירת התשלום: ${error.message}`);
+                // --- סוף שינוי ---
             }
         }
         
@@ -634,7 +681,18 @@
             
             const paymentTypeSelect = document.getElementById('payment-type');
             const dueDateInput = document.getElementById('payment-due-date');
-            const paymentType = event ? event.target.value : paymentTypeSelect.value;
+            
+            // --- שינוי ---
+            // בדיקה אם האירוע הוא null
+            let paymentType;
+            if (forceHide) {
+                 paymentType = null;
+            } else if (event) {
+                paymentType = event.target.value;
+            } else {
+                paymentType = paymentTypeSelect.value;
+            }
+            // --- סוף שינוי ---
 
             if (forceHide) {
                 container.style.display = 'none';
@@ -801,6 +859,13 @@
                     <input type="date" id="payment-due-date" name="payment-due-date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
                 <!-- סוף שדה חדש -->
+
+                <!-- ===== שינוי - הוספת אזור להודעת שגיאה ===== -->
+                <div id="form-error-message" class="text-red-600 text-sm p-3 bg-red-50 rounded-lg hidden">
+                    <!-- הודעת השגיאה תופיע כאן -->
+                </div>
+                <!-- ===== סוף שינוי ===== -->
+
 
                 <div class="flex justify-start space-x-4 space-x-reverse pt-4">
                     <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition-all">שמור תשלום</button>
