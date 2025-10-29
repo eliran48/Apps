@@ -549,7 +549,16 @@
         }
         function showAuthView() { /* ... (ללא שינוי) ... */ 
             showView('auth-view');
-            showAuthTab('login'); 
+            
+            // --- תיקון: הצג לשונית סנכרון אם המשתמש אנונימי ---
+            const currentUser = auth.currentUser;
+            if (currentUser && currentUser.isAnonymous) {
+                showAuthTab('register');
+            } else {
+                showAuthTab('login');
+            }
+            // --- סוף תיקון ---
+            
             sessionStorage.removeItem('logout'); 
         }
         function renderDashboard() { /* ... (ללא שינוי) ... */ 
@@ -595,16 +604,37 @@
             
             document.getElementById('form-error-message').classList.add('hidden');
             if (paymentToEdit) {
-                document.getElementById('form-title').innerText = "הסדרת תשלום לגבייה";
+                document.getElementById('form-title').innerText = paymentToEdit.id ? "עריכת תשלום קיים" : "הסדרת תשלום לגבייה"; // הוספת כותרת לעריכה
                 form.dataset.editId = paymentToEdit.id;
                 document.getElementById('customer-name-input').value = paymentToEdit.customerName;
-                document.getElementById('customer-name-input').disabled = true;
-                try {
-                    document.getElementById('customer-classification').value = paymentToEdit.classification || '';
-                    document.getElementById('payment-details').value = paymentToEdit.details || '';
-                } catch (e) { console.error("שגיאה בטעינת נתוני עריכה", e); }
+                document.getElementById('customer-name-input').disabled = true; // נעל את שם הלקוח בעריכה
+                
+                // מילוי שדות קיימים
+                document.getElementById('customer-classification').value = paymentToEdit.classification || '';
+                document.getElementById('payment-details').value = paymentToEdit.details || '';
                 document.getElementById('payment-amount').value = paymentToEdit.amount;
-                document.getElementById('payment-amount').disabled = true;
+                document.getElementById('payment-amount').disabled = !!paymentToEdit.id; // נעל סכום אם זה לא הסדרת גבייה
+                
+                document.getElementById('payment-type').value = paymentToEdit.paymentType;
+                
+                // טיפול בשדות תאריך לפי הסוג
+                const expectedDate = paymentToEdit.expectedDate ? new Date(paymentToEdit.expectedDate) : null;
+                const dateISO = expectedDate ? expectedDate.toISOString().substring(0, 10) : '';
+
+                if (paymentToEdit.paymentType === 'split_50_50 (due date)') {
+                    document.getElementById('payment-type').value = 'split_50_50';
+                    document.getElementById('payment-due-date').value = dateISO;
+                    toggleDateInputs(null, false, 'split_50_50');
+                } else if (paymentToEdit.paymentType === 'retainer') {
+                    // בריטיינר אנחנו רוצים לשנות את הסכום או הפירוט, לא את התאריך הבודד
+                    // ניתן להציג את התאריך הצפוי הנוכחי
+                    document.getElementById('retainer-renewal-date').value = dateISO;
+                    toggleDateInputs(null, false, 'retainer');
+                } else {
+                    // שדות תאריך רגילים פשוט יכוסו על ידי הבחירה ב select
+                    toggleDateInputs(null, false, paymentToEdit.paymentType);
+                }
+
             } else {
                 document.getElementById('customer-name-input').disabled = false;
                 document.getElementById('payment-amount').disabled = false;
@@ -904,6 +934,8 @@
             if (!customerName || !amount || !paymentType) {
                 showFormError("אנא מלא את כל השדות."); return;
             }
+            
+            // 1. יצירת לקוח אם לא קיים
             let customerId;
             let customer = allCustomers.find(c => c.name === customerName);
             if (!customer) {
@@ -918,37 +950,65 @@
                 customerId = customer.id;
             }
             
-            // --- שינוי: הוספת בדיקה לריטיינר ---
-            if (paymentType === 'split_50_50') {
-                if (editId) {
-                    showFormError("לא ניתן לפצל תשלום שנמצא בגבייה. אנא בחר סוג תשלום אחר להסדרה."); return;
+            // 2. טיפול במקרים מיוחדים (פיצול וריטיינר) - רק ביצירה חדשה!
+            if (!editId) { 
+                if (paymentType === 'split_50_50') {
+                    await handleSplitPayment(form, customerName, amount, customerId);
+                    return; 
+                } else if (paymentType === 'retainer') {
+                    await handleRetainerPayment(form, customerName, amount, customerId);
+                    return;
                 }
-                await handleSplitPayment(form, customerName, amount, customerId);
-                return; 
-            } else if (paymentType === 'retainer') {
-                 if (editId) {
-                    showFormError("לא ניתן להפוך תשלום בגבייה לריטיינר. אנא בחר סוג תשלום אחר להסדרה."); return;
+            } else {
+                 // מונע המרת תשלום קיים לריטיינר/פיצול
+                if (paymentType === 'split_50_50' || paymentType === 'retainer') {
+                    showFormError("לא ניתן לשנות תשלום קיים לסוג 'פיצול' או 'ריטיינר'."); return;
                 }
-                await handleRetainerPayment(form, customerName, amount, customerId);
-                return;
             }
-            // --- סוף שינוי ---
             
+            // 3. יצירת/עדכון תשלום רגיל (או הסדרת גבייה)
             const logDate = new Date();
-            const { expectedDate, status } = calculatePaymentDetails(paymentType, logDate);
+            let expectedDate, status;
+            
+            if (editId) {
+                // אם עורכים, יש לקחת בחשבון שהתאריך הצפוי יכול להשתנות
+                const newDetails = calculatePaymentDetails(paymentType, logDate);
+                expectedDate = newDetails.expectedDate;
+                status = newDetails.status;
+
+                // אם זה תשלום בגבייה (collection) שמוסדר, הוא עכשיו הופך ל-expected/received
+                if (status === 'collection' && editId) {
+                    // המשתמש בחר סוג תשלום חדש (כמו 'מיידי'), לכן הסטטוס משתנה
+                    const originalPayment = allPayments.find(p => p.id === editId);
+                    if (originalPayment && originalPayment.status === 'collection') {
+                        // אם המשתמש בחר מיידי, הסטטוס הוא received. אחרת expected.
+                        status = (paymentType === 'immediate') ? 'received' : 'expected';
+                    }
+                }
+                
+            } else {
+                // יצירה חדשה של תשלום רגיל
+                const newDetails = calculatePaymentDetails(paymentType, logDate);
+                expectedDate = newDetails.expectedDate;
+                status = newDetails.status;
+            }
+            
+            // אם זה עריכה, אנחנו משתמשים בתאריך הצפוי החדש, אבל לא מעדכנים את logDate
             const paymentData = {
                 customerId, customerName, amount, paymentType,
-                logDate: logDate.toISOString(),
+                logDate: editId ? allPayments.find(p => p.id === editId).logDate : logDate.toISOString(), // שמור את תאריך הרישום המקורי
                 expectedDate: expectedDate ? expectedDate.toISOString() : null,
                 status,
                 classification: classification, 
                 details: details 
             };
+
             try {
                 const paymentsPath = `artifacts/${appId}/users/${userId}/payments`;
                 if (editId) {
                     const paymentRef = doc(db, paymentsPath, editId);
-                    await setDoc(paymentRef, paymentData);
+                    // השתמש ב-updateDoc כדי לשמור על שדות שלא עברו בטופס (כמו logDate המקורי)
+                    await updateDoc(paymentRef, paymentData); 
                 } else {
                     await addDoc(collection(db, paymentsPath), paymentData);
                 }
@@ -1039,7 +1099,7 @@
                     monthPayments.sort((a, b) => new Date(b.expectedDate) - new Date(a.expectedDate));
                     monthPayments.forEach(p => {
                         const li = document.createElement('li');
-li.className = "flex justify-between items-center p-3 bg-gray-50 rounded-md border";
+                        li.className = "flex justify-between items-center p-3 bg-gray-50 rounded-md border";
                         const statusColor = p.status === 'received' ? 'text-green-600' : 'text-blue-600';
                         const statusText = p.status === 'received' ? 'התקבל' : 'צפוי';
                         const date = new Date(p.expectedDate).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' });
@@ -1051,6 +1111,17 @@ li.className = "flex justify-between items-center p-3 bg-gray-50 rounded-md bord
                                 detailsHtml = `<div class="text-sm text-gray-500 mt-1" style="white-space: pre-wrap;">- ${p.details}</div>`;
                             }
                         } catch (e) { console.error("שגיאה בהצגת פירוט", e); }
+                        
+                        // --- חדש: כפתור עריכה ---
+                        const editButton = document.createElement('button');
+                        editButton.innerText = 'ערוך';
+                        editButton.className = 'text-blue-500 hover:text-blue-700 text-sm ml-2';
+                        editButton.onclick = (e) => {
+                            e.stopPropagation(); // מונע סגירת המודאל
+                            closeMonthDetailsModal();
+                            showPaymentFormView(p);
+                        };
+                        // --- סוף חדש ---
 
                         li.innerHTML = `
                             <div>
@@ -1058,11 +1129,15 @@ li.className = "flex justify-between items-center p-3 bg-gray-50 rounded-md bord
                                 <div class="text-sm text-gray-500">${date} - ${p.paymentType}</div>
                                 ${detailsHtml} 
                             </div>
-                            <div class="text-left">
-                                <div class="font-bold">₪${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
-                                <div class="text-sm ${statusColor}">${statusText}</div>
+                            <div class="text-left flex items-center">
+                                <div class="mr-4">
+                                    <div class="font-bold">₪${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+                                    <div class="text-sm ${statusColor}">${statusText}</div>
+                                </div>
                             </div>
                         `;
+                        // הוספת כפתור העריכה לאלמנט
+                        li.querySelector('.text-left').prepend(editButton);
                         listEl.appendChild(li);
                     });
                 }
@@ -1092,4 +1167,3 @@ li.className = "flex justify-between items-center p-3 bg-gray-50 rounded-md bord
     </script>
 </body>
 </html>
-
