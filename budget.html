@@ -8,52 +8,32 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        /* סגנון עברי וכללי */
+        /* ... (הסגנונות הקיימים לא השתנו) ... */
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: #f7fafc; /* אפור בהיר */
         }
-        /* הסתרת סרגל הגלילה של הקרוסלה */
-        #months-carousel::-webkit-scrollbar {
-            display: none;
-        }
-        #months-carousel {
-            -ms-overflow-style: none;  /* IE and Edge */
-            scrollbar-width: none;  /* Firefox */
-        }
-        /* תיקון קל לכפתור ההסדרה ברשימת הגבייה */
-        #collection-list button {
-            flex-shrink: 0; /* מונע מהכפתור להתכווץ */
-        }
-        #collection-list div {
-            overflow-wrap: break-word; /* גורם לשמות ארוכים להישבר */
-            min-width: 0; /* עוזר לגלישה */
-        }
-        /* הוספת סגנון ל-checkbox */
+        #months-carousel::-webkit-scrollbar { display: none; }
+        #months-carousel { -ms-overflow-style: none; scrollbar-width: none; }
+        #collection-list button { flex-shrink: 0; }
+        #collection-list div { overflow-wrap: break-word; min-width: 0; }
         .form-checkbox {
-            appearance: none;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            width: 1.25rem;
-            height: 1.25rem;
-            display: inline-block;
-            vertical-align: middle;
-            position: relative;
-            cursor: pointer;
+            appearance: none; background-color: #fff; border: 1px solid #ccc;
+            border-radius: 4px; width: 1.25rem; height: 1.25rem;
+            display: inline-block; vertical-align: middle; position: relative; cursor: pointer;
         }
-        .form-checkbox:checked {
-            background-color: #3b82f6;
-            border-color: #3b82f6;
-        }
+        .form-checkbox:checked { background-color: #3b82f6; border-color: #3b82f6; }
         .form-checkbox:checked::after {
-            content: '✔';
-            font-size: 0.8rem;
-            color: white;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            content: '✔'; font-size: 0.8rem; color: white;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+        }
+        
+        /* --- סגנונות חדשים למסך האימות --- */
+        .auth-tab {
+            @apply px-4 py-2 font-semibold text-gray-600 rounded-t-lg cursor-pointer;
+        }
+        .auth-tab.active {
+            @apply bg-white text-blue-600 border-b-2 border-blue-600;
         }
     </style>
 </head>
@@ -69,15 +49,28 @@
 
         <!-- ===== 1. תצוגת דאשבורד (ראשית) ===== -->
         <div id="dashboard-view" style="display: none;">
+            <!-- ... (התוכן נשאר זהה) ... -->
             <header class="flex justify-between items-center mb-6 flex-wrap gap-4">
-                <h1 class="text-3xl font-bold text-gray-800">לוח הכנסות</h1>
+                <div class="flex-grow">
+                    <h1 class="text-3xl font-bold text-gray-800">לוח הכנסות</h1>
+                    <!-- --- חדש: סטטוס משתמש --- -->
+                    <div id="user-status-container" class="text-sm text-gray-600 mt-1">
+                        <span id="user-status-text">טוען...</span>
+                        <button id="logout-btn" class="text-red-500 font-semibold ml-2 hover:underline hidden">(התנתק)</button>
+                    </div>
+                    <!-- --- סוף חדש --- -->
+                </div>
                 <div class="flex items-center flex-wrap gap-2 justify-end">
-                    <!-- כפתור V חדש -->
+                    <!-- כפתור V -->
                     <label class="flex items-center space-x-2 space-x-reverse text-sm text-gray-700 cursor-pointer p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
                         <input type="checkbox" id="vat-toggle-dashboard" class="form-checkbox h-5 w-5 rounded text-blue-600 focus:ring-0">
                         <span>כולל מע"מ (18%)</span>
                     </label>
-                    <!-- כפתורים קיימים -->
+                    <!-- --- חדש: כפתור סנכרון (מחליף את כפתור ההתנתקות) --- -->
+                    <button id="sync-btn" class="bg-purple-600 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-700 transition-all hidden">
+                        סנכרון / התחברות
+                    </button>
+                    <!-- --- סוף חדש --- -->
                     <button id="collection-btn" class="bg-yellow-500 text-white px-4 py-2 rounded-lg shadow hover:bg-yellow-600 transition-all flex items-center space-x-2 space-x-reverse">
                         <span>חלון גבייה</span>
                         <span id="collection-total-badge" class="bg-yellow-700 text-xs font-bold px-2 py-0.5 rounded-full hidden">₪0</span>
@@ -90,8 +83,8 @@
                     </button>
                 </div>
             </header>
-
-            <!-- ניווט חודשים -->
+            
+            <!-- ... (שאר הדאשבורד נשאר זהה) ... -->
             <div class="flex justify-between items-center mb-4">
                 <button id="next-month-btn" class="bg-gray-200 p-3 rounded-full hover:bg-gray-300">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
@@ -101,17 +94,13 @@
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                 </button>
             </div>
-
-            <!-- קרוסלת חודשים -->
-            <div id="months-carousel" class="flex overflow-x-auto gap-4 p-4 justify-center items-center snap-x snap-mandatory">
-                <!-- כרטיסיות החודשים יוכנסו כאן על ידי JS -->
-            </div>
-            
+            <div id="months-carousel" class="flex overflow-x-auto gap-4 p-4 justify-center items-center snap-x snap-mandatory"></div>
             <p class="text-center text-gray-500 mt-4 text-sm">מוצגים 3 חודשים בכל פעם. לחצו על החיצים לניווט.</p>
         </div>
 
         <!-- ===== 2. תצוגת טופס קליטת תשלום ===== -->
         <div id="payment-form-view" style="display: none;">
+             <!-- ... (התוכן נשאר זהה) ... -->
             <h2 id="form-title" class="text-2xl font-bold mb-6">קליטת תשלום חדש</h2>
             <form id="payment-form" class="bg-white p-6 rounded-lg shadow-md space-y-4">
                 
@@ -128,6 +117,12 @@
                     </datalist>
                 </div>
 
+                <!-- --- שדה קיים: סיווג לקוח --- -->
+                <div>
+                    <label for="customer-classification" class="block text-sm font-medium text-gray-700">סיווג לקוח</label>
+                    <input type="text" id="customer-classification" name="customer-classification" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
+                </div>
+                
                 <div>
                     <label for="payment-amount" class="block text-sm font-medium text-gray-700">סכום (לפני מע"מ)</label>
                     <input type="number" id="payment-amount" name="payment-amount" min="0" step="0.01" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500" required>
@@ -142,25 +137,33 @@
                         <option value="current_30">שוטף + 30 (סוף חודש הבא)</option>
                         <option value="current_45">שוטף + 45</option>
                         <option value="current_60">שוטף + 60</option>
-                        <!-- הוספת אפשרות חדשה -->
                         <option value="split_50_50">50% מיידי, 50% בגמר (בחר תאריך)</option>
+                        <!-- --- חדש: ריטיינר --- -->
+                        <option value="retainer">ריטיינר (תשלום חודשי קבוע)</option>
+                        <!-- --- סוף חדש --- -->
                         <option value="future">תשלום עתידי (לגבייה)</option>
                     </select>
                 </div>
 
-                <!-- שדה חדש לבחירת תאריך (מוסתר) -->
                 <div id="payment-due-date-container" style="display: none;">
                     <label for="payment-due-date" class="block text-sm font-medium text-gray-700">תאריך יעד לגמר (עבור 50% שניים)</label>
                     <input type="date" id="payment-due-date" name="payment-due-date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
-                <!-- סוף שדה חדש -->
 
-                <!-- ===== שינוי - הוספת אזור להודעת שגיאה ===== -->
-                <div id="form-error-message" class="text-red-600 text-sm p-3 bg-red-50 rounded-lg hidden">
-                    <!-- הודעת השגיאה תופיע כאן -->
+                <!-- --- חדש: שדה תאריך לריטיינר --- -->
+                <div id="retainer-renewal-date-container" style="display: none;">
+                    <label for="retainer-renewal-date" class="block text-sm font-medium text-gray-700">תאריך חידוש הריטיינר (עד מתי לשכפל)</label>
+                    <input type="date" id="retainer-renewal-date" name="retainer-renewal-date" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500">
                 </div>
-                <!-- ===== סוף שינוי ===== -->
+                <!-- --- סוף חדש --- -->
 
+                <!-- --- שדה קיים: פירוט --- -->
+                <div>
+                    <label for="payment-details" class="block text-sm font-medium text-gray-700">פירוט התשלום (אופציונלי)</label>
+                    <textarea id="payment-details" name="payment-details" rows="3" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"></textarea>
+                </div>
+
+                <div id="form-error-message" class="text-red-600 text-sm p-3 bg-red-50 rounded-lg hidden"></div>
 
                 <div class="flex justify-start space-x-4 space-x-reverse pt-4">
                     <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow hover:bg-blue-700 transition-all">שמור תשלום</button>
@@ -172,103 +175,131 @@
         <!-- ===== 3. תצוגת חלון גבייה ===== -->
         <div id="collection-view" style="display: none;">
             <header class="flex justify-between items-center mb-6 flex-wrap gap-4">
-                <h2 class="text-2xl font-bold text-gray-800">חלון גבייה</h2>
-                <div class="flex items-center gap-4">
-                    <!-- כפתור V חדש -->
+                <h2 class="text-2xl font-bold">חלון גבייה</h2>
+                <div class="flex items-center flex-wrap gap-2 justify-end">
                     <label class="flex items-center space-x-2 space-x-reverse text-sm text-gray-700 cursor-pointer p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
                         <input type="checkbox" id="vat-toggle-collection" class="form-checkbox h-5 w-5 rounded text-blue-600 focus:ring-0">
                         <span>כולל מע"מ (18%)</span>
                     </label>
-                    <button id="back-to-dashboard-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
-                        חזור לדאשבורד
-                    </button>
+                    <button id="back-to-dashboard-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">חזור לדאשבורד</button>
                 </div>
             </header>
-            
-            <div class="bg-white p-6 rounded-lg shadow-md mb-4">
-                <h3 class="text-lg font-semibold">סך הכל לגבייה</h3>
-                <div id="collection-total" class="text-3xl font-bold text-yellow-600">₪0</div>
+            <div class="bg-white p-6 rounded-lg shadow-md">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg font-medium">סך הכל לגבייה:</span>
+                    <span id="collection-total" class="text-2xl font-bold text-yellow-600">₪0</span>
+                </div>
+                <ul id="collection-list" class="space-y-2">
+                    <!-- רשימת התשלומים לגבייה תופיע כאן -->
+                </ul>
             </div>
-
-            <ul id="collection-list" class="space-y-3">
-                <!-- רשימת התשלומים לגבייה תוכנס כאן על ידי JS -->
-            </ul>
         </div>
 
-        <!-- ===== 4. תצוגת דוחות (חדש) ===== -->
+        <!-- ===== 4. תצוגת דוחות ===== -->
         <div id="reports-view" style="display: none;">
             <header class="flex justify-between items-center mb-6 flex-wrap gap-4">
-                <h2 class="text-2xl font-bold text-gray-800">דוחות הכנסה</h2>
-                <div class="flex items-center gap-4">
-                    <!-- כפתור V חדש -->
+                <h2 class="text-2xl font-bold">דוחות</h2>
+                <div class="flex items-center flex-wrap gap-2 justify-end">
                     <label class="flex items-center space-x-2 space-x-reverse text-sm text-gray-700 cursor-pointer p-2 rounded-lg bg-gray-100 hover:bg-gray-200">
                         <input type="checkbox" id="vat-toggle-reports" class="form-checkbox h-5 w-5 rounded text-blue-600 focus:ring-0">
                         <span>כולל מע"מ (18%)</span>
                     </label>
-                    <button id="back-to-dashboard-from-reports-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">
-                        חזור לדאשבורד
-                    </button>
+                    <button id="back-to-dashboard-from-reports-btn" class="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300 transition-all">חזור לדאשבורד</button>
                 </div>
             </header>
-
-            <div class="space-y-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <!-- דוח לפי לקוח -->
                 <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">הכנסות לפי לקוח</h3>
-                    <ul id="report-by-customer-list" class="max-h-60 overflow-y-auto">
-                        <!-- תוכן יוכנס על ידי JS -->
-                    </ul>
+                    <h3 class="text-lg font-semibold mb-4 border-b pb-2">הכנסות לפי לקוח</h3>
+                    <ul id="report-by-customer-list" class="space-y-2 max-h-96 overflow-y-auto"></ul>
                 </div>
-                
                 <!-- דוח לפי חודש -->
                 <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">הכנסות לפי חודש</h3>
-                    <ul id="report-by-month-list" class="max-h-60 overflow-y-auto">
-                        <!-- תוכן יוכנס על ידי JS -->
-                    </ul>
+                    <h3 class="text-lg font-semibold mb-4 border-b pb-2">הכנסות לפי חודש</h3>
+                    <ul id="report-by-month-list" class="space-y-2 max-h-96 overflow-y-auto"></ul>
                 </div>
-                
                 <!-- דוח לפי שנה -->
                 <div class="bg-white p-6 rounded-lg shadow-md">
-                    <h3 class="text-xl font-semibold mb-4 border-b pb-2">הכנסות לפי שנה</h3>
-                    <ul id="report-by-year-list" class="max-h-60 overflow-y-auto">
-                        <!-- תוכן יוכנס על ידי JS -->
-                    </ul>
+                    <h3 class="text-lg font-semibold mb-4 border-b pb-2">הכנסות לפי שנה</h3>
+                    <ul id="report-by-year-list" class="space-y-2 max-h-96 overflow-y-auto"></ul>
                 </div>
+            </div>
+        </div>
+        
+        <!-- ===== 6. תצוגת התחברות / סנכרון ===== -->
+        <div id="auth-view" style="display: none;" class="max-w-md mx-auto mt-10">
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <div class="flex border-b mb-4">
+                    <button id="auth-tab-login" class="auth-tab active" onclick="showAuthTab('login')">התחברות</button>
+                    <button id="auth-tab-register" class="auth-tab" onclick="showAuthTab('register')">סנכרן חשבון קיים</button>
+                </div>
+                
+                <p class="text-sm text-gray-600 mb-4">
+                    <b>להתחברות:</b> הזן אימייל וסיסמה קיימים כדי לטעון נתונים מסונכרנים.<br>
+                    <b>לסנכרון:</b> אם אתה במחשב הראשי שלך, הזן אימייל וסיסמה חדשים כדי לקשר את הנתונים האנונימיים שלך לחשבון קבוע.
+                </p>
+        
+                <!-- טופס התחברות -->
+                <form id="auth-form-login" class="space-y-4">
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-gray-700">אימייל</label>
+                        <input type="email" id="login-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700">סיסמה</label>
+                        <input type="password" id="login-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700">התחבר</button>
+                </form>
+        
+                <!-- טופס הרשמה/קישור -->
+                <form id="auth-form-register" class="space-y-4" style="display: none;">
+                    <div>
+                        <label for="register-email" class="block text-sm font-medium text-gray-700">אימייל</label>
+                        <input type="email" id="register-email" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                    <div>
+                        <label for="register-password" class="block text-sm font-medium text-gray-700">סיסמה (לפחות 6 תווים)</label>
+                        <input type="password" id="register-password" class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm" required>
+                    </div>
+                    <button type="submit" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-700">צור חשבון וסנכרן</button>
+                </form>
+                
+                <div id="auth-error-message" class="text-red-600 text-sm p-3 bg-red-50 rounded-lg hidden mt-4"></div>
             </div>
         </div>
 
     </div>
 
-    <!-- ===== 5. חלון קופץ - פירוט חודש (חדש) ===== -->
+    <!-- ===== 5. חלון קופץ - פירוט חודש ===== -->
     <div id="month-details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex justify-center items-center p-4 hidden z-50">
         <div class="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[80vh] flex flex-col">
-            <!-- כותרת -->
             <header class="flex justify-between items-center p-4 border-b">
                 <h3 id="month-details-title" class="text-xl font-bold">פירוט חודש</h3>
-                <button id="close-modal-btn" class="text-gray-500 hover:text-gray-800">
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 p-2 rounded-full">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </header>
-            <!-- תוכן -->
-            <div id="month-details-list-container" class="p-6 overflow-y-auto">
+            <section class="p-6 overflow-y-auto">
                 <ul id="month-details-list" class="space-y-3">
-                    <!-- תוכן יוכנס על ידי JS -->
+                    <!-- פירוט התשלומים יופיע כאן -->
                 </ul>
-            </div>
+            </section>
         </div>
     </div>
-    <!-- ===== סוף חלון קופץ ===== -->
     
-    <!-- ===== שינוי: העברת הסקריפט לסוף ה-BODY ===== -->
     <script type="module">
-        /* --- תיקון: החזרת הייבואים החסרים --- */
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { 
             getAuth, 
             signInAnonymously, 
             signInWithCustomToken, 
-            onAuthStateChanged 
+            onAuthStateChanged,
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            linkWithCredential,
+            EmailAuthProvider,
+            signOut
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -282,57 +313,34 @@
             where, 
             getDocs 
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        /* --- סוף תיקון --- */
 
-        // --- קבועים גלובליים ---
+        // ... (כל הקבועים הגלובליים ופונקציות העזר נשארים זהים) ...
         let db, auth, userId, appId;
         let allPayments = [];
         let allCustomers = [];
-        let currentMonthOffset = 0; // 0 = חודש נוכחי, 1 = חודש הבא, -1 = חודש קודם
-        let isVatIncluded = false; // --- חדש: משתנה גלובלי למע"מ
-        const VAT_RATE = 1.18; // --- חדש: קבוע למע"מ (18%)
-
+        let currentMonthOffset = 0; 
+        let isVatIncluded = false; 
+        const VAT_RATE = 1.18; 
         const monthNames = ["ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"];
         
-        // --- פונקציית עזר חדשה למע"מ ---
-        function applyVat(amount) {
+        function applyVat(amount) { /* ... (ללא שינוי) ... */ 
             return isVatIncluded ? amount * VAT_RATE : amount;
         }
-
-        // --- פונקציה חדשה לטיפול במע"מ ---
-        function handleVatToggle(event) {
+        function handleVatToggle(event) { /* ... (ללא שינוי) ... */ 
             isVatIncluded = event.target.checked;
-            
-            // סנכרון כל תיבות הסימון
             document.getElementById('vat-toggle-dashboard').checked = isVatIncluded;
             document.getElementById('vat-toggle-collection').checked = isVatIncluded;
             document.getElementById('vat-toggle-reports').checked = isVatIncluded;
-
-            // רענון התצוגה הנוכחית
-            if (document.getElementById('dashboard-view').style.display !== 'none') {
-                renderDashboard();
-            } else if (document.getElementById('collection-view').style.display !== 'none') {
-                renderCollectionView();
-            } else if (document.getElementById('reports-view').style.display !== 'none') {
-                renderReports();
-            }
-            
-            // אם המודאל פתוח, סגור אותו (המשתמש יצטרך לפתוח מחדש כדי לראות שינוי)
+            if (document.getElementById('dashboard-view').style.display !== 'none') renderDashboard();
+            else if (document.getElementById('collection-view').style.display !== 'none') renderCollectionView();
+            else if (document.getElementById('reports-view').style.display !== 'none') renderReports();
             const modal = document.getElementById('month-details-modal');
-            if (!modal.classList.contains('hidden')) {
-                closeMonthDetailsModal(); 
-            }
+            if (!modal.classList.contains('hidden')) closeMonthDetailsModal(); 
         }
 
-        // --- איתחול Firebase ---
-        async function initFirebase() {
+        async function initFirebase() { /* ... (ללא שינוי) ... */ 
             try {
-                // קבלת הגדרות וטוקן מהסביבה
                 appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-
-                // --- שינוי ---
-                // הגדרת תצורה קבועה עבור GitHub Pages (בתור גיבוי)
-                // אלו הפרטים שאתה סיפקת
                 const githubFallbackConfig = {
                     apiKey: "AIzaSyDFYvzKavhrf4bnoFI0GckLk-dO40_ftJ4",
                     authDomain: "eliran-apps.firebaseapp.com",
@@ -342,442 +350,414 @@
                     appId: "1:383762752947:web:7b83b2dcc31f2a5cf557c6",
                     measurementId: "G-1DNCHTV0W3"
                 };
-
-                // בדיקה אם הקוד רץ בסביבה שלנו או בחוץ
-                // אם __firebase_config לא קיים, השתמש בגיבוי
                 const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : JSON.stringify(githubFallbackConfig);
                 const firebaseConfig = JSON.parse(configString);
-                // --- סוף שינוי ---
-                
                 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-                // איתחול אפליקציה ושרותים
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
 
-                // התחברות
                 onAuthStateChanged(auth, async (user) => {
                     if (user) {
                         userId = user.uid;
-                        console.log("משתמש מחובר:", userId);
-                        
-                        // --- שינוי: חיבור מאזינים *אחרי* שה-DOM מוכן ---
-                        // חיבור Event Listeners
-                        document.getElementById('add-payment-btn').onclick = () => showPaymentFormView(null);
-                        document.getElementById('collection-btn').onclick = showCollectionView;
-                        document.getElementById('reports-btn').onclick = showReportsView; // הוספת ליסנר לכפתור דוחות
-                        document.getElementById('payment-form').onsubmit = handlePaymentFormSubmit;
-                        document.getElementById('payment-type').onchange = toggleDueDateInput;
-                        document.getElementById('cancel-form-btn').onclick = () => {
-                            toggleDueDateInput(null, true); // איפוס שדה תאריך
-                            showDashboardView();
-                        };
-                        document.getElementById('back-to-dashboard-btn').onclick = showDashboardView;
-                        document.getElementById('back-to-dashboard-from-reports-btn').onclick = showDashboardView; // הוספת ליסנר לכפתור חזרה מדוחות
-                        document.getElementById('prev-month-btn').onclick = () => changeMonth(-1);
-                        document.getElementById('next-month-btn').onclick = () => changeMonth(1);
-                        document.getElementById('close-modal-btn').onclick = closeMonthDetailsModal;
-
-                        // --- הוספת ליסנרים למע"מ ---
-                        document.getElementById('vat-toggle-dashboard').onchange = handleVatToggle;
-                        document.getElementById('vat-toggle-collection').onchange = handleVatToggle;
-                        document.getElementById('vat-toggle-reports').onchange = handleVatToggle;
-                        // --- סוף הוספה ---
-                        // --- סוף שינוי ---
-
-                        // טעינת נתונים ראשונית לאחר התחברות
-                        setupSnapshots(); // --- This will now only attach listeners
-                        
-                        // --- שינוי ---
-                        // נסתיר את הספינר ונציג את האפליקציה מיד
-                        // הנתונים יטענו ברקע
+                        console.log("מצב משתמש השתנה:", userId, "אנונימי?", user.isAnonymous);
+                        allPayments = [];
+                        allCustomers = [];
+                        connectAppListeners(); 
+                        setupSnapshots(); 
+                        showDashboardView(); 
                         document.getElementById('loading-spinner').classList.add('hidden');
                         document.getElementById('app-container').classList.remove('hidden');
-                        
-                        showDashboardView(); // הצג דאשבורד לאחר אימות
-                        // --- סוף שינוי ---
+                        updateAuthUI(user);
                     } else {
-                        // אם אין משתמש, נסה להתחבר
+                        console.log("אין משתמש, מנסה להתחבר אנונימית...");
                         try {
-                            if (initialAuthToken) {
+                            if (initialAuthToken && !sessionStorage.getItem('logout')) {
                                 await signInWithCustomToken(auth, initialAuthToken);
                             } else {
-                                await signInAnonymously(auth);
+                                if (sessionStorage.getItem('logout')) {
+                                    console.log("המשתמש התנתק, מציג מסך התחברות.");
+                                    showAuthView();
+                                    document.getElementById('loading-spinner').classList.add('hidden');
+                                    document.getElementById('app-container').classList.remove('hidden');
+                                } else {
+                                    await signInAnonymously(auth);
+                                }
                             }
                         } catch (authError) {
                             console.error("שגיאת התחברות:", authError);
-                            document.getElementById('loading-spinner').classList.add('hidden');
-                            document.getElementById('app-container').innerHTML = '<p class="text-red-500 text-center">שגיאת התחברות. לא ניתן לטעון את האפליקציה.</p>';
+                            showAuthError("שגיאת התחברות: " + authError.message);
                         }
                     }
                 });
-
             } catch (e) {
                 console.error("שגיאה באתחול Firebase:", e);
                 document.getElementById('loading-spinner').classList.add('hidden');
                 document.getElementById('app-container').innerHTML = '<p class="text-red-500 text-center">שגיאה קריטית באתחול האפליקציה.</p>';
             }
         }
+        
+        function connectAppListeners() { /* ... (שינוי קטן) ... */
+            if (document.body.dataset.listenersConnected) return;
+            
+            document.getElementById('add-payment-btn').onclick = () => showPaymentFormView(null);
+            document.getElementById('collection-btn').onclick = showCollectionView;
+            document.getElementById('reports-btn').onclick = showReportsView;
+            document.getElementById('payment-form').onsubmit = handlePaymentFormSubmit;
+            
+            // --- שינוי: חיבור לפונקציה החדשה ---
+            document.getElementById('payment-type').onchange = toggleDateInputs; 
+            
+            document.getElementById('cancel-form-btn').onclick = () => {
+                // --- שינוי: קריאה לפונקציה החדשה ---
+                toggleDateInputs(null, true); 
+                showDashboardView();
+            };
+            document.getElementById('back-to-dashboard-btn').onclick = showDashboardView;
+            document.getElementById('back-to-dashboard-from-reports-btn').onclick = showDashboardView;
+            document.getElementById('prev-month-btn').onclick = () => changeMonth(-1);
+            document.getElementById('next-month-btn').onclick = () => changeMonth(1);
+            document.getElementById('close-modal-btn').onclick = closeMonthDetailsModal;
 
-        // --- הגדרת מאזיני Firestore ---
-        function setupSnapshots() {
+            document.getElementById('vat-toggle-dashboard').onchange = handleVatToggle;
+            document.getElementById('vat-toggle-collection').onchange = handleVatToggle;
+            document.getElementById('vat-toggle-reports').onchange = handleVatToggle;
+            
+            document.getElementById('sync-btn').onclick = showAuthView;
+            document.getElementById('logout-btn').onclick = handleLogout;
+            document.getElementById('auth-form-login').onsubmit = handleLogin;
+            document.getElementById('auth-form-register').onsubmit = handleRegisterLink;
+            
+            document.body.dataset.listenersConnected = "true";
+        }
+        
+        window.showAuthTab = (tabName) => { /* ... (ללא שינוי) ... */ 
+            document.getElementById('auth-tab-login').classList.toggle('active', tabName === 'login');
+            document.getElementById('auth-tab-register').classList.toggle('active', tabName === 'register');
+            document.getElementById('auth-form-login').style.display = (tabName === 'login') ? 'block' : 'none';
+            document.getElementById('auth-form-register').style.display = (tabName === 'register') ? 'block' : 'none';
+            document.getElementById('auth-error-message').classList.add('hidden'); 
+        };
+
+        // --- פונקציות אימות (ללא שינוי) ---
+        function updateAuthUI(user) { /* ... (ללא שינוי) ... */ 
+            const statusText = document.getElementById('user-status-text');
+            const syncBtn = document.getElementById('sync-btn');
+            const logoutBtn = document.getElementById('logout-btn');
+
+            if (user.isAnonymous) {
+                statusText.innerText = "מצב אורח (לא מסונכרן)";
+                syncBtn.classList.remove('hidden');
+                logoutBtn.classList.add('hidden');
+            } else {
+                statusText.innerText = `מחובר כ: ${user.email}`;
+                syncBtn.classList.add('hidden');
+                logoutBtn.classList.remove('hidden');
+            }
+        }
+        async function handleLogin(e) { /* ... (ללא שינוי) ... */ 
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+                showDashboardView(); 
+            } catch (error) {
+                console.error("שגיאת התחברות:", error);
+                showAuthError(error.message);
+            }
+        }
+        async function handleRegisterLink(e) { /* ... (ללא שינוי) ... */ 
+            e.preventDefault();
+            const email = document.getElementById('register-email').value;
+            const password = document.getElementById('register-password').value;
+            const currentUser = auth.currentUser;
+
+            if (!currentUser || !currentUser.isAnonymous) {
+                showAuthError("ניתן לקשר חשבון רק ממצב אורח.");
+                return;
+            }
+
+            try {
+                const credential = EmailAuthProvider.credential(email, password);
+                await linkWithCredential(currentUser, credential);
+                showDashboardView(); 
+            } catch (error) {
+                console.error("שגיאה בקישור חשבון:", error);
+                showAuthError(error.message);
+            }
+        }
+        async function handleLogout() { /* ... (ללא שינוי) ... */ 
+            sessionStorage.setItem('logout', 'true'); 
+            await signOut(auth);
+            allPayments = [];
+            allCustomers = [];
+        }
+        function showAuthError(message) { /* ... (ללא שינוי) ... */ 
+            const el = document.getElementById('auth-error-message');
+            switch(message) {
+                case "Firebase: Error (auth/invalid-credential).":
+                    message = "אימייל או סיסמה שגויים."; break;
+                case "Firebase: Error (auth/email-already-in-use).":
+                    message = "האימייל הזה כבר בשימוש. נסה להתחבר."; break;
+                case "Firebase: Error (auth/weak-password).":
+                    message = "סיסמה חלשה מדי. נדרשים לפחות 6 תווים."; break;
+            }
+            el.innerText = message;
+            el.classList.remove('hidden');
+        }
+        
+        // --- הגדרת מאזיני Firestore (ללא שינוי) ---
+        function setupSnapshots() { /* ... (ללא שינוי) ... */ 
             if (!userId || !appId) return;
-
             const customersPath = `artifacts/${appId}/users/${userId}/customers`;
             const paymentsPath = `artifacts/${appId}/users/${userId}/payments`;
 
-            // מאזין ללקוחות
             const qCustomers = query(collection(db, customersPath));
             onSnapshot(qCustomers, (snapshot) => {
                 allCustomers = [];
-                snapshot.forEach(doc => {
-                    allCustomers.push({ id: doc.id, ...doc.data() });
-                });
-                console.log("לקוחות נטענו:", allCustomers.length);
+                snapshot.forEach(doc => { allCustomers.push({ id: doc.id, ...doc.data() }); });
+                console.log(`[${userId}] לקוחות נטענו:`, allCustomers.length);
                 populateCustomerDatalist();
-                // אם אנחנו בתצוגת הטופס, רענן את הרשימה
-                if (document.getElementById('payment-form-view').style.display !== 'none') {
-                    populateCustomerDatalist();
-                }
             }, (error) => console.error("שגיאה בטעינת לקוחות:", error));
 
-            // מאזין לתשלומים
             const qPayments = query(collection(db, paymentsPath));
             onSnapshot(qPayments, (snapshot) => {
                 allPayments = [];
-                snapshot.forEach(doc => {
-                    allPayments.push({ id: doc.id, ...doc.data() });
-                });
-                console.log("תשלומים נטענו:", allPayments.length);
-                // רענון התצוגה הנוכחית
-                if (document.getElementById('dashboard-view').style.display !== 'none') {
-                    renderDashboard();
-                } else if (document.getElementById('collection-view').style.display !== 'none') {
-                    renderCollectionView();
-                } else if (document.getElementById('reports-view').style.display !== 'none') {
-                    renderReports();
-                }
+                snapshot.forEach(doc => { allPayments.push({ id: doc.id, ...doc.data() }); });
+                console.log(`[${userId}] תשלומים נטענו:`, allPayments.length);
+                if (document.getElementById('dashboard-view').style.display !== 'none') renderDashboard();
+                else if (document.getElementById('collection-view').style.display !== 'none') renderCollectionView();
+                else if (document.getElementById('reports-view').style.display !== 'none') renderReports();
             }, (error) => console.error("שגיאה בטעינת תשלומים:", error));
         }
 
-        // --- לוגיקת תצוגות ---
-        function showView(viewId) {
-            const views = ['dashboard-view', 'payment-form-view', 'collection-view', 'reports-view']; // הוספתי תצוגת דוחות
+        // --- לוגיקת תצוגות (ללא שינוי) ---
+        function showView(viewId) { /* ... (ללא שינוי) ... */ 
+            const views = ['dashboard-view', 'payment-form-view', 'collection-view', 'reports-view', 'auth-view'];
             views.forEach(id => {
-                document.getElementById(id).style.display = (id === viewId) ? 'block' : 'none';
+                const el = document.getElementById(id);
+                if (el) el.style.display = (id === viewId) ? 'block' : 'none';
             });
-            window.scrollTo(0, 0); // גלול לראש הדף
+            window.scrollTo(0, 0); 
         }
-
-        function showDashboardView() {
-            currentMonthOffset = 0; // איתחול לחודש נוכחי
+        function showDashboardView() { /* ... (ללא שינוי) ... */ 
+            currentMonthOffset = 0; 
             renderDashboard();
             showView('dashboard-view');
         }
-
-        // --- הוספתי את הפונקציה החסרה ---
-        function renderDashboard() {
-            // 1. חישוב סך הגבייה
+        function showAuthView() { /* ... (ללא שינוי) ... */ 
+            showView('auth-view');
+            showAuthTab('login'); 
+            sessionStorage.removeItem('logout'); 
+        }
+        function renderDashboard() { /* ... (ללא שינוי) ... */ 
             const collectionPayments = allPayments.filter(p => p.status === 'collection');
             const collectionTotal = collectionPayments.reduce((sum, p) => sum + p.amount, 0);
-            
-            // --- שינוי: החלת מע"מ על התצוגה ---
             const displayCollectionTotal = applyVat(collectionTotal);
-            
-            // 2. עדכון התגית
             const collectionBadge = document.getElementById('collection-total-badge');
             if (displayCollectionTotal > 0) {
-                // עיגול לאגורות הקרובות
                 collectionBadge.innerText = `₪${displayCollectionTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
                 collectionBadge.classList.remove('hidden');
             } else {
                 collectionBadge.classList.add('hidden');
             }
-            // --- סוף שינוי ---
-
-            // 3. רינדור כרטיסיות חודשים
             const monthsContainer = document.getElementById('months-carousel');
-            monthsContainer.innerHTML = ''; // נקה תצוגה קודמת
+            monthsContainer.innerHTML = ''; 
             const today = new Date();
-            
-            // 4. לולאה
             for (let i = -1; i <= 1; i++) {
                 const monthDate = new Date(today.getFullYear(), today.getMonth() + currentMonthOffset + i, 1);
                 const monthIndex = monthDate.getMonth();
                 const year = monthDate.getFullYear();
-                
-                // 5. יצירה והוספה
                 const monthCard = createMonthCard(monthIndex, year);
                 monthsContainer.appendChild(monthCard);
-                
-                // 6. הדגשה
                 if (i === 0) {
                     monthCard.classList.add('border-4', 'border-blue-500', 'scale-105');
                     monthCard.classList.remove('border-gray-200');
                 }
             }
         }
-        // --- סוף הפונקציה החסרה ---
-
-        // --- שינוי ---
-        // פונקציית עזר להצגת שגיאות בטופס
-        function showFormError(message) {
+        
+        function showFormError(message) { /* ... (ללא שינוי) ... */ 
             const errorEl = document.getElementById('form-error-message');
             errorEl.innerText = message;
             errorEl.classList.remove('hidden');
         }
-        // --- סוף שינוי ---
-
-        function showPaymentFormView(paymentToEdit = null) {
+        function showPaymentFormView(paymentToEdit = null) { /* ... (שינוי קטן) ... */
             const form = document.getElementById('payment-form');
             form.reset();
             document.getElementById('form-title').innerText = "קליטת תשלום חדש";
             form.dataset.editId = "";
-
-            // --- שינוי ---
-            // איפוס והסתרת שדה התאריך והודעת השגיאה
-            toggleDueDateInput(null, true);
+            
+            // --- שינוי: קריאה לפונקציה החדשה ---
+            toggleDateInputs(null, true); 
+            
             document.getElementById('form-error-message').classList.add('hidden');
-            // --- סוף שינוי ---
-
             if (paymentToEdit) {
                 document.getElementById('form-title').innerText = "הסדרת תשלום לגבייה";
                 form.dataset.editId = paymentToEdit.id;
                 document.getElementById('customer-name-input').value = paymentToEdit.customerName;
                 document.getElementById('customer-name-input').disabled = true;
+                try {
+                    document.getElementById('customer-classification').value = paymentToEdit.classification || '';
+                    document.getElementById('payment-details').value = paymentToEdit.details || '';
+                } catch (e) { console.error("שגיאה בטעינת נתוני עריכה", e); }
                 document.getElementById('payment-amount').value = paymentToEdit.amount;
                 document.getElementById('payment-amount').disabled = true;
             } else {
                 document.getElementById('customer-name-input').disabled = false;
                 document.getElementById('payment-amount').disabled = false;
             }
-
             populateCustomerDatalist();
             showView('payment-form-view');
         }
-
-        function showCollectionView() {
+        function showCollectionView() { /* ... (ללא שינוי) ... */ 
             renderCollectionView();
             showView('collection-view');
         }
-
-        // --- פונקציות חדשות לדוחות ---
-        function showReportsView() {
-            renderReports(); // קריאה לפונקציית רינדור הדוחות
+        function showReportsView() { /* ... (ללא שינוי) ... */ 
+            renderReports(); 
             showView('reports-view');
         }
-
-        function renderReports() {
+        function renderReports() { /* ... (ללא שינוי) ... */ 
             renderReportByCustomer();
             renderReportByMonth();
             renderReportByYear();
         }
-
-        // פונקציית עזר לקבלת תשלומים רלוונטיים לדוחות
-        function getValidPayments() {
-            // ניקח רק תשלומים שיש להם תאריך צפוי והם לא בגבייה
+        function getValidPayments() { /* ... (ללא שינוי) ... */ 
             return allPayments.filter(p => p.status !== 'collection' && p.expectedDate);
         }
-
-        function renderReportByCustomer() {
+        function renderReportByCustomer() { /* ... (ללא שינוי) ... */ 
             const validPayments = getValidPayments();
             const customerTotals = {};
-
             validPayments.forEach(p => {
                 const customerName = p.customerName || 'לא ידוע';
-                if (!customerTotals[customerName]) {
-                    customerTotals[customerName] = 0;
-                }
-                // --- שינוי: החלת מע"מ ---
+                if (!customerTotals[customerName]) customerTotals[customerName] = 0;
                 customerTotals[customerName] += applyVat(p.amount);
             });
-
-            // מיון לפי סכום, מהגבוה לנמוך
-            const sortedCustomers = Object.entries(customerTotals)
-                .sort(([, a], [, b]) => b - a);
-
+            const sortedCustomers = Object.entries(customerTotals).sort(([, a], [, b]) => b - a);
             const listEl = document.getElementById('report-by-customer-list');
             listEl.innerHTML = '';
             if (sortedCustomers.length === 0) {
-                listEl.innerHTML = '<li class="text-gray-500">אין נתונים להצגה</li>';
-                return;
+                listEl.innerHTML = '<li class="text-gray-500">אין נתונים להצגה</li>'; return;
             }
-
             sortedCustomers.forEach(([name, total]) => {
                 const li = document.createElement('li');
                 li.className = 'flex justify-between p-2 border-b last:border-b-0';
-                // --- שינוי: עיצוב המספר ---
                 li.innerHTML = `<span>${name}</span><span class="font-semibold">₪${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
                 listEl.appendChild(li);
             });
         }
-
-        function renderReportByMonth() {
+        function renderReportByMonth() { /* ... (ללא שינוי) ... */ 
             const validPayments = getValidPayments();
             const monthTotals = {};
-
             validPayments.forEach(p => {
                 const d = new Date(p.expectedDate);
-                const key = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`; // "2025-10"
-                if (!monthTotals[key]) {
-                    monthTotals[key] = 0;
-                }
-                // --- שינוי: החלת מע"מ ---
+                const key = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, '0')}`;
+                if (!monthTotals[key]) monthTotals[key] = 0;
                 monthTotals[key] += applyVat(p.amount);
             });
-
-            // מיון לפי מפתח (החודש), מהחדש לישן
             const sortedMonths = Object.keys(monthTotals).sort().reverse();
-
             const listEl = document.getElementById('report-by-month-list');
             listEl.innerHTML = '';
             if (sortedMonths.length === 0) {
-                listEl.innerHTML = '<li class="text-gray-500">אין נתונים להצגה</li>';
-                return;
+                listEl.innerHTML = '<li class="text-gray-500">אין נתונים להצגה</li>'; return;
             }
-
             sortedMonths.forEach(key => {
                 const [year, month] = key.split('-');
                 const monthName = monthNames[parseInt(month, 10) - 1];
                 const total = monthTotals[key];
-                
                 const li = document.createElement('li');
                 li.className = 'flex justify-between p-2 border-b last:border-b-0';
-                // --- שינוי: עיצוב המספר ---
                 li.innerHTML = `<span>${monthName} ${year}</span><span class="font-semibold">₪${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
                 listEl.appendChild(li);
             });
         }
-
-        function renderReportByYear() {
+        function renderReportByYear() { /* ... (ללא שינוי) ... */ 
             const validPayments = getValidPayments();
             const yearTotals = {};
-
             validPayments.forEach(p => {
                 const year = new Date(p.expectedDate).getFullYear().toString();
-                if (!yearTotals[year]) {
-                    yearTotals[year] = 0;
-                }
-                // --- שינוי: החלת מע"מ ---
+                if (!yearTotals[year]) yearTotals[year] = 0;
                 yearTotals[year] += applyVat(p.amount);
             });
-
-            // מיון לפי שנה, מהחדשה לישנה
             const sortedYears = Object.keys(yearTotals).sort().reverse();
-
             const listEl = document.getElementById('report-by-year-list');
             listEl.innerHTML = '';
             if (sortedYears.length === 0) {
-                listEl.innerHTML = '<li class="text-gray-500">אין נתונים להצגה</li>';
-                return;
+                listEl.innerHTML = '<li class="text-gray-500">אין נתונים להצגה</li>'; return;
             }
-
             sortedYears.forEach(year => {
-                const total = yearTotals[year];
+                const total = yearTotals[key];
                 const li = document.createElement('li');
                 li.className = 'flex justify-between p-2 border-b last:border-b-0';
-                // --- שינוי: עיצוב המספר ---
                 li.innerHTML = `<span>${year}</span><span class="font-semibold">₪${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
                 listEl.appendChild(li);
             });
         }
-        // --- סוף פונקציות דוחות ---
-
-
-        function createMonthCard(monthIndex, year) {
+        function createMonthCard(monthIndex, year) { /* ... (ללא שינוי) ... */ 
             const card = document.createElement('div');
             card.className = "month-card min-w-[280px] w-full max-w-sm bg-white p-6 rounded-lg shadow-lg border border-gray-200 transition-all duration-300 transform cursor-pointer hover:shadow-xl";
-            
             const monthName = monthNames[monthIndex];
             const title = document.createElement('h3');
             title.className = "text-xl font-bold text-center mb-4";
             title.innerText = `${monthName} ${year}`;
-            
-            // --- שינוי: חישוב סכומים (הפונקציה הפנימית תחיל מע"מ) ---
             const { expectedTotal, receivedTotal } = getMonthTotals(monthIndex, year);
-            
             const totalEl = document.createElement('div');
             totalEl.className = "text-3xl font-bold text-center text-blue-600 mb-2";
-            // עיגול המספר למספר שלם בתצוגה הראשית
             totalEl.innerText = `₪${expectedTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-            
             const subtitleEl = document.createElement('div');
             subtitleEl.className = "text-sm text-center text-gray-500 mb-4";
             subtitleEl.innerText = "סך הכל צפוי";
-            
             const receivedEl = document.createElement('div');
             receivedEl.className = "text-lg font-semibold text-center text-green-600";
-            // עיגול המספר למספר שלם בתצוגה הראשית
             receivedEl.innerText = `₪${receivedTotal.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
-            
             const receivedSubtitleEl = document.createElement('div');
             receivedSubtitleEl.className = "text-sm text-center text-gray-500";
             receivedSubtitleEl.innerText = "מתוכם התקבלו";
-            
             card.append(title, totalEl, subtitleEl, receivedEl, receivedSubtitleEl);
-
-            // הוספת לחיצה לפתיחת המודאל
             card.onclick = () => showMonthDetailsModal(monthIndex, year);
-
             return card;
         }
-
-        function getMonthTotals(monthIndex, year) {
+        function getMonthTotals(monthIndex, year) { /* ... (ללא שינוי) ... */ 
             let expectedTotal = 0;
             let receivedTotal = 0;
-            
             const startOfMonth = new Date(year, monthIndex, 1).getTime();
-            // --- תיקון: ודא שסוף החודש הוא באמת סוף החודש
             const endOfMonth = new Date(year, monthIndex + 1, 0, 23, 59, 59).getTime();
-
             allPayments.forEach(p => {
                 if (p.status === 'collection' || !p.expectedDate) return;
-                
                 const expectedTime = new Date(p.expectedDate).getTime();
-                
                 if (expectedTime >= startOfMonth && expectedTime <= endOfMonth) {
                     expectedTotal += p.amount;
-                    if (p.status === 'received') {
-                        receivedTotal += p.amount;
-                    }
+                    if (p.status === 'received') receivedTotal += p.amount;
                 }
             });
-            
-            // --- שינוי: החלת מע"מ לפני החזרת הערך ---
             return { 
                 expectedTotal: applyVat(expectedTotal), 
                 receivedTotal: applyVat(receivedTotal) 
             };
         }
-        
-        function renderCollectionView() {
+        function renderCollectionView() { /* ... (ללא שינוי) ... */ 
             const collectionList = document.getElementById('collection-list');
-            collectionList.innerHTML = ''; // נקה רשימה
-            
+            collectionList.innerHTML = ''; 
             const collectionPayments = allPayments.filter(p => p.status === 'collection');
-            
             if (collectionPayments.length === 0) {
                 collectionList.innerHTML = '<p class="text-gray-500 text-center">אין תשלומים בחלון הגבייה.</p>';
                 document.getElementById('collection-total').innerText = '₪0';
                 return;
             }
-            
             let total = 0;
             collectionPayments.forEach(p => {
                 total += p.amount;
                 const item = document.createElement('li');
                 item.className = "flex justify-between items-center bg-white p-4 rounded-lg shadow mb-2";
-                
                 const info = document.createElement('div');
-                
                 let dateInfo = '';
                 if (p.expectedDate) {
                     const date = new Date(p.expectedDate).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
                     dateInfo = `<div class="text-sm text-red-600 font-medium">תאריך יעד: ${date}</div>`;
                 }
-                
-                // --- שינוי: החלת מע"מ על הסכום בפריט ---
                 const displayAmount = applyVat(p.amount);
                 info.innerHTML = `
                     <div>
@@ -786,25 +766,21 @@
                         ${dateInfo}
                     </div>
                 `;
-                
                 const settleBtn = document.createElement('button');
                 settleBtn.innerText = "הסדר תשלום";
                 settleBtn.className = "bg-green-500 text-white px-3 py-1 rounded-md text-sm hover:bg-green-600";
                 settleBtn.onclick = () => showPaymentFormView(p);
-                
                 item.append(info, settleBtn);
                 collectionList.appendChild(item);
             });
-            
-            // --- שינוי: החלת מע"מ על הסכום הכולל ---
             const displayTotal = applyVat(total);
             document.getElementById('collection-total').innerText = `₪${displayTotal.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
         }
-        
-        function populateCustomerDatalist() {
+        function populateCustomerDatalist() { /* ... (ללא שינוי) ... */ 
             const datalist = document.getElementById('customers-list');
             datalist.innerHTML = '';
-            allCustomers.forEach(c => {
+            const sortedCustomers = [...allCustomers].sort((a, b) => a.name.localeCompare(b.name));
+            sortedCustomers.forEach(c => {
                 const option = document.createElement('option');
                 option.value = c.name;
                 datalist.appendChild(option);
@@ -812,265 +788,275 @@
         }
 
         // --- לוגיקת טופס ---
-
-        /* פונקציה חדשה לטיפול בתשלום מפוצל */
-        async function handleSplitPayment(form, customerName, totalAmount, customerId) {
+        async function handleSplitPayment(form, customerName, totalAmount, customerId) { /* ... (ללא שינוי) ... */
             const dueDate = document.getElementById('payment-due-date').value;
             if (!dueDate) {
-                console.error("יש לבחור תאריך יעד לגמר הפרויקט.");
-                showFormError("עבור תשלום 50/50, חובה לבחור תאריך יעד.");
-                return;
+                showFormError("עבור תשלום 50/50, חובה לבחור תאריך יעד."); return;
             }
-
             const paymentsPath = `artifacts/${appId}/users/${userId}/payments`;
             const logDate = new Date();
             const amount50 = totalAmount / 2;
+            const classification = document.getElementById('customer-classification').value;
+            const details = document.getElementById('payment-details').value;
 
-            // 1. Payment 1: 50% Immediate
             const payment1 = {
-                customerId,
-                customerName,
-                amount: amount50,
-                paymentType: 'split_50_50 (immediate)',
-                logDate: logDate.toISOString(),
-                expectedDate: logDate.toISOString(), // Today
-                status: 'received' // התקבל
+                customerId, customerName, amount: amount50, paymentType: 'split_50_50 (immediate)',
+                logDate: logDate.toISOString(), expectedDate: logDate.toISOString(), status: 'received',
+                classification: classification, 
+                details: details ? `${details} (1/2)` : '' 
             };
-
-            // 2. Payment 2: 50% Due Date
             const payment2 = {
-                customerId,
-                customerName,
-                amount: amount50,
-                paymentType: 'split_50_50 (due date)',
-                logDate: logDate.toISOString(),
-                expectedDate: new Date(dueDate).toISOString(), // התאריך שנבחר
-                status: 'collection' // עובר לגבייה
+                customerId, customerName, amount: amount50, paymentType: 'split_50_50 (due date)',
+                logDate: logDate.toISOString(), expectedDate: new Date(dueDate).toISOString(), status: 'collection',
+                classification: classification, 
+                details: details ? `${details} (2/2)` : '' 
             };
-
             try {
-                // שמירת שני התשלומים
                 await addDoc(collection(db, paymentsPath), payment1);
                 await addDoc(collection(db, paymentsPath), payment2);
-
-                console.log("פיצול תשלום נשמר (2 רשומות)");
-                
-                // איפוס הטופס וחזרה לדאשבורד
                 form.reset();
-                toggleDueDateInput(null, true); // הסתר שדה תאריך
+                toggleDateInputs(null, true);
                 showDashboardView();
-
             } catch (error) {
                 console.error("שגיאה בשמירת פיצול תשלום:", error);
                 showFormError(`שגיאה בשמירת הפיצול: ${error.message}`);
             }
         }
-        /* סוף פונקציה חדשה */
-
-
-        async function handlePaymentFormSubmit(e) {
-            e.preventDefault();
-            document.getElementById('form-error-message').classList.add('hidden');
-
-            if (!userId) {
-                console.error("שגיאה: המשתמש אינו מחובר.");
-                showFormError("שגיאה: המשתמש אינו מחובר. נסה לרענן את הדף.");
-                return;
+        
+        // --- חדש: פונקציה לטיפול בריטיינר ---
+        async function handleRetainerPayment(form, customerName, amount, customerId) {
+            const renewalDateStr = document.getElementById('retainer-renewal-date').value;
+            if (!renewalDateStr) {
+                showFormError("עבור ריטיינר, חובה לבחור תאריך חידוש."); return;
             }
 
+            const renewalDate = new Date(renewalDateStr);
+            const logDate = new Date();
+            // התחל תמיד מה-1 לחודש הנוכחי
+            let currentDate = new Date(logDate.getFullYear(), logDate.getMonth(), 1); 
+            
+            // ודא שתאריך החידוש אינו בעבר
+            if (renewalDate < currentDate) {
+                showFormError("תאריך החידוש חייב להיות בעתיד."); return;
+            }
+
+            const paymentsPath = `artifacts/${appId}/users/${userId}/payments`;
+            const classification = document.getElementById('customer-classification').value;
+            const details = document.getElementById('payment-details').value;
+            
+            const paymentsToAdd = [];
+            
+            // לולאה שרצה חודש-חודש עד תאריך החידוש
+            while (currentDate <= renewalDate) {
+                const payment = {
+                    customerId, 
+                    customerName, 
+                    amount, 
+                    paymentType: 'retainer',
+                    logDate: logDate.toISOString(), 
+                    // התשלום צפוי ב-1 לכל חודש
+                    expectedDate: currentDate.toISOString(), 
+                    // הנחה: ריטיינר הוא תשלום מראש (התקבל)
+                    status: 'received', 
+                    classification: classification, 
+                    details: details ? `${details} (ריטיינר)` : 'ריטיינר'
+                };
+                paymentsToAdd.push(payment);
+                
+                // קדם את התאריך בחודש אחד
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            }
+
+            if (paymentsToAdd.length === 0) {
+                 showFormError("לא נוצרו תשלומים. בדוק את תאריך החידוש."); return;
+            }
+
+            try {
+                // שמור את כל התשלומים ב-Firestore
+                for (const payment of paymentsToAdd) {
+                    await addDoc(collection(db, paymentsPath), payment);
+                }
+                
+                form.reset();
+                toggleDateInputs(null, true);
+                showDashboardView();
+            } catch (error) {
+                console.error("שגיאה בשמירת ריטיינר:", error);
+                showFormError(`שגיאה בשמירת הריטיינר: ${error.message}`);
+            }
+        }
+        // --- סוף פונקציה חדשה ---
+
+        async function handlePaymentFormSubmit(e) { /* ... (שינוי קטן) ... */
+            e.preventDefault();
+            document.getElementById('form-error-message').classList.add('hidden');
+            if (!userId) {
+                showFormError("שגיאה: המשתמש אינו מחובר. נסה לרענן את הדף."); return;
+            }
             const form = e.target;
             const customerName = document.getElementById('customer-name-input').value;
             const amount = parseFloat(document.getElementById('payment-amount').value);
             const paymentType = document.getElementById('payment-type').value;
             const editId = form.dataset.editId;
+            const classification = document.getElementById('customer-classification').value;
+            const details = document.getElementById('payment-details').value;
 
             if (!customerName || !amount || !paymentType) {
-                console.error("אנא מלא את כל השדות.");
-                showFormError("אנא מלא את כל השדות.");
-                return;
+                showFormError("אנא מלא את כל השדות."); return;
             }
-
-            // 1. טיפול בלקוח (הועבר לכאן כדי ש-customerId יהיה זמין)
             let customerId;
             let customer = allCustomers.find(c => c.name === customerName);
             if (!customer) {
-                // לקוח חדש
                 try {
                     const customersPath = `artifacts/${appId}/users/${userId}/customers`;
                     const docRef = await addDoc(collection(db, customersPath), { name: customerName });
                     customerId = docRef.id;
-                    console.log("לקוח חדש נוצר:", customerId);
                 } catch (error) {
-                    console.error("שגיאה ביצירת לקוח חדש:", error);
-                    showFormError(`שגיאה ביצירת לקוח: ${error.message}`);
-                    return;
+                    showFormError(`שגיאה ביצירת לקוח: ${error.message}`); return;
                 }
             } else {
                 customerId = customer.id;
             }
-
-            // 2. בדיקה אם זה תשלום מפוצל
+            
+            // --- שינוי: הוספת בדיקה לריטיינר ---
             if (paymentType === 'split_50_50') {
                 if (editId) {
-                    console.error("לא ניתן לפצל תשלום שנמצא בגבייה.");
-                    showFormError("לא ניתן לפצל תשלום שנמצא בגבייה. אנא בחר סוג תשלום אחר להסדרה.");
-                    return;
+                    showFormError("לא ניתן לפצל תשלום שנמצא בגבייה. אנא בחר סוג תשלום אחר להסדרה."); return;
                 }
                 await handleSplitPayment(form, customerName, amount, customerId);
-                return; // סיים את הפונקציה כאן
+                return; 
+            } else if (paymentType === 'retainer') {
+                 if (editId) {
+                    showFormError("לא ניתן להפוך תשלום בגבייה לריטיינר. אנא בחר סוג תשלום אחר להסדרה."); return;
+                }
+                await handleRetainerPayment(form, customerName, amount, customerId);
+                return;
             }
             // --- סוף שינוי ---
-
-            // 3. חישוב תאריך וסטטוס (עבור תשלומים רגילים)
+            
             const logDate = new Date();
             const { expectedDate, status } = calculatePaymentDetails(paymentType, logDate);
-
-            // 4. יצירת אובייקט תשלום
             const paymentData = {
-                customerId,
-                customerName,
-                amount,
-                paymentType,
+                customerId, customerName, amount, paymentType,
                 logDate: logDate.toISOString(),
                 expectedDate: expectedDate ? expectedDate.toISOString() : null,
-                status
+                status,
+                classification: classification, 
+                details: details 
             };
-
-            // 5. שמירה ב-Firestore
             try {
                 const paymentsPath = `artifacts/${appId}/users/${userId}/payments`;
                 if (editId) {
-                    // זה היה תשלום עתידי שעכשיו מוסדר
-                    // אנחנו מעדכנים את הרשומה הקיימת
                     const paymentRef = doc(db, paymentsPath, editId);
                     await setDoc(paymentRef, paymentData);
-                    console.log("תשלום עתידי הוסדר:", editId);
                 } else {
-                    // תשלום חדש
                     await addDoc(collection(db, paymentsPath), paymentData);
-                    console.log("תשלום חדש נשמר");
                 }
-                
-                // איפוס הטופס וחזרה לדאשבורד
                 form.reset();
                 form.dataset.editId = "";
-                toggleDueDateInput(null, true); // הסתר שדה תאריך
+                toggleDateInputs(null, true);
                 showDashboardView();
-                
             } catch (error) {
-                console.error("שגיאה בשמירת התשלום:", error);
                 showFormError(`שגיאה בשמירת התשלום: ${error.message}`);
             }
         }
         
-        function calculatePaymentDetails(paymentType, logDate) {
+        function calculatePaymentDetails(paymentType, logDate) { /* ... (ללא שינוי) ... */
             let expectedDate = new Date(logDate.getTime());
             let status = 'expected';
-
             switch (paymentType) {
                 case 'immediate':
-                    status = 'received';
-                    // expectedDate נשאר היום
-                    break;
-                case 'current': // שוטף (במהלך חודש הבא)
-                    expectedDate = new Date(logDate.getFullYear(), logDate.getMonth() + 2, 0); // סוף חודש הבא
-                    break;
-                case 'current_30': // שוטף + 30 (סוף חודש הבא)
-                    expectedDate = new Date(logDate.getFullYear(), logDate.getMonth() + 2, 0); // סוף חודש הבא
-                    break;
+                    status = 'received'; break;
+                case 'current': 
+                    expectedDate = new Date(logDate.getFullYear(), logDate.getMonth() + 2, 0); break;
+                case 'current_30': 
+                    expectedDate = new Date(logDate.getFullYear(), logDate.getMonth() + 2, 0); break;
                 case 'current_45':
-                    expectedDate.setDate(logDate.getDate() + 45);
-                    break;
+                    expectedDate.setDate(logDate.getDate() + 45); break;
                 case 'current_60':
-                    expectedDate.setDate(logDate.getDate() + 60);
-                    break;
+                    expectedDate.setDate(logDate.getDate() + 60); break;
                 case 'future':
-                    expectedDate = null;
-                    status = 'collection';
-                    break;
+                    expectedDate = null; status = 'collection'; break;
+                // אין צורך לטפל ב-split_50_50 או retainer כאן
             }
-            
             return { expectedDate, status };
         }
 
-        /* פונקציה חדשה להצגת/הסתרת שדה התאריך */
-        function toggleDueDateInput(event, forceHide = false) {
-            const container = document.getElementById('payment-due-date-container');
-            if (!container) return;
+        // --- שינוי: שם פונקציה ושדרוג לוגיקה ---
+        function toggleDateInputs(event, forceHide = false) {
+            const dueDateContainer = document.getElementById('payment-due-date-container');
+            const retainerDateContainer = document.getElementById('retainer-renewal-date-container');
             
+            if (!dueDateContainer || !retainerDateContainer) return;
+
             const paymentTypeSelect = document.getElementById('payment-type');
             const dueDateInput = document.getElementById('payment-due-date');
-            
-            let paymentType;
-            if (forceHide) {
-                 paymentType = null;
-            } else if (event) {
-                paymentType = event.target.value;
-            } else {
-                paymentType = paymentTypeSelect.value;
-            }
+            const retainerDateInput = document.getElementById('retainer-renewal-date');
 
-            if (forceHide) {
-                container.style.display = 'none';
-                if (dueDateInput) dueDateInput.required = false;
-            } else if (paymentType === 'split_50_50') {
-                container.style.display = 'block';
+            let paymentType;
+            if (forceHide) paymentType = null;
+            else if (event) paymentType = event.target.value;
+            else paymentType = paymentTypeSelect.value;
+
+            // הסתר הכל כברירת מחדל
+            dueDateContainer.style.display = 'none';
+            retainerDateContainer.style.display = 'none';
+            if (dueDateInput) dueDateInput.required = false;
+            if (retainerDateInput) retainerDateInput.required = false;
+            
+            if (paymentType === 'split_50_50') {
+                dueDateContainer.style.display = 'block';
                 if (dueDateInput) dueDateInput.required = true;
-            } else {
-                container.style.display = 'none';
-                if (dueDateInput) dueDateInput.required = false;
+            } else if (paymentType === 'retainer') {
+                retainerDateContainer.style.display = 'block';
+                if (retainerDateInput) retainerDateInput.required = true;
             }
         }
-        /* סוף פונקציה חדשה */
+        // --- סוף שינוי ---
 
-        // --- ניווט חודשים ---
-        function changeMonth(direction) {
+        function changeMonth(direction) { /* ... (ללא שינוי) ... */
             currentMonthOffset += direction;
             renderDashboard();
         }
         
-        // --- פונקציות חדשות - חלון פירוט חודש ---
-        
-        function showMonthDetailsModal(monthIndex, year) {
+        function showMonthDetailsModal(monthIndex, year) { /* ... (ללא שינוי) ... */
             const modal = document.getElementById('month-details-modal');
             const titleEl = document.getElementById('month-details-title');
             const listEl = document.getElementById('month-details-list');
-            
             try {
-                // הגדרת כותרת
                 titleEl.innerText = `פירוט תשלומים - ${monthNames[monthIndex]} ${year}`;
-                listEl.innerHTML = ''; // נקה רשימה קודמת
-
-                // מצא את כל התשלומים לחודש זה
+                listEl.innerHTML = ''; 
                 const startOfMonth = new Date(year, monthIndex, 1).getTime();
-                const endOfMonth = new Date(year, monthIndex + 1, 0, 23, 59, 59).getTime(); // ודא שזה סוף היום
-                
+                const endOfMonth = new Date(year, monthIndex + 1, 0, 23, 59, 59).getTime();
                 const monthPayments = allPayments.filter(p => {
                     if (p.status === 'collection' || !p.expectedDate) return false;
                     const expectedTime = new Date(p.expectedDate).getTime();
                     return (expectedTime >= startOfMonth && expectedTime <= endOfMonth);
                 });
-
                 if (monthPayments.length === 0) {
                     listEl.innerHTML = '<li class="text-gray-500">לא נמצאו תשלומים לחודש זה.</li>';
                 } else {
-                    // מיין מהחדש לישן לפי תאריך
                     monthPayments.sort((a, b) => new Date(b.expectedDate) - new Date(a.expectedDate));
-                    
                     monthPayments.forEach(p => {
                         const li = document.createElement('li');
-                        li.className = "flex justify-between items-center p-3 bg-gray-50 rounded-md border";
-                        
+li.className = "flex justify-between items-center p-3 bg-gray-50 rounded-md border";
                         const statusColor = p.status === 'received' ? 'text-green-600' : 'text-blue-600';
                         const statusText = p.status === 'received' ? 'התקבל' : 'צפוי';
                         const date = new Date(p.expectedDate).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit' });
-                        
-                        // --- שינוי: החלת מע"מ ---
                         const displayAmount = applyVat(p.amount);
+                        
+                        let detailsHtml = '';
+                        try {
+                            if (p.details) {
+                                detailsHtml = `<div class="text-sm text-gray-500 mt-1" style="white-space: pre-wrap;">- ${p.details}</div>`;
+                            }
+                        } catch (e) { console.error("שגיאה בהצגת פירוט", e); }
+
                         li.innerHTML = `
                             <div>
                                 <div class="font-semibold">${p.customerName}</div>
                                 <div class="text-sm text-gray-500">${date} - ${p.paymentType}</div>
+                                ${detailsHtml} 
                             </div>
                             <div class="text-left">
                                 <div class="font-bold">₪${displayAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
@@ -1080,36 +1066,28 @@
                         listEl.appendChild(li);
                     });
                 }
-                
-                // הצג את המודאל
                 modal.classList.remove('hidden');
-
             } catch (error) {
                 console.error("שגיאה בפתיחת פירוט חודש:", error);
-                // הצג שגיאה בתוך המודאל במקום לקרוס
                 listEl.innerHTML = `<li class="text-red-500">אירעה שגיאה בטעינת הנתונים: ${error.message}</li>`;
-                modal.classList.remove('hidden'); // ודא שהוא מוצג כדי לראות את השגיאה
+                modal.classList.remove('hidden');
+
             }
         }
-
-        function closeMonthDetailsModal() {
+        function closeMonthDetailsModal() { /* ... (ללא שינוי) ... */
             const modal = document.getElementById('month-details-modal');
-            if (modal) { // בדיקה למניעת קריסה
+            if (modal) { 
                 modal.classList.add('hidden');
             }
         }
         
-        // --- סוף פונקציות חדשות ---
-
-        // --- איתחול כללי ---
+        // --- איתחול כללי (ללא שינוי) ---
+        sessionStorage.removeItem('logout'); 
+        showView(null); 
+        document.getElementById('app-container').classList.add('hidden'); 
+        document.getElementById('loading-spinner').classList.remove('hidden'); 
         
-        // הסתר את כל התצוגות והצג טעינה
-        showView(null); // מסתיר הכל
-        document.getElementById('app-container').classList.add('hidden'); // הסתר את האפליקציה
-        document.getElementById('loading-spinner').classList.remove('hidden'); // הצג ספינר
-        
-        // התחל את תהליך Firebase
-        initFirebase();
+        initFirebase(); 
 
     </script>
 </body>
