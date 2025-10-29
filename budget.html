@@ -51,8 +51,8 @@
                     projectId: "eliran-apps",
                     storageBucket: "eliran-apps.firebasestorage.app",
                     messagingSenderId: "383762752947",
-                    appId: "1:383762752947:web:24fd294ce0cea858f557c6",
-                    measurementId: "G-1NYMZVXBMP"
+                    appId: "1:383762752947:web:7b83b2dcc31f2a5cf557c6",
+                    measurementId: "G-1DNCHTV0W3"
                 };
 
                 // בדיקה אם הקוד רץ בסביבה שלנו או בחוץ
@@ -74,8 +74,16 @@
                         userId = user.uid;
                         console.log("משתמש מחובר:", userId);
                         // טעינת נתונים ראשונית לאחר התחברות
-                        setupSnapshots();
+                        setupSnapshots(); // --- This will now only attach listeners
+                        
+                        // --- שינוי ---
+                        // נסתיר את הספינר ונציג את האפליקציה מיד
+                        // הנתונים יטענו ברקע
+                        document.getElementById('loading-spinner').classList.add('hidden');
+                        document.getElementById('app-container').classList.remove('hidden');
+                        
                         showDashboardView(); // הצג דאשבורד לאחר אימות
+                        // --- סוף שינוי ---
                     } else {
                         // אם אין משתמש, נסה להתחבר
                         try {
@@ -135,8 +143,11 @@
                 } else if (document.getElementById('collection-view').style.display !== 'none') {
                     renderCollectionView();
                 }
-                document.getElementById('loading-spinner').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
+                // --- שינוי ---
+                // הסרנו את הסתרת הספינר מכאן
+                // document.getElementById('loading-spinner').classList.add('hidden');
+                // document.getElementById('app-container').classList.remove('hidden');
+                // --- סוף שינוי ---
             }, (error) => console.error("שגיאה בטעינת תשלומים:", error));
         }
 
@@ -748,5 +759,7 @@
     </div>
 </body>
 </html>
+
+
 
 
