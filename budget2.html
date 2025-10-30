@@ -491,18 +491,13 @@
             const password = document.getElementById('login-password').value;
             
             try {
-                // --- תיקון קריטי לסנכרון מובייל: ניתוק מוחלט לפני ניסיון כניסה ---
-                const currentUser = auth.currentUser;
-                if (currentUser && currentUser.isAnonymous) {
-                    // יוצאים מכל מצב אנונימי כדי לנקות את הזיכרון
-                    await signOut(auth);
-                    console.log("משתמש אנונימי נוכחי נוּתַּק בהצלחה לפני כניסה.");
-                }
-                // --- סוף תיקון ---
-
-                // שימו לב: אין צורך בבדיקת deleteUser כאן, רק ניתוק.
+                // פשוט נסה להתחבר.
+                // Firebase יטפל אוטומטית בהחלפת המשתמש האנונימי (אם קיים) במשתמש הקבוע.
                 await signInWithEmailAndPassword(auth, email, password);
-                showDashboardView(); 
+                
+                // ה-onAuthStateChanged listener יופעל כעת עם המשתמש הקבוע
+                // ויעביר אוטומטית למסך הראשי (showDashboardView).
+                
             } catch (error) {
                 console.error("שגיאת התחברות:", error);
                 showAuthError(error.message);
