@@ -319,7 +319,8 @@
             signInWithEmailAndPassword,
             linkWithCredential,
             EmailAuthProvider,
-            signOut
+            signOut,
+            deleteUser
         } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { 
             getFirestore, 
@@ -490,10 +491,18 @@
             const password = document.getElementById('login-password').value;
             
             try {
-                // --- תיקון קריטי: ניתוק מהאנונימי לפני התחברות קבועה ---
+                // --- תיקון קריטי לסנכרון מובייל: מחיקה וניתוק מהמשתמש האנונימי ---
                 const currentUser = auth.currentUser;
                 if (currentUser && currentUser.isAnonymous) {
-                    await signOut(auth); // ינותק מהמשתמש האנונימי החדש שנוצר בנייד
+                    // מנסים למחוק את המשתמש האנונימי כדי לוודא שהוא לא מפריע
+                    try {
+                        await deleteUser(currentUser);
+                        console.log("משתמש אנונימי נוכחי נמחק בהצלחה.");
+                    } catch (deleteError) {
+                        console.warn("שגיאה במחיקת משתמש אנונימי:", deleteError);
+                        // אם המחיקה נכשלת (למשל, אין הרשאה), ננסה רק להתנתק
+                        await signOut(auth);
+                    }
                 }
                 // --- סוף תיקון ---
 
