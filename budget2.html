@@ -491,21 +491,16 @@
             const password = document.getElementById('login-password').value;
             
             try {
-                // --- תיקון קריטי לסנכרון מובייל: מחיקה וניתוק מהמשתמש האנונימי ---
+                // --- תיקון קריטי לסנכרון מובייל: ניתוק מוחלט לפני ניסיון כניסה ---
                 const currentUser = auth.currentUser;
                 if (currentUser && currentUser.isAnonymous) {
-                    try {
-                        // ניסיון מחיקה אגרסיבי.
-                        await deleteUser(currentUser);
-                        console.log("משתמש אנונימי נוכחי נמחק בהצלחה לפני כניסה.");
-                    } catch (deleteError) {
-                        // אם המחיקה נכשלת (בגלל הרשאות או תזמון), נצא בדרך רגילה.
-                        console.warn("שגיאה במחיקת משתמש אנונימי (לא קריטית אם הכניסה מצליחה):", deleteError);
-                        await signOut(auth); 
-                    }
+                    // יוצאים מכל מצב אנונימי כדי לנקות את הזיכרון
+                    await signOut(auth);
+                    console.log("משתמש אנונימי נוכחי נוּתַּק בהצלחה לפני כניסה.");
                 }
                 // --- סוף תיקון ---
 
+                // שימו לב: אין צורך בבדיקת deleteUser כאן, רק ניתוק.
                 await signInWithEmailAndPassword(auth, email, password);
                 showDashboardView(); 
             } catch (error) {
@@ -661,8 +656,8 @@
         
         function showFormError(message) { /* ... (ללא שינוי) ... */ 
             const errorEl = document.getElementById('form-error-message');
-            el.innerText = message;
-            el.classList.remove('hidden');
+            errorEl.innerText = message;
+            errorEl.classList.remove('hidden');
         }
         function showPaymentFormView(paymentToEdit = null) { /* ... (שינוי קטן) ... */
             const form = document.getElementById('payment-form');
