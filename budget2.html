@@ -28,12 +28,12 @@
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
         
-        /* --- סגנונות חדשים למסך האימות --- */
+        /* --- סגנונות חדשים למסך האימות (עיצוב כפתורים) --- */
         .auth-tab {
-            @apply px-4 py-2 font-semibold text-gray-600 rounded-t-lg cursor-pointer;
+            @apply px-4 py-2 font-semibold text-gray-700 rounded-lg cursor-pointer bg-gray-200 hover:bg-gray-300 transition-colors flex-grow text-center;
         }
         .auth-tab.active {
-            @apply bg-white text-blue-600 border-b-2 border-blue-600;
+            @apply bg-blue-600 text-white hover:bg-blue-700;
         }
     </style>
 </head>
@@ -229,7 +229,7 @@
         <!-- ===== 6. תצוגת התחברות / סנכרון ===== -->
         <div id="auth-view" style="display: none;" class="max-w-md mx-auto mt-10">
             <div class="bg-white p-8 rounded-lg shadow-md">
-                <div class="flex border-b mb-4">
+                <div class="flex gap-2 mb-4">
                     <button id="auth-tab-login" class="auth-tab active" onclick="showAuthTab('login')">התחברות</button>
                     <!-- --- שינוי: הוספנו לשונית הרשמה והוספנו כפתור קישור --- -->
                     <button id="auth-tab-signup" class="auth-tab" onclick="showAuthTab('signup')">הרשמה</button>
