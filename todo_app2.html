@@ -371,4 +371,493 @@
                     </div>
                     <div>
                         <label for="link-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">סיסמה (לפחות 6 תווים)</label>
-                        <input type="password" id="link-password" class="w-full p-3 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-7
+                        <input type="password" id="link-password" class="w-full p-3 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700" required>
+                    </div>
+                    <button type="submit" class="w-full bg-purple-600 text-white px-4 py-2 rounded-lg shadow hover:bg-purple-700 transition-colors">קשר וסנכרן נתונים</button>
+                </form>
+                
+                <div id="auth-error-message" class="text-red-600 dark:text-red-400 text-sm p-3 bg-red-50 dark:bg-red-900/30 rounded-lg hidden mt-4"></div>
+            </div>
+        </div>
+        </div> <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md relative">
+             <button type="button" data-close-modal class="modal-close-btn text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">&times;</button>
+            <h2 class="text-2xl font-semibold mb-4">עריכת משימה</h2>
+            <form id="edit-task-form">
+                <input type="hidden" id="edit-task-id">
+                <label for="edit-task-input" class="block text-sm font-medium mb-1">תיאור המשימה</label>
+                <input type="text" id="edit-task-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                
+                <label for="edit-client-select" class="block text-sm font-medium mb-1">שיוך לקוח (לעסק)</label>
+                <select id="edit-client-select" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                    <option value="">ללא שיוך</option>
+                </select>
+
+                <label for="edit-project-select" class="block text-sm font-medium mb-1">שיוך פרויקט (לעסק)</label>
+                <select id="edit-project-select" class="w-full p-3 mb-4 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                    <option value="">ללא שיוך</option>
+                </select>
+
+                <label for="edit-tags-input" class="block text-sm font-medium mb-1">תגיות</label>
+                <input type="text" id="edit-tags-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                
+                <label for="edit-due-date-input" class="block text-sm font-medium mb-1">תאריך יעד</label>
+                <input type="date" id="edit-due-date-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                
+                <label for="edit-priority-input" class="block text-sm font-medium mb-1">עדיפות</label>
+                <select id="edit-priority-input" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    <option value="low">נמוכה</option>
+                    <option value="normal">רגילה</option>
+                    <option value="high">גבוהה</option>
+                </select>
+                <div class="flex justify-end gap-4 mt-6">
+                    <button type="button" data-close-modal class="bg-gray-300 dark:bg-gray-600 py-2 px-4 rounded-md text-sm">ביטול</button>
+                    <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md text-sm">שמור שינויים</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="client-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-30">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col relative">
+             <button type="button" data-close-modal class="modal-close-btn text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">&times;</button>
+            <h2 id="client-modal-name" class="text-3xl font-bold mb-4">שם לקוח</h2>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 flex-grow overflow-y-auto border-t border-b border-gray-200 dark:border-gray-700 py-4 mb-4">
+                
+                <div>
+                     <h3 id="client-tasks-header" class="text-xl font-semibold mb-3 clickable-header">משימות פתוחות (<span id="client-open-tasks-count">0</span>)</h3>
+                    <div id="client-task-list" class="space-y-3 max-h-64 overflow-y-auto pr-2"></div>
+                    <button id="add-task-for-client-btn" class="mt-4 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-4 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800">+ הוסף משימה ללקוח זה</button>
+                </div>
+
+                <div>
+                    <h3 class="text-xl font-semibold mb-3">היסטוריית שיחות</h3>
+                    <div id="call-summary-list" class="space-y-3 max-h-64 overflow-y-auto pr-2"></div>
+                </div>
+
+            </div>
+            
+            <form id="add-summary-form">
+                <h3 class="text-xl font-semibold mb-3">הוספת סיכום שיחה חדש</h3>
+                <input type="hidden" id="summary-client-id">
+                 <input type="hidden" id="summary-client-name"> 
+                <textarea id="summary-text-input" rows="3" placeholder="כתוב כאן את סיכום השיחה..." class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
+                <div class="flex justify-end gap-4">
+                    <button type="button" data-close-modal class="bg-gray-300 dark:bg-gray-600 py-2 px-4 rounded-md text-sm">סגור</button>
+                    <button type="submit" class="bg-blue-600 text-white py-2 px-4 rounded-md text-sm">הוסף סיכום</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="project-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-30">
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-4xl max-h-[90vh] flex flex-col relative">
+             <button type="button" data-close-modal class="modal-close-btn text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">&times;</button>
+            <div class="flex justify-between items-start mb-4">
+                <div>
+                    <h2 id="project-modal-name" class="text-3xl font-bold">שם פרויקט</h2>
+                    <p id="project-modal-desc" class="text-gray-600 dark:text-gray-400 mt-1"></p>
+                    <p id="project-modal-due-date" class="text-sm font-semibold text-blue-600 dark:text-blue-400 mt-2"></p>
+                </div>
+            </div>
+            
+            <div class="flex-grow overflow-y-auto border-t border-b border-gray-200 dark:border-gray-700 py-4 mb-4">
+                 <h3 id="project-tasks-header" class="text-xl font-semibold mb-3 clickable-header" title="לחץ לצפייה בטבלת המשימות של פרויקט זה">משימות פתוחות (<span id="project-open-tasks-count">0</span>)</h3>
+                <div id="project-task-list" class="space-y-3 max-h-80 overflow-y-auto pr-2"></div>
+                <button id="add-task-for-project-btn" class="mt-4 text-sm bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 py-2 px-4 rounded-md hover:bg-blue-200 dark:hover:bg-blue-800">+ הוסף משימה לפרויקט זה</button>
+            </div>
+             <div class="flex justify-end mt-4">
+                 <button type="button" data-close-modal class="bg-gray-300 dark:bg-gray-600 py-2 px-4 rounded-md text-sm">סגור</button>
+            </div>
+        </div>
+    </div>
+
+
+<script type="module">
+    // =========================================================================
+    // Firebase SDK Imports & Config
+    // =========================================================================
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import {
+        getAuth,
+        onAuthStateChanged,
+        signInAnonymously,
+        createUserWithEmailAndPassword,
+        signInWithEmailAndPassword,
+        linkWithCredential,
+        EmailAuthProvider,
+        signOut
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+     const firebaseConfig = { 
+        apiKey: "AIzaSyDFYvzKavhrf4bnoFI0GckLk-dO40_ftJ4",
+        authDomain: "eliran-apps.firebaseapp.com",
+        projectId: "eliran-apps",
+        storageBucket: "eliran-apps.firebasestorage.app",
+        messagingSenderId: "383762752947",
+        appId: "1:383762752947:web:24fd294ce0cea858f557c6",
+        measurementId: "G-1NYMZVXBMP"
+      };
+
+    // =========================================================================
+    // DOM Element References (Grouped for better readability)
+    // =========================================================================
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const greetingHeader = document.getElementById('greeting-header');
+    const dashboard = document.getElementById('dashboard');
+    
+    // Views & Navigation
+    const views = {
+        tasks: document.getElementById('tasks-view'),
+        clients: document.getElementById('clients-view'),
+        projects: document.getElementById('projects-view'),
+        ideas: document.getElementById('ideas-view')
+    };
+    const navButtons = {
+        tasks: document.getElementById('nav-tasks'),
+        clients: document.getElementById('nav-clients'),
+        projects: document.getElementById('nav-projects'),
+        ideas: document.getElementById('nav-ideas')
+    };
+
+    // --- Task Related Elements ---
+    const addTaskForm = document.getElementById('add-task-form');
+    const taskInput = document.getElementById('task-input');
+    const dueDateInput = document.getElementById('due-date-input');
+    const tagsInput = document.getElementById('tags-input');
+    const priorityInput = document.getElementById('priority-input');
+    const addDateBtn = document.getElementById('add-date-btn');
+    const removeDateBtn = document.getElementById('remove-date-btn');
+    const dueDateContainer = document.getElementById('due-date-container');
+    const clientSelectContainer = document.getElementById('client-select-container');
+    const clientSelect = document.getElementById('client-select');
+    const projectSelectContainer = document.getElementById('project-select-container');
+    const projectSelect = document.getElementById('project-select');
+    const filterButtonsContainer = document.getElementById('filter-buttons');
+    const taskListContainer = document.getElementById('task-list-container');
+    const remindersContainer = document.getElementById('reminders-container');
+    const taskTableContainer = document.getElementById('task-table-container');
+    const taskTableBody = document.getElementById('task-table-body');
+    const viewSwitcher = document.getElementById('view-switcher');
+    const tagFilterContainer = document.getElementById('tag-filter-container');
+    const clientFilterContainer = document.getElementById('client-filter-container');
+    const clientFilterSelect = document.getElementById('client-filter-select');
+    const projectFilterContainer = document.getElementById('project-filter-container');
+    const projectFilterSelect = document.getElementById('project-filter-select');
+    const editModal = document.getElementById('edit-modal');
+    const editTaskForm = document.getElementById('edit-task-form');
+    const editClientSelect = document.getElementById('edit-client-select');
+    const editProjectSelect = document.getElementById('edit-project-select');
+    const editTaskIdInput = document.getElementById('edit-task-id');
+    const editTaskInput = document.getElementById('edit-task-input');
+    const editTagsInput = document.getElementById('edit-tags-input');
+    const editDueDateInput = document.getElementById('edit-due-date-input');
+    const editPriorityInput = document.getElementById('edit-priority-input');
+
+    // --- Client Related Elements ---
+    const addClientForm = document.getElementById('add-client-form');
+    const clientNameInput = document.getElementById('client-name-input');
+    const clientClassificationInput = document.getElementById('client-classification-input');
+    const clientTableBody = document.getElementById('client-table-body');
+    const clientDetailsModal = document.getElementById('client-details-modal');
+    const clientModalName = document.getElementById('client-modal-name');
+    const clientTaskList = document.getElementById('client-task-list'); 
+    const clientTasksHeader = document.getElementById('client-tasks-header');
+    const clientOpenTasksCount = document.getElementById('client-open-tasks-count');
+    const addTaskForClientBtn = document.getElementById('add-task-for-client-btn');
+    const callSummaryList = document.getElementById('call-summary-list');
+    const addSummaryForm = document.getElementById('add-summary-form');
+    const summaryClientId = document.getElementById('summary-client-id');
+    const summaryClientName = document.getElementById('summary-client-name');
+    const summaryTextInput = document.getElementById('summary-text-input');
+    
+    // --- Project Related Elements ---
+    const addProjectForm = document.getElementById('add-project-form');
+    const projectNameInput = document.getElementById('project-name-input');
+    const projectClassificationInput = document.getElementById('project-classification-input');
+    const projectDescInput = document.getElementById('project-desc-input');
+    const projectDueDateInput = document.getElementById('project-due-date-input');
+    const projectLinkInput = document.getElementById('project-link-input');
+    const projectSearchInput = document.getElementById('project-search-input');
+    const projectListContainer = document.getElementById('project-list-container');
+    const projectDetailsModal = document.getElementById('project-details-modal');
+    const projectModalName = document.getElementById('project-modal-name');
+    const projectModalDesc = document.getElementById('project-modal-desc');
+    const projectModalDueDate = document.getElementById('project-modal-due-date');
+    const projectTaskList = document.getElementById('project-task-list');
+    const projectTasksHeader = document.getElementById('project-tasks-header');
+    const projectOpenTasksCount = document.getElementById('project-open-tasks-count');
+    const addTaskForProjectBtn = document.getElementById('add-task-for-project-btn');
+
+    // --- Business Idea Related Elements ---
+    const addIdeaForm = document.getElementById('add-idea-form');
+    const ideaNameInput = document.getElementById('idea-name-input');
+    const ideaDescriptionInput = document.getElementById('idea-description-input');
+    const ideaPotentialInput = document.getElementById('idea-potential-input');
+    const ideaStageInput = document.getElementById('idea-stage-input');
+    const ideaTargetDateInput = document.getElementById('idea-target-date-input');
+    const ideaLinkInput = document.getElementById('idea-link-input');
+    const ideaSearchInput = document.getElementById('idea-search-input');
+    const ideaListContainer = document.getElementById('idea-list-container');
+
+    // --- Auth Related Elements ---
+    const authView = document.getElementById('auth-view');
+    const authFormLogin = document.getElementById('auth-form-login');
+    const authFormSignup = document.getElementById('auth-form-signup');
+    const authFormLink = document.getElementById('auth-form-link');
+    const authErrorMessage = document.getElementById('auth-error-message');
+    const userStatusText = document.getElementById('user-status-text');
+    const logoutBtn = document.getElementById('logout-btn');
+    const syncBtn = document.getElementById('sync-btn');
+
+
+    // =========================================================================
+    // Application State
+    // =========================================================================
+    let tasks = [];
+    let clients = [];
+    let projects = [];
+    let ideas = [];
+    let currentView = ''; // Track the currently active view
+    let currentViewFilter = 'active';
+    let currentTagFilter = null;
+    let currentClientFilter = "";
+    let currentProjectFilter = "";
+    let currentLayout = 'cards';
+    let currentSort = { key: 'priority', direction: 'asc' };
+    let db, auth, tasksCollectionRef, clientsCollectionRef, projectsCollectionRef, ideasCollectionRef;
+    let unsubscribeFromTasks, unsubscribeFromClients, unsubscribeFromProjects, unsubscribeFromIdeas;
+    let subtaskListeners = {};
+    let callSummaryListeners = {};
+    let clientTaskListeners = {}; 
+    let projectTaskListeners = {};
+    let currentUserId;
+
+    // =========================================================================
+    // Helper Functions
+    // =========================================================================
+    const getGreeting = () => {
+        const hour = new Date().getHours();
+        const name = "אלירן"; // Replace or fetch dynamically if needed
+        if (hour >= 5 && hour < 12) return `בוקר טוב, ${name}`;
+        if (hour >= 12 && hour < 18) return `צהריים טובים, ${name}`;
+        if (hour >= 18 && hour < 22) return `ערב טוב, ${name}`;
+        return `לילה טוב, ${name}`;
+    };
+
+    const formatTimestamp = (timestamp) => {
+        if (!timestamp) return '---';
+        try {
+             // Handle both Firebase Timestamp and JS Date objects
+             const date = timestamp.toDate ? timestamp.toDate() : new Date(timestamp);
+             // Use options for cleaner formatting
+             const options = { day: '2-digit', month: '2-digit', year: 'numeric' }; // Removed time
+             return date.toLocaleDateString('he-IL', options);
+        } catch (e) {
+             console.error("Error formatting timestamp:", timestamp, e);
+             return 'תאריך לא חוקי';
+        }
+    };
+    
+    const getTodayString = () => {
+        const today = new Date();
+        const y = today.getFullYear();
+        const m = String(today.getMonth() + 1).padStart(2, '0');
+        const d = String(today.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    };
+
+    const isToday = (dateStr) => {
+        if (!dateStr) return false;
+        return dateStr === getTodayString();
+    };
+
+    const isOverdue = (dateStr, completed) => {
+        if (!dateStr || completed) return false;
+        const todayStr = getTodayString();
+        return dateStr < todayStr;
+    };
+    
+    const isOld = (createdAt, daysOld = 14) => {
+        if (!createdAt || !createdAt.toDate) return false;
+        const now = new Date();
+        const createdDate = createdAt.toDate();
+        // Compare dates directly for days difference
+        const timeDiff = now.getTime() - createdDate.getTime();
+        const dayDiff = timeDiff / (1000 * 3600 * 24);
+        return dayDiff > daysOld;
+    };
+
+    // Function to switch active view and navigation highlight
+    const setActiveView = (viewName) => {
+        currentView = viewName;
+        // Hide all main views
+        Object.values(views).forEach(viewEl => viewEl.classList.add('hidden'));
+        // Hide auth view
+        authView.classList.add('hidden');
+        
+        // Deactivate all nav buttons
+        Object.values(navButtons).forEach(btn => btn.classList.remove('active'));
+
+        // Show the correct view
+        if (viewName === 'auth-view') {
+            authView.classList.remove('hidden');
+        } else if (views[viewName]) {
+            views[viewName].classList.remove('hidden');
+            if (navButtons[viewName]) navButtons[viewName].classList.add('active');
+        }
+
+        // Trigger specific render functions needed when switching views
+        if (viewName === 'clients') renderClientList();
+        if (viewName === 'projects') renderProjectList();
+        if (viewName === 'ideas') renderIdeaList();
+        if (viewName === 'tasks') render(); // General render for tasks view
+    };
+
+    const showAuthView = () => {
+        setActiveView('auth-view'); // Use setActiveView to hide other views
+        
+        const currentUser = auth.currentUser;
+        if (currentUser && currentUser.isAnonymous) {
+            showAuthTab('link'); // Default to 'link' if anonymous
+        } else {
+            showAuthTab('login'); // Default to 'login' if logged out
+        }
+        sessionStorage.removeItem('logout');
+    };
+
+    window.showAuthTab = (tabName) => {
+        document.getElementById('auth-tab-login').classList.toggle('active', tabName === 'login');
+        document.getElementById('auth-tab-signup').classList.toggle('active', tabName === 'signup');
+        document.getElementById('auth-tab-link').classList.toggle('active', tabName === 'link');
+        
+        authFormLogin.style.display = (tabName === 'login') ? 'block' : 'none';
+        authFormSignup.style.display = (tabName === 'signup') ? 'block' : 'none';
+        authFormLink.style.display = (tabName === 'link') ? 'block' : 'none';
+        
+        authErrorMessage.classList.add('hidden');
+    };
+    
+    const updateAuthUI = (user) => {
+        if (user.isAnonymous) {
+            userStatusText.innerText = "מצב אורח (לא מסונכרן)";
+            syncBtn.classList.remove('hidden');
+            logoutBtn.classList.add('hidden');
+        } else {
+            userStatusText.innerText = `מחובר כ: ${user.email}`;
+            syncBtn.classList.add('hidden');
+            logoutBtn.classList.remove('hidden');
+        }
+    };
+    
+    const showAuthError = (message) => {
+        switch(message) {
+            case "Firebase: Error (auth/invalid-credential).":
+            case "Firebase: Error (auth/wrong-password).":
+                message = "אימייל או סיסמה שגויים."; break;
+            case "Firebase: Error (auth/email-already-in-use).":
+                message = "האימייל הזה כבר בשימוש. נסה להתחבר."; break;
+            case "Firebase: Error (auth/weak-password).":
+                message = "סיסמה חלשה מדי. נדרשים לפחות 6 תווים."; break;
+        }
+        authErrorMessage.innerText = message;
+        authErrorMessage.classList.remove('hidden');
+    };
+
+    // =========================================================================
+    // Firebase Initialization & Listeners
+    // =========================================================================
+    async function initializeFirebase() {
+        greetingHeader.textContent = getGreeting();
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+
+            onAuthStateChanged(auth, user => {
+                if (user) {
+                    // User is signed in (anonymously or permanently)
+                    currentUserId = user.uid;
+                    console.log("User state changed:", currentUserId, "Anonymous?", user.isAnonymous);
+                    
+                    // Clear all old data and listeners
+                    if (unsubscribeFromTasks) unsubscribeFromTasks();
+                    if (unsubscribeFromClients) unsubscribeFromClients();
+                    if (unsubscribeFromProjects) unsubscribeFromProjects();
+                    if (unsubscribeFromIdeas) unsubscribeFromIdeas();
+                    
+                    tasks = []; clients = []; projects = []; ideas = [];
+                    Object.keys(subtaskListeners).forEach(k => {
+                        if (typeof subtaskListeners[k] === 'function') subtaskListeners[k]();
+                    });
+                    subtaskListeners = {};
+                    Object.keys(callSummaryListeners).forEach(k => {
+                         if (typeof callSummaryListeners[k] === 'function') callSummaryListeners[k]();
+                    });
+                    callSummaryListeners = {};
+                    Object.keys(clientTaskListeners).forEach(k => {
+                        if (typeof clientTaskListeners[k] === 'function') clientTaskListeners[k]();
+                    });
+                    clientTaskListeners = {};
+                    Object.keys(projectTaskListeners).forEach(k => {
+                        if (typeof projectTaskListeners[k] === 'function') projectTaskListeners[k]();
+                    });
+                    projectTaskListeners = {};
+                    
+                    setupSnapshots(); // Start new listeners for this user
+                    updateAuthUI(user);
+                    
+                    // If we are on the auth screen or it's the first load, go to tasks
+                    if (currentView === 'auth-view' || currentView === '') {
+                         setActiveView('tasks');
+                    }
+                    
+                    loadingSpinner.classList.add('hidden');
+
+                } else {
+                    // User is signed out
+                    console.log("User is signed out.");
+                    
+                    // Clear all data and listeners
+                    if (unsubscribeFromTasks) unsubscribeFromTasks();
+                    if (unsubscribeFromClients) unsubscribeFromClients();
+                    if (unsubscribeFromProjects) unsubscribeFromProjects();
+                    if (unsubscribeFromIdeas) unsubscribeFromIdeas();
+                    
+                    tasks = []; clients = []; projects = []; ideas = [];
+                    currentUserId = null;
+
+                    // Clear listeners
+                    Object.keys(subtaskListeners).forEach(k => {
+                        if (typeof subtaskListeners[k] === 'function') subtaskListeners[k]();
+                    });
+                    subtaskListeners = {};
+                    Object.keys(callSummaryListeners).forEach(k => {
+                         if (typeof callSummaryListeners[k] === 'function') callSummaryListeners[k]();
+                    });
+                    callSummaryListeners = {};
+                    Object.keys(clientTaskListeners).forEach(k => {
+                        if (typeof clientTaskListeners[k] === 'function') clientTaskListeners[k]();
+                    });
+                    clientTaskListeners = {};
+                    Object.keys(projectTaskListeners).forEach(k => {
+                        if (typeof projectTaskListeners[k] === 'function') projectTaskListeners[k]();
+                    });
+                    projectTaskListeners = {};
+
+                    // Reset UI
+                    render(); // Render empty state
+                    populateDropdowns(); // Clear dropdowns
+                    
+                    if (sessionStorage.getItem('logout')) {
+                        // User clicked logout
+                        setActiveView('auth-view');
+                        showAuthTab('login');
+                    } else {
+                        // Initial load or session expired
+                        console.log("Attempting anonymous sign-in...");
+                        signInAnonymously(auth).catch(error => {
+                            console.error("Anonymous sign-in failed:", error);
+                            loading
