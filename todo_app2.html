@@ -127,7 +127,6 @@
                 </button>
             </div>
         </header>
-
         <nav class="flex justify-center border-b border-gray-300 dark:border-gray-700 mb-8">
             <button id="nav-tasks" class="nav-tab active" data-view="tasks-view">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -179,4 +178,197 @@
 
                     <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
                         <div class="flex items-center gap-4">
-                            <label for="priority-input" class="text-sm font-medium">עדיפות
+                            <label for="priority-input" class="text-sm font-medium">עדיפות:</label>
+                            <select id="priority-input" class="p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                                <option value="low">נמוכה</option>
+                                <option value="normal" selected>רגילה</option>
+                                <option value="high">גבוהה</option>
+                            </select>
+                        </div>
+                         <div class="flex items-center gap-4">
+                            <label class="text-sm font-medium">קטגוריה:</label>
+                            <div class="flex items-center gap-2">
+                                <input type="radio" id="category-business" name="category" value="business" class="form-radio text-blue-600" checked><label for="category-business" class="text-sm">עסק 💼</label>
+                                <input type="radio" id="category-personal" name="category" value="personal" class="form-radio text-purple-600"><label for="category-personal" class="text-sm">אישי 🏠</label>
+                            </div>
+                        </div>
+                    </div>
+                     <div class="flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <button type="button" id="add-date-btn" class="text-sm text-blue-600 dark:text-blue-400 hover:underline">+ הוסף תאריך יעד</button>
+                        <div id="due-date-container" class="hidden flex items-center gap-2 w-full sm:w-auto">
+                            <label for="due-date-input" class="text-sm font-medium flex-shrink-0">תאריך יעד:</label>
+                            <input type="date" id="due-date-input" class="flex-grow p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                            <button type="button" id="remove-date-btn" class="p-1 text-red-500 hover:bg-red-100 dark:hover:bg-red-900 rounded-full" title="הסר תאריך">✖</button>
+                        </div>
+                     </div>
+                    <button type="submit" class="w-full mt-6 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף משימה</button>
+                </form>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+                <div class="flex flex-col sm:flex-row justify-between items-center mb-4 gap-4">
+                    <div id="view-switcher" class="flex p-1 bg-gray-200 dark:bg-gray-700 rounded-full">
+                        <button data-view="cards" class="view-btn bg-white dark:bg-gray-800 text-blue-600 py-2 px-5 rounded-full font-semibold shadow">כרטיסים</button>
+                        <button data-view="table" class="view-btn py-2 px-5 rounded-full font-semibold text-gray-600 dark:text-gray-300">טבלה</button>
+                    </div>
+                    <div class="flex justify-center gap-2 flex-wrap" id="filter-buttons">
+                        <button data-filter="active" class="filter-btn bg-blue-600 text-white py-2 px-5 rounded-full font-semibold text-sm">פעילות</button>
+                        <button data-filter="business" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold text-sm">עסק</button>
+                        <button data-filter="personal" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold text-sm">אישי</button>
+                        <button data-filter="completed" class="filter-btn bg-gray-200 dark:bg-gray-700 py-2 px-5 rounded-full font-semibold text-sm">הושלמו ✅</button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                     <div id="tag-filter-container" class="flex justify-center gap-1 flex-wrap md:col-span-1"></div>
+                    <div id="client-filter-container" class="hidden md:col-span-1">
+                         <select id="client-filter-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-sm">
+                            <option value="">סנן לפי לקוח...</option>
+                        </select>
+                    </div>
+                    <div id="project-filter-container" class="hidden md:col-span-1">
+                         <select id="project-filter-select" class="w-full p-2 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 text-sm">
+                            <option value="">סנן לפי פרויקט...</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div id="task-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+            <div id="task-table-container" class="hidden bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-x-auto">
+                <table id="task-table">
+                    <thead>
+                        <tr>
+                            <th class="sortable-header" data-sort="text">משימה</th>
+                            <th class="sortable-header" data-sort="clientName">לקוח</th>
+                            <th class="sortable-header" data-sort="projectName">פרויקט</th>
+                            <th class="sortable-header" data-sort="status">סטטוס</th>
+                            <th class="sortable-header" data-sort="priority">עדיפות</th>
+                            <th class="sortable-header" data-sort="dueDate">תאריך יעד</th>
+                            <th class="sortable-header" data-sort="createdAt">תאריך יצירה</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="task-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="clients-view" class="hidden">
+            <div class="form-section">
+                <form id="add-client-form">
+                    <h2 class="text-2xl font-semibold mb-4">הוספת לקוח חדש</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <input type="text" id="client-name-input" placeholder="שם הלקוח" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        <input type="text" id="client-classification-input" placeholder="סיווג (למשל: פרטי, חברה)" class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700">
+                    </div>
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף לקוח</button>
+                </form>
+            </div>
+            
+            <div id="client-list-container" class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-x-auto">
+                 <table id="client-table">
+                    <thead>
+                        <tr>
+                            <th>שם לקוח</th>
+                            <th>סיווג</th>
+                            <th>פעולות</th>
+                        </tr>
+                    </thead>
+                    <tbody id="client-table-body"></tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="projects-view" class="hidden">
+            <div class="form-section">
+                <form id="add-project-form">
+                    <h2 class="text-2xl font-semibold mb-4">הוספת פרויקט חדש</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <input type="text" id="project-name-input" placeholder="שם הפרויקט" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700 md:col-span-1" required>
+                        <input type="text" id="project-classification-input" placeholder="סיווג (למשל: פנימי, לקוח X)" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700 md:col-span-1">
+                        <input type="date" id="project-due-date-input" title="תאריך יעד" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700 md:col-span-1">
+                    </div>
+                    <textarea id="project-desc-input" rows="3" placeholder="תיאור קצר של הפרויקט (אופציונלי)" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
+                    <input type="url" id="project-link-input" placeholder="קישור רלוונטי (אופציונלי)" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">הוסף פרויקט</button>
+                </form>
+            </div>
+             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+                 <input type="search" id="project-search-input" placeholder="🔍 חפש פרויקט לפי שם, תיאור או סיווג..." class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+             </div>
+            <div id="project-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </div>
+
+        <div id="ideas-view" class="hidden">
+            <div class="form-section">
+                <form id="add-idea-form">
+                    <h2 class="text-2xl font-semibold mb-4">הוספת רעיון עסקי חדש</h2>
+                    <input type="text" id="idea-name-input" placeholder="שם הרעיון (לדוגמה: אפליקציה לשיתוף חניות)" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700" required>
+                    <textarea id="idea-description-input" rows="4" placeholder="תיאור מפורט של הרעיון..." class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700"></textarea>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <select id="idea-potential-input" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                            <option value="medium" selected>פוטנציאל בינוני</option>
+                            <option value="high">פוטנציאל גבוה</option>
+                            <option value="low">פוטנציאל נמוך</option>
+                        </select>
+                        <input type="text" id="idea-stage-input" placeholder="שלב נוכחי (למשל: מחקר)" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                        <input type="date" id="idea-target-date-input" title="תאריך יעד (מטרה)" class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    </div>
+                     <input type="url" id="idea-link-input" placeholder="קישור רלוונטי (אופציונלי)" class="w-full p-3 mb-4 border rounded-md bg-gray-50 dark:bg-gray-700">
+                    <button type="submit" class="w-full mt-4 bg-blue-600 text-white font-bold py-3 px-6 rounded-md hover:bg-blue-700 transition-colors duration-200">שמור רעיון</button>
+                </form>
+            </div>
+             <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md mb-6">
+                 <input type="search" id="idea-search-input" placeholder="🔍 חפש רעיון לפי שם, תיאור או שלב..." class="w-full p-3 border rounded-md bg-gray-50 dark:bg-gray-700">
+             </div>
+            <div id="idea-list-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                </div>
+        </div>
+
+        <div id="auth-view" class="hidden max-w-md mx-auto mt-10">
+            <div class="bg-white dark:bg-gray-800 p-8 rounded-lg shadow-lg">
+                <div class="flex gap-2 mb-4">
+                    <button id="auth-tab-login" class="auth-tab active" onclick="showAuthTab('login')">התחברות</button>
+                    <button id="auth-tab-signup" class="auth-tab" onclick="showAuthTab('signup')">הרשמה</button>
+                    <button id="auth-tab-link" class="auth-tab" onclick="showAuthTab('link')">קישור חשבון</button>
+                </div>
+                
+                <form id="auth-form-login" class="space-y-4">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">התחבר לחשבון קיים כדי לטעון את הנתונים שלך.</p>
+                    <div>
+                        <label for="login-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">אימייל</label>
+                        <input type="email" id="login-email" class="w-full p-3 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700" required>
+                    </div>
+                    <div>
+                        <label for="login-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">סיסמה</label>
+                        <input type="password" id="login-password" class="w-full p-3 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700" required>
+                    </div>
+                    <button type="submit" class="w-full bg-blue-600 text-white px-4 py-2 rounded-lg shadow hover:bg-blue-700 transition-colors">התחבר</button>
+                </form>
+    
+                <form id="auth-form-signup" class="space-y-4 hidden">
+                    <p class="text-sm text-gray-600 dark:text-gray-400">צור חשבון חדש (פעולה זו לא תשמור נתונים מקומיים אם קיימים).</p>
+                    <div>
+                        <label for="signup-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">אימייל</label>
+                        <input type="email" id="signup-email" class="w-full p-3 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700" required>
+                    </div>
+                    <div>
+                        <label for="signup-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">סיסמה (לפחות 6 תווים)</label>
+                        <input type="password" id="signup-password" class="w-full p-3 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700" required>
+                    </div>
+                    <button type="submit" class="w-full bg-green-600 text-white px-4 py-2 rounded-lg shadow hover:bg-green-700 transition-colors">צור חשבון</button>
+                </form>
+    
+                <form id="auth-form-link" class="space-y-4 hidden">
+                    <p class="text-sm text-yellow-700 dark:text-yellow-300 bg-yellow-50 dark:bg-yellow-900/30 p-3 rounded-md">
+                        אתה כרגע במצב אורח. קשר את הנתונים שלך לחשבון קבוע על ידי הזנת אימייל וסיסמה.
+                    </p>
+                    <div>
+                        <label for="link-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">אימייל</label>
+                        <input type="email" id="link-email" class="w-full p-3 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-700" required>
+                    </div>
+                    <div>
+                        <label for="link-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">סיסמה (לפחות 6 תווים)</label>
+                        <input type="password" id="link-password" class="w-full p-3 mt-1 border border-gray-300 dark:border-gray-600 rounded-md bg-gray-50 dark:bg-gray-7
