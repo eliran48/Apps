@@ -494,14 +494,14 @@
                 // --- תיקון קריטי לסנכרון מובייל: מחיקה וניתוק מהמשתמש האנונימי ---
                 const currentUser = auth.currentUser;
                 if (currentUser && currentUser.isAnonymous) {
-                    // מנסים למחוק את המשתמש האנונימי כדי לוודא שהוא לא מפריע
                     try {
+                        // ניסיון מחיקה אגרסיבי.
                         await deleteUser(currentUser);
-                        console.log("משתמש אנונימי נוכחי נמחק בהצלחה.");
+                        console.log("משתמש אנונימי נוכחי נמחק בהצלחה לפני כניסה.");
                     } catch (deleteError) {
-                        console.warn("שגיאה במחיקת משתמש אנונימי:", deleteError);
-                        // אם המחיקה נכשלת (למשל, אין הרשאה), ננסה רק להתנתק
-                        await signOut(auth);
+                        // אם המחיקה נכשלת (בגלל הרשאות או תזמון), נצא בדרך רגילה.
+                        console.warn("שגיאה במחיקת משתמש אנונימי (לא קריטית אם הכניסה מצליחה):", deleteError);
+                        await signOut(auth); 
                     }
                 }
                 // --- סוף תיקון ---
@@ -572,6 +572,8 @@
                     message = "האימייל הזה כבר בשימוש. נסה להתחבר."; break;
                 case "Firebase: Error (auth/weak-password).":
                     message = "סיסמה חלשה מדי. נדרשים לפחות 6 תווים."; break;
+                case "Firebase: Error (auth/popup-closed-by-user).":
+                    message = "חלון האימות נסגר על ידי המשתמש."; break;
             }
             el.innerText = message;
             el.classList.remove('hidden');
@@ -659,8 +661,8 @@
         
         function showFormError(message) { /* ... (ללא שינוי) ... */ 
             const errorEl = document.getElementById('form-error-message');
-            errorEl.innerText = message;
-            errorEl.classList.remove('hidden');
+            el.innerText = message;
+            el.classList.remove('hidden');
         }
         function showPaymentFormView(paymentToEdit = null) { /* ... (שינוי קטן) ... */
             const form = document.getElementById('payment-form');
