@@ -456,11 +456,19 @@
                 logoutBtn.classList.remove('hidden');
             }
         }
-        async function handleLogin(e) { /* ... (ללא שינוי) ... */ 
+        async function handleLogin(e) { 
             e.preventDefault();
             const email = document.getElementById('login-email').value;
             const password = document.getElementById('login-password').value;
+            
             try {
+                // --- תיקון קריטי לסנכרון מובייל: ניתוק מהמשתמש האנונימי הנוכחי לפני התחברות קבועה ---
+                const currentUser = auth.currentUser;
+                if (currentUser && currentUser.isAnonymous) {
+                    await signOut(auth);
+                }
+                // --- סוף תיקון ---
+
                 await signInWithEmailAndPassword(auth, email, password);
                 showDashboardView(); 
             } catch (error) {
