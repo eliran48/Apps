@@ -781,7 +781,7 @@
                 listEl.innerHTML = '<li class="text-gray-500">אין נתונים להצגה</li>'; return;
             }
             sortedYears.forEach(year => {
-                const total = yearTotals[key];
+                const total = yearTotals[year];
                 const li = document.createElement('li');
                 li.className = 'flex justify-between p-2 border-b last:border-b-0';
                 li.innerHTML = `<span>${year}</span><span class="font-semibold">₪${total.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>`;
