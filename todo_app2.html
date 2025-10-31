@@ -121,12 +121,18 @@
                     <button id="logout-btn" class="text-red-500 font-semibold mr-2 hover:underline hidden">(התנתק)</button>
                 </div>
             </div>
-            <div class="flex-shrink-0">
+            
+            <div class="flex-shrink-0 flex items-center gap-2">
                 <button id="sync-btn" class="bg-purple-600 text-white px-5 py-3 rounded-lg shadow-md hover:bg-purple-700 transition-all hidden">
                     התחברות / סנכרון
                 </button>
+                
+                <button id="theme-toggle-btn" class="p-2 rounded-full text-gray-600 dark:text-gray-400 hover:bg-gray-200 dark:hover:bg-gray-700 transition-colors">
+                    <svg id="theme-icon-light" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
+                    <svg id="theme-icon-dark" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                </button>
             </div>
-        </header>
+            </header>
         <nav class="flex justify-center border-b border-gray-300 dark:border-gray-700 mb-8">
             <button id="nav-tasks" class="nav-tab active" data-view="tasks-view">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
@@ -379,7 +385,9 @@
                 <div id="auth-error-message" class="text-red-600 dark:text-red-400 text-sm p-3 bg-red-50 dark:bg-red-900/30 rounded-lg hidden mt-4"></div>
             </div>
         </div>
-        </div> <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20">
+        </div> 
+    
+    <div id="edit-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-20">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-md relative">
              <button type="button" data-close-modal class="modal-close-btn text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">&times;</button>
             <h2 class="text-2xl font-semibold mb-4">עריכת משימה</h2>
@@ -490,6 +498,43 @@
         signOut
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, serverTimestamp, query, orderBy, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // =========================================================================
+    // Dark Mode Logic (NEW)
+    // =========================================================================
+    const themeToggleBtn = document.getElementById('theme-toggle-btn');
+    const lightIcon = document.getElementById('theme-icon-light');
+    const darkIcon = document.getElementById('theme-icon-dark');
+
+    const applyTheme = (theme) => {
+        if (theme === 'dark') {
+            document.body.classList.add('dark');
+            lightIcon.classList.add('hidden');
+            darkIcon.classList.remove('hidden');
+        } else {
+            document.body.classList.remove('dark');
+            lightIcon.classList.remove('hidden');
+            darkIcon.classList.add('hidden');
+        }
+    };
+
+    const toggleTheme = () => {
+        const isDark = document.body.classList.toggle('dark');
+        const theme = isDark ? 'dark' : 'light';
+        localStorage.setItem('theme', theme);
+        applyTheme(theme);
+    };
+
+    // Apply saved theme on load
+    try {
+        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        applyTheme(savedTheme);
+    } catch (e) {
+        console.warn("Could not apply saved theme from localStorage.");
+        applyTheme('light'); // Default to light mode if localStorage fails
+    }
+    // --- End Dark Mode Logic ---
+
 
      const firebaseConfig = { 
         apiKey: "AIzaSyDFYvzKavhrf4bnoFI0GckLk-dO40_ftJ4",
@@ -860,4 +905,1360 @@
                         console.log("Attempting anonymous sign-in...");
                         signInAnonymously(auth).catch(error => {
                             console.error("Anonymous sign-in failed:", error);
-                            loading
+                            loadingSpinner.innerHTML = '<p class="text-red-500">שגיאת התחברות. נסה לרענן את הדף.</p>';
+                        });
+                    }
+                }
+            });
+        } catch (e) {
+            console.error("Error initializing Firebase:", e);
+            loadingSpinner.innerHTML = '<p class="text-red-500">שגיאה קריטית באתחול האפליקציה.</p>';
+        }
+    }
+
+    function setupSnapshots() {
+        if (!currentUserId) return;
+
+        // Define collection paths
+        const tasksPath = `users/${currentUserId}/tasks`;
+        const clientsPath = `users/${currentUserId}/clients`;
+        const projectsPath = `users/${currentUserId}/projects`;
+        const ideasPath = `users/${currentUserId}/businessIdeas`;
+        
+        tasksCollectionRef = collection(db, tasksPath);
+        clientsCollectionRef = collection(db, clientsPath);
+        projectsCollectionRef = collection(db, projectsPath);
+        ideasCollectionRef = collection(db, ideasPath);
+
+        // --- Listen for Tasks ---
+        const qTasks = query(tasksCollectionRef, orderBy("createdAt", "desc"));
+        unsubscribeFromTasks = onSnapshot(qTasks, (snapshot) => {
+            tasks = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            manageSubtaskListeners();
+            if (currentView === 'tasks') render();
+            renderReminders();
+            if (currentView === 'clients') renderClientList();
+            if (currentView === 'projects') renderProjectList();
+        }, (error) => console.error("Error listening to Tasks: ", error));
+
+        // --- Listen for Clients ---
+        const qClients = query(clientsCollectionRef, orderBy("name", "asc"));
+        unsubscribeFromClients = onSnapshot(qClients, (snapshot) => {
+            clients = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (currentView === 'clients') renderClientList();
+            populateDropdowns();
+        }, (error) => console.error("Error listening to Clients: ", error));
+
+        // --- Listen for Projects ---
+        const qProjects = query(projectsCollectionRef, orderBy("name", "asc"));
+        unsubscribeFromProjects = onSnapshot(qProjects, (snapshot) => {
+            projects = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (currentView === 'projects') renderProjectList();
+            populateDropdowns();
+        }, (error) => console.error("Error listening to Projects: ", error));
+
+        // --- Listen for Ideas ---
+        const qIdeas = query(ideasCollectionRef, orderBy("createdAt", "desc"));
+        unsubscribeFromIdeas = onSnapshot(qIdeas, (snapshot) => {
+            ideas = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            if (currentView === 'ideas') renderIdeaList();
+        }, (error) => console.error("Error listening to Ideas: ", error));
+    }
+    
+    // =========================================================================
+    // Core App Logic
+    // =========================================================================
+    
+    const render = () => {
+        if (!tasksCollectionRef) return; // Don't render if Firebase isn't ready
+        
+        if (currentLayout === 'cards') {
+            taskListContainer.classList.remove('hidden');
+            taskTableContainer.classList.add('hidden');
+            renderTasks();
+        } else {
+            taskListContainer.classList.add('hidden');
+            taskTableContainer.classList.remove('hidden');
+            renderTable();
+        }
+        renderTagFilters();
+        updateDashboard();
+    };
+
+    const updateDashboard = () => {
+        const openTasks = tasks.filter(t => !t.completed).length;
+        document.getElementById('open-tasks-count').textContent = openTasks;
+    };
+    
+    const populateDropdowns = () => {
+        const clientOptions = clients.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        clientSelect.innerHTML = `<option value="">בחר לקוח...</option>${clientOptions}`;
+        clientFilterSelect.innerHTML = `<option value="">כל הלקוחות</option>${clientOptions}`;
+        editClientSelect.innerHTML = `<option value="">ללא שיוך</option>${clientOptions}`;
+
+        const projectOptions = projects.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+        projectSelect.innerHTML = `<option value="">בחר פרויקט (אופציונלי)...</option>${projectOptions}`;
+        projectFilterSelect.innerHTML = `<option value="">כל הפרויקטים</option>${projectOptions}`;
+        editProjectSelect.innerHTML = `<option value="">ללא שיוך</option>${projectOptions}`;
+    };
+
+    const manageSubtaskListeners = () => {
+        const currentTaskIds = new Set(tasks.map(t => t.id));
+        // Clean up old listeners
+        for (const taskId in subtaskListeners) {
+            if (!currentTaskIds.has(taskId)) {
+                if (typeof subtaskListeners[taskId] === 'function') {
+                    subtaskListeners[taskId](); // Unsubscribe
+                }
+                delete subtaskListeners[taskId];
+            }
+        }
+        // Add new listeners
+        tasks.forEach(task => {
+            if (!subtaskListeners[task.id]) {
+                const subtasksRef = collection(db, tasksCollectionRef.path, task.id, 'subtasks');
+                const q = query(subtasksRef, orderBy("createdAt", "asc"));
+                subtaskListeners[task.id] = onSnapshot(q, subtaskSnapshot => {
+                    const subtasks = subtaskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                    renderSubtasks(task.id, subtasks);
+                }, console.error);
+            }
+        });
+    };
+
+    const getFilteredAndSortedTasks = () => {
+        let filteredTasks;
+        if (currentViewFilter === 'completed') {
+            filteredTasks = tasks.filter(task => task.completed);
+        } else {
+            filteredTasks = tasks.filter(task => !task.completed);
+            if (currentViewFilter !== 'active') {
+                filteredTasks = filteredTasks.filter(task => task.category === currentViewFilter);
+            }
+        }
+        if (currentTagFilter) {
+            filteredTasks = filteredTasks.filter(task => task.tags && task.tags.includes(currentTagFilter));
+        }
+        if (currentClientFilter) {
+            filteredTasks = filteredTasks.filter(task => task.clientId === currentClientFilter);
+        }
+        if (currentProjectFilter) {
+            filteredTasks = filteredTasks.filter(task => task.projectId === currentProjectFilter);
+        }
+        return sortTasks(filteredTasks);
+    };
+
+    const sortTasks = (tasksToSort) => {
+        const { key, direction } = currentSort;
+        const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+
+        return tasksToSort.sort((a, b) => {
+            let valA, valB;
+            switch (key) {
+                case 'priority': 
+                    valA = priorityOrder[a.priority] !== undefined ? priorityOrder[a.priority] : 1;
+                    valB = priorityOrder[b.priority] !== undefined ? priorityOrder[b.priority] : 1;
+                    break;
+                case 'dueDate': 
+                    valA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity; 
+                    valB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity; 
+                    break;
+                case 'createdAt': 
+                    valA = a.createdAt?.toMillis() || 0; 
+                    valB = b.createdAt?.toMillis() || 0; 
+                    break;
+                case 'status': valA = a.completed; valB = b.completed; break;
+                case 'clientName': valA = a.clientName || ''; valB = b.clientName || ''; break;
+                case 'projectName': valA = a.projectName || ''; valB = b.projectName || ''; break;
+                default: valA = a[key] || ''; valB = b[key] || '';
+            }
+            if (valA < valB) return direction === 'asc' ? -1 : 1;
+            if (valA > valB) return direction === 'asc' ? 1 : -1;
+            
+            // Secondary sort by priority if primary sort is equal (e.g., sorting by date)
+            if (key !== 'priority') {
+                 const prioA = priorityOrder[a.priority] !== undefined ? priorityOrder[a.priority] : 1;
+                 const prioB = priorityOrder[b.priority] !== undefined ? priorityOrder[b.priority] : 1;
+                 return prioA - prioB;
+            }
+            return 0;
+        });
+    };
+
+    // =========================================================================
+    // Render Functions
+    // =========================================================================
+    
+    const renderTasks = () => {
+        currentSort = { key: 'priority', direction: 'asc' }; // Default sort for cards
+        const filteredTasks = getFilteredAndSortedTasks();
+        
+        taskListContainer.innerHTML = '';
+        if (filteredTasks.length === 0) {
+            taskListContainer.innerHTML = `<div class="text-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-500 col-span-full">אין משימות להצגה.</div>`;
+            return;
+        }
+        filteredTasks.forEach(task => {
+            const taskEl = createTaskElement(task);
+            taskListContainer.appendChild(taskEl);
+        });
+    };
+    
+    const renderTable = () => {
+        const filteredTasks = getFilteredAndSortedTasks();
+        taskTableBody.innerHTML = '';
+        if (filteredTasks.length === 0) {
+            taskTableBody.innerHTML = `<tr><td colspan="8" class="text-center text-gray-500 py-6">אין משימות להצגה.</td></tr>`;
+            return;
+        }
+        filteredTasks.forEach(task => {
+            const tr = document.createElement('tr');
+
+            let highlightClass = '';
+            if (isOverdue(task.dueDate, task.completed)) {
+                tr.classList.add('overdue');
+            } else if (isToday(task.dueDate)) {
+                tr.classList.add('due-today');
+            }
+
+            tr.innerHTML = `
+                <td class="font-medium">${task.text}</td>
+                <td>${task.clientName || '---'}</td>
+                <td>${task.projectName || '---'}</td>
+                <td>${createStatusBadge(task.completed)}</td>
+                <td>${createPriorityBadge(task.priority)}</td>
+                <td>${task.dueDate ? formatTimestamp(new Date(task.dueDate)) : '---'}</td>
+                <td>${formatTimestamp(task.createdAt)}</td>
+                <td>
+                    <div class="flex items-center gap-1">
+                        <button title="${task.completed ? 'פתח מחדש' : 'השלם משימה'}" class="action-btn complete-btn text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900">${task.completed ? '↩️' : '✅'}</button>
+                        <button title="ערוך" class="action-btn edit-btn text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900">✏️</button>
+                        <button title="מחק" class="action-btn delete-btn text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900">🗑️</button>
+                    </div>
+                </td>
+            `;
+            tr.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+            tr.querySelector('.edit-btn').onclick = () => openEditModal(task);
+            tr.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+            taskTableBody.appendChild(tr);
+        });
+    };
+    
+    const renderTagFilters = () => {
+        const allTags = [...new Set(tasks.flatMap(t => t.tags || []))];
+        tagFilterContainer.innerHTML = '';
+        if (allTags.length > 0) {
+            const allTagBtn = createTagFilterButton('הכל');
+            allTagBtn.onclick = () => setTagFilter(null);
+            if (currentTagFilter === null) allTagBtn.classList.add('bg-blue-600', 'text-white', 'dark:bg-blue-500');
+            tagFilterContainer.appendChild(allTagBtn);
+            allTags.forEach(tag => {
+                const tagBtn = createTagFilterButton(tag);
+                tagBtn.onclick = () => setTagFilter(tag);
+                if (currentTagFilter === tag) tagBtn.classList.add('bg-blue-600', 'text-white', 'dark:bg-blue-500');
+                tagFilterContainer.appendChild(tagBtn);
+            });
+        }
+    };
+    
+    const renderReminders = () => {
+        const overdueTasks = tasks.filter(t => isOverdue(t.dueDate, t.completed));
+        const dueTodayTasks = tasks.filter(t => isToday(t.dueDate) && !t.completed);
+        const oldTasks = tasks.filter(t => isOld(t.createdAt, 14) && !t.completed && !t.dueDate);
+
+        remindersContainer.innerHTML = '';
+        let html = '';
+
+        if (overdueTasks.length > 0) {
+            html += createReminderSection('משימות שעבר זמנן (Overdue)', overdueTasks, 'red');
+        }
+        if (dueTodayTasks.length > 0) {
+            html += createReminderSection('משימות להיום', dueTodayTasks, 'yellow');
+        }
+        if (oldTasks.length > 0) {
+             html += createReminderSection('משימות ישנות ללא תאריך יעד', oldTasks, 'gray');
+        }
+
+        if (html) {
+            remindersContainer.innerHTML = `<div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md">${html}</div>`;
+        }
+    };
+
+    const createReminderSection = (title, tasks, color) => {
+        const colors = {
+            red: { border: 'border-red-500', text: 'text-red-700 dark:text-red-400', bg: 'bg-red-50 dark:bg-red-900/20' },
+            yellow: { border: 'border-yellow-500', text: 'text-yellow-700 dark:text-yellow-400', bg: 'bg-yellow-50 dark:bg-yellow-900/20' },
+            gray: { border: 'border-gray-500', text: 'text-gray-700 dark:text-gray-400', bg: 'bg-gray-50 dark:bg-gray-700/20' }
+        };
+        const c = colors[color] || colors.gray;
+
+        let tasksHtml = tasks.map(task => 
+            `<li class="flex justify-between items-center p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-md cursor-pointer" data-task-id="${task.id}">
+                <span class="font-medium">${task.text} ${task.clientName ? `(${task.clientName})` : ''}</span>
+                <span class="text-sm font-semibold flex-shrink-0">${task.dueDate ? formatTimestamp(new Date(task.dueDate)) : `נוצר: ${formatTimestamp(task.createdAt)}`}</span>
+            </li>`
+        ).join('');
+
+        return `
+            <div class="mb-4">
+                <h3 class="text-lg font-bold ${c.text} border-b-2 ${c.border} pb-1 mb-2">${title} (${tasks.length})</h3>
+                <ul class="space-y-1" data-reminder-list="true">
+                    ${tasksHtml}
+                </ul>
+            </div>
+        `;
+    };
+
+    const renderSubtasks = (taskId, subtasks) => {
+        const taskCard = document.querySelector(`[data-task-id="${taskId}"]`);
+        if (!taskCard) return; // Only render if card is visible
+
+        const subtaskListEl = taskCard.querySelector(`.subtask-list`);
+        const progressBar = taskCard.querySelector(`.progress-bar-fg`);
+        const progressContainer = taskCard.querySelector(`.progress-bar-container`);
+        if (!subtaskListEl || !progressBar || !progressContainer) return;
+
+        subtaskListEl.innerHTML = '';
+        if (subtasks.length > 0) {
+            progressContainer.classList.remove('hidden');
+            subtasks.forEach(st => subtaskListEl.appendChild(createSubtaskElement(taskId, st)));
+            const completedCount = subtasks.filter(st => st.completed).length;
+            const progressPercent = (completedCount / subtasks.length) * 100;
+            progressBar.style.width = `${progressPercent}%`;
+            progressBar.classList.toggle('bg-green-500', progressPercent === 100);
+            progressBar.classList.toggle('bg-blue-600', progressPercent < 100);
+        } else {
+            progressContainer.classList.add('hidden');
+        }
+    };
+
+    const renderClientList = () => {
+        clientTableBody.innerHTML = '';
+        if (clients.length === 0) {
+            clientTableBody.innerHTML = `<tr><td colspan="3" class="text-center text-gray-500 py-6">לא נוספו לקוחות.</td></tr>`;
+            return;
+        }
+        clients.forEach(client => {
+            const tr = document.createElement('tr');
+            const hasOpenTasks = tasks.some(task => task.clientId === client.id && !task.completed);
+            const pinIcon = hasOpenTasks ? '<span class="ml-2 text-blue-500" title="יש משימות פתוחות">📌</span>' : '';
+
+            tr.innerHTML = `
+                <td class="font-semibold flex items-center">
+                    ${pinIcon}
+                    <span>${client.name}</span>
+                </td>
+                <td>${client.classification || '---'}</td>
+                <td>
+                    <div class="flex items-center gap-1">
+                        <button title="צפה בפרטים וסיכומים" class="action-btn details-btn text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900">📋</button>
+                        <button title="מחק לקוח" class="action-btn delete-client-btn text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900">🗑️</button>
+                    </div>
+                </td>
+            `;
+            tr.querySelector('.details-btn').onclick = () => openClientDetailsModal(client);
+            tr.querySelector('.delete-client-btn').onclick = () => deleteClient(client.id);
+            clientTableBody.appendChild(tr);
+        });
+    };
+    
+    const renderCallSummaries = (summaries) => {
+        callSummaryList.innerHTML = '';
+        if (summaries.length === 0) {
+            callSummaryList.innerHTML = `<p class="text-gray-500 dark:text-gray-400">אין סיכומי שיחה עבור לקוח זה.</p>`;
+            return;
+        }
+        summaries.forEach(summary => {
+            const div = document.createElement('div');
+            div.className = 'p-3 bg-gray-100 dark:bg-gray-700 rounded-lg';
+            div.innerHTML = `
+                <div class="flex justify-between items-center mb-1">
+                    <span class="text-sm font-bold text-blue-600 dark:text-blue-400">${formatTimestamp(summary.createdAt)}</span>
+                </div>
+                <p class="whitespace-pre-wrap">${summary.text}</p>
+            `;
+            callSummaryList.appendChild(div);
+        });
+    };
+
+    const renderClientTasks = (clientTasks) => {
+        clientOpenTasksCount.textContent = clientTasks.length;
+        clientTaskList.innerHTML = '';
+        if (clientTasks.length === 0) {
+            clientTaskList.innerHTML = `<p class="text-gray-500 dark:text-gray-400">אין משימות פתוחות ללקוח זה.</p>`;
+            return;
+        }
+        clientTasks.sort((a, b) => {
+             const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+             const prioA = priorityOrder[a.priority] !== undefined ? priorityOrder[a.priority] : 1;
+             const prioB = priorityOrder[b.priority] !== undefined ? priorityOrder[b.priority] : 1;
+             if (prioA !== prioB) return prioA - prioB;
+             const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+             const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+             return dateA - dateB;
+         });
+        clientTasks.forEach(task => {
+            const taskEl = createClientTaskElement(task);
+            clientTaskList.appendChild(taskEl);
+        });
+    };
+
+    const renderProjectList = () => {
+        const searchTerm = projectSearchInput.value.toLowerCase();
+        const filteredProjects = projects.filter(p => 
+            p.name.toLowerCase().includes(searchTerm) || 
+            (p.description && p.description.toLowerCase().includes(searchTerm)) ||
+            (p.classification && p.classification.toLowerCase().includes(searchTerm))
+        );
+
+        projectListContainer.innerHTML = '';
+        if (filteredProjects.length === 0) {
+            projectListContainer.innerHTML = `<div class="text-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-500 col-span-full">אין פרויקטים להצגה.</div>`;
+            return;
+        }
+        filteredProjects.forEach(project => {
+            const projectCard = createProjectCardElement(project);
+            projectListContainer.appendChild(projectCard);
+        });
+    };
+    
+    const renderProjectTasks = (projectTasks) => {
+        projectOpenTasksCount.textContent = projectTasks.length;
+        projectTaskList.innerHTML = '';
+        if (projectTasks.length === 0) {
+            projectTaskList.innerHTML = `<p class="text-gray-500 dark:text-gray-400">אין משימות פתוחות לפרויקט זה.</p>`;
+            return;
+        }
+        projectTasks.sort((a, b) => {
+             const priorityOrder = { 'high': 0, 'normal': 1, 'low': 2 };
+             const prioA = priorityOrder[a.priority] !== undefined ? priorityOrder[a.priority] : 1;
+             const prioB = priorityOrder[b.priority] !== undefined ? priorityOrder[b.priority] : 1;
+             if (prioA !== prioB) return prioA - prioB;
+             const dateA = a.dueDate ? new Date(a.dueDate).getTime() : Infinity;
+             const dateB = b.dueDate ? new Date(b.dueDate).getTime() : Infinity;
+             return dateA - dateB;
+         });
+        projectTasks.forEach(task => {
+            const taskEl = createClientTaskElement(task); // Re-use the same element
+            projectTaskList.appendChild(taskEl);
+        });
+    };
+
+    const renderIdeaList = () => {
+        const searchTerm = ideaSearchInput.value.toLowerCase();
+        const filteredIdeas = ideas.filter(idea => 
+            idea.name.toLowerCase().includes(searchTerm) || 
+            (idea.description && idea.description.toLowerCase().includes(searchTerm)) ||
+            (idea.stage && idea.stage.toLowerCase().includes(searchTerm))
+        );
+
+        ideaListContainer.innerHTML = '';
+        if (filteredIdeas.length === 0) {
+            ideaListContainer.innerHTML = `<div class="text-center bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md text-gray-500 col-span-full">אין רעיונות להצגה.</div>`;
+            return;
+        }
+        filteredIdeas.forEach(idea => {
+            const ideaCard = createIdeaCardElement(idea);
+            ideaListContainer.appendChild(ideaCard);
+        });
+    };
+
+    // =========================================================================
+    // Element Creation Functions
+    // =========================================================================
+    
+    const createTaskElement = (task) => {
+        const div = document.createElement('div');
+        let highlightClass = '';
+        if (isOverdue(task.dueDate, task.completed)) {
+            highlightClass = 'overdue';
+        } else if (isToday(task.dueDate)) {
+            highlightClass = 'due-today';
+        }
+        div.className = `task-card light bg-white dark:bg-gray-800 p-4 rounded-lg shadow-md transition-all duration-200 priority-${task.priority} ${highlightClass}`;
+        div.setAttribute('data-task-id', task.id);
+        
+        const clientBadge = task.clientName ? createBadge(task.clientName, 'green', 'client', task.clientId) : '';
+        const projectBadge = task.projectName ? createBadge(task.projectName, 'purple', 'project', task.projectId) : '';
+        const dateBadge = task.dueDate ? createDateBadge(task.dueDate, task.completed) : '';
+        
+        div.innerHTML = `
+            <div class="flex items-start justify-between gap-2">
+                <div class="flex-grow flex items-start gap-3">
+                    <button title="סמן כהושלמה" class="complete-btn text-2xl mt-1 flex-shrink-0">${task.completed ? '✅' : '⚪️'}</button>
+                    <div class="flex-grow min-w-0">
+                        <p class="font-medium ${task.completed ? 'task-completed' : ''}">${task.text}</p>
+                        <div class="flex items-center gap-2 mt-2 flex-wrap">
+                            ${createBadge(task.category === 'personal' ? 'אישי' : 'עסק', task.category === 'personal' ? 'purple' : 'blue')}
+                            ${clientBadge}
+                            ${projectBadge}
+                            ${dateBadge}
+                            ${(task.tags || []).map(tag => createBadge(tag, 'gray', 'tag')).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div class="flex flex-col sm:flex-row items-center gap-1 flex-shrink-0">
+                    <button title="ערוך" class="action-btn edit-btn text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900">✏️</button>
+                    <button title="מחק" class="action-btn delete-btn text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900">🗑️</button>
+                </div>
+            </div>
+            <div class="progress-bar-container hidden w-full h-2 rounded-full mt-3 progress-bar-bg dark:bg-gray-700">
+                <div class="progress-bar-fg h-full rounded-full transition-all duration-300"></div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+                <ul class="subtask-list space-y-2"></ul>
+                <form class="add-subtask-form mt-2 flex gap-2">
+                    <input type="text" placeholder="הוסף תת-משימה..." class="flex-grow p-2 text-sm border rounded-md bg-gray-50 dark:bg-gray-700 focus:outline-none focus:ring-1 focus:ring-blue-500">
+                    <button type="submit" class="bg-blue-500 text-white px-3 rounded-md text-sm font-bold hover:bg-blue-600">+</button>
+                </form>
+            </div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700 flex justify-between w-full">
+                <span>נוצר: ${formatTimestamp(task.createdAt)}</span>
+                ${task.completed && task.completedAt ? `<span>הושלם: ${formatTimestamp(task.completedAt)}</span>` : ''}
+            </div>
+        `;
+        div.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+        div.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+        div.querySelector('.edit-btn').onclick = () => openEditModal(task);
+        div.querySelector('.add-subtask-form').onsubmit = (e) => {
+            e.preventDefault();
+            const input = e.target.querySelector('input');
+            if (input.value.trim()) {
+                addSubtask(task.id, input.value.trim());
+                input.value = '';
+            }
+        };
+        return div;
+    };
+
+    const createClientTaskElement = (task) => {
+        const div = document.createElement('div');
+        div.className = 'p-3 bg-gray-100 dark:bg-gray-700 rounded-lg flex items-center justify-between gap-2';
+        div.innerHTML = `
+            <div class="flex-grow min-w-0">
+                <p class="font-medium truncate">${task.text}</p>
+                <div class="flex items-center gap-2 mt-1">
+                    ${createPriorityBadge(task.priority)}
+                    ${task.dueDate ? createDateBadge(task.dueDate, task.completed) : ''}
+                </div>
+            </div>
+            <div class="flex items-center gap-1 flex-shrink-0">
+                <button title="השלם משימה" class="action-btn complete-btn text-green-600 dark:text-green-400 hover:bg-green-100 dark:hover:bg-green-900">✅</button>
+                <button title="ערוך" class="action-btn edit-btn text-blue-600 dark:text-blue-400 hover:bg-blue-100 dark:hover:bg-blue-900">✏️</button>
+                <button title="מחק" class="action-btn delete-btn text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900">🗑️</button>
+            </div>
+        `;
+        div.querySelector('.complete-btn').onclick = () => toggleTaskComplete(task.id, task.completed);
+        div.querySelector('.delete-btn').onclick = () => deleteTask(task.id);
+        div.querySelector('.edit-btn').onclick = () => {
+            closeClientDetailsModal();
+            closeProjectDetailsModal();
+            openEditModal(task);
+        };
+        return div;
+    };
+    
+    const createSubtaskElement = (parentId, subtask) => {
+        const li = document.createElement('li');
+        li.className = 'flex items-center justify-between text-sm ml-4 group';
+        li.innerHTML = `
+            <div class="flex items-center gap-2 min-w-0">
+                <input type="checkbox" ${subtask.completed ? 'checked' : ''} class="form-checkbox h-4 w-4 rounded text-blue-600 flex-shrink-0">
+                <span class="${subtask.completed ? 'task-completed' : ''} truncate">${subtask.text}</span>
+            </div>
+            <button class="delete-subtask-btn text-red-500 opacity-0 group-hover:opacity-100 hover:font-bold transition-opacity flex-shrink-0">✖</button>
+        `;
+        li.querySelector('input[type="checkbox"]').onchange = () => toggleSubtaskComplete(parentId, subtask.id, subtask.completed);
+        li.querySelector('.delete-subtask-btn').onclick = () => deleteSubtask(parentId, subtask.id);
+        return li;
+    };
+    
+    const createStatusBadge = (completed) => {
+        const color = completed ? 'green' : 'blue';
+        const text = completed ? 'הושלמה' : 'פתוחה';
+        return createBadge(text, color);
+    };
+
+    const createPriorityBadge = (priority) => {
+        const priorityMap = { high: 'גבוהה', normal: 'רגילה', low: 'נמוכה' };
+        const colorMap = { high: 'red', normal: 'blue', low: 'green' };
+        return createBadge(priorityMap[priority] || 'רגילה', colorMap[priority] || 'blue');
+    };
+
+    const createBadge = (text, color, type = '', id = '') => {
+        const colors = {
+            purple: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+            blue: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+            gray: 'bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200',
+            green: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+            red: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+            yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+        };
+        let cursorClass = '';
+        if (type === 'tag') cursorClass = 'cursor-pointer hover:opacity-80';
+        if (type === 'client') cursorClass = 'cursor-pointer hover:opacity-80';
+        if (type === 'project') cursorClass = 'cursor-pointer hover:opacity-80';
+        
+        return `<span class="tag-badge ${colors[color] || colors.gray} ${cursorClass}" data-type="${type}" data-id="${id}" data-value="${text}">${text}</span>`;
+    };
+    
+    const createDateBadge = (dateStr, completed) => {
+        const date = new Date(dateStr); const today = new Date(); 
+        today.setHours(0,0,0,0); 
+        const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+
+        let color = 'gray';
+        if (!completed) {
+            if (dateOnly < today) color = 'red'; // Overdue
+            else if (dateOnly.getTime() === today.getTime()) color = 'yellow'; // Today
+            else color = 'green'; // Future
+        }
+        
+        return `<span class="tag-badge ${
+            {red: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+             yellow: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+             green: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+             gray: 'bg-gray-200 text-gray-800 dark:bg-gray-600 dark:text-gray-200'
+            }[color]
+        }">${formatTimestamp(new Date(dateStr))}</span>`;
+    };
+    
+    const createTagFilterButton = (tag) => {
+        const button = document.createElement('button'); 
+        button.textContent = tag;
+        button.className = 'py-1 px-3 rounded-full text-sm font-semibold bg-gray-200 dark:bg-gray-700 transition-colors';
+        return button;
+    };
+    
+    const createProjectCardElement = (project) => {
+        const div = document.createElement('div');
+        div.className = 'bg-white dark:bg-gray-800 p-5 rounded-lg shadow-md flex flex-col justify-between transition-all hover:shadow-lg hover:transform hover:-translate-y-1';
+        
+        const projectTasks = tasks.filter(t => t.projectId === project.id);
+        const completedTasks = projectTasks.filter(t => t.completed).length;
+        const totalTasks = projectTasks.length;
+        const progress = totalTasks > 0 ? (completedTasks / totalTasks) * 100 : 0;
+
+        const linkIcon = project.link ? `
+            <a href="${project.link}" target="_blank" class="link-icon" title="${project.link}" onclick="event.stopPropagation()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+            </a>
+        ` : '';
+
+        div.innerHTML = `
+            <div class="cursor-pointer" data-project-id="${project.id}">
+                <div class="flex justify-between items-center mb-2">
+                    <div class="flex items-center gap-2 min-w-0">
+                        ${linkIcon}
+                        <h3 class="text-xl font-bold text-blue-700 dark:text-blue-400 truncate">${project.name}</h3>
+                        ${project.classification ? createBadge(project.classification, 'gray') : ''}
+                    </div>
+                    <button title="מחק פרויקט" class="action-btn delete-project-btn text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900">🗑️</button>
+                </div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 min-h-[40px]">${project.description || 'אין תיאור לפרויקט זה.'}</p>
+                ${project.dueDate ? `<p class="text-sm font-semibold text-gray-500 dark:text-gray-300 mb-4">תאריך יעד: ${formatTimestamp(new Date(project.dueDate))}</p>` : ''}
+            </div>
+            
+            <div>
+                <div class="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-1">
+                    <span>התקדמות</span>
+                    <span>${completedTasks}/${totalTasks} משימות</span>
+                </div>
+                <div class="w-full h-3 rounded-full progress-bar-bg dark:bg-gray-700">
+                    <div class="progress-bar-fg h-full rounded-full transition-all duration-300 ${progress === 100 ? 'bg-green-500' : 'bg-blue-600'}" style="width: ${progress}%"></div>
+                </div>
+                <div class="text-xs text-gray-400 dark:text-gray-500 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                    <span>נוצר: ${formatTimestamp(project.createdAt)}</span>
+                </div>
+            </div>
+        `;
+        
+        div.querySelector('.delete-project-btn').onclick = (e) => {
+            e.stopPropagation();
+            deleteProject(project.id);
+        };
+        div.querySelector('[data-project-id]').onclick = () => openProjectDetailsModal(project);
+        
+        return div;
+    };
+
+    const createIdeaCardElement = (idea) => {
+        const div = document.createElement('div');
+        div.className = 'bg-white dark:bg-gray-800 p-5 rounded-lg shadow-md flex flex-col justify-between transition-all hover:shadow-lg hover:transform hover:-translate-y-1';
+        
+        const potentialMap = { high: 'גבוה', medium: 'בינוני', low: 'נמוך' };
+        const colorMap = { high: 'red', medium: 'blue', low: 'green' };
+
+        const linkIcon = idea.link ? `
+            <a href="${idea.link}" target="_blank" class="link-icon" title="${idea.link}" onclick="event.stopPropagation()">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
+            </a>
+        ` : '';
+
+        div.innerHTML = `
+            <div>
+                <div class="flex justify-between items-center mb-2">
+                     <div class="flex items-center gap-2 min-w-0">
+                        ${linkIcon}
+                        <h3 class="text-xl font-bold text-blue-700 dark:text-blue-400 truncate">${idea.name}</h3>
+                    </div>
+                    <button title="מחק רעיון" class="action-btn delete-idea-btn text-red-500 dark:text-red-400 hover:bg-red-100 dark:hover:bg-red-900">🗑️</button>
+                </div>
+                <div class="flex items-center gap-2 mb-3 flex-wrap">
+                    ${createBadge(`פוטנציאל: ${potentialMap[idea.potential] || 'בינוני'}`, colorMap[idea.potential] || 'blue')}
+                    ${idea.stage ? createBadge(`שלב: ${idea.stage}`, 'gray') : ''}
+                </div>
+                <p class="text-gray-600 dark:text-gray-400 text-sm mb-4 min-h-[60px]">${idea.description || 'אין תיאור לרעיון זה.'}</p>
+                ${idea.targetDate ? `<p class="text-sm font-semibold text-gray-500 dark:text-gray-300 mb-4">תאריך יעד: ${formatTimestamp(new Date(idea.targetDate))}</p>` : ''}
+            </div>
+            <div class="text-xs text-gray-400 dark:text-gray-500 mt-3 pt-2 border-t border-gray-100 dark:border-gray-700">
+                <span>נוצר: ${formatTimestamp(idea.createdAt)}</span>
+            </div>
+        `;
+        
+        div.querySelector('.delete-idea-btn').onclick = (e) => {
+            e.stopPropagation();
+            deleteIdea(idea.id);
+        };
+        return div;
+    };
+
+
+    // =========================================================================
+    // Firestore Logic (CRUD Operations) - UPDATED
+    // =========================================================================
+    
+    const addTask = async (text, category, dueDate, tags, priority, clientId, clientName, projectId, projectName) => {
+        if (!tasksCollectionRef) return;
+        try { 
+            await addDoc(tasksCollectionRef, { 
+                text, 
+                category, 
+                priority: priority || 'normal', 
+                dueDate: dueDate || null, 
+                tags: tags || [], 
+                completed: false, 
+                createdAt: serverTimestamp(), 
+                completedAt: null,
+                clientId: clientId || null,
+                clientName: clientName || null,
+                projectId: projectId || null,
+                projectName: projectName || null
+            }); 
+        } catch (e) { console.error("Error adding task: ", e); }
+    };
+
+    const toggleTaskComplete = async (id, currentStatus) => {
+        try { await updateDoc(doc(db, tasksCollectionRef.path, id), { completed: !currentStatus, completedAt: !currentStatus ? serverTimestamp() : null }); } catch (e) { console.error("Error updating task: ", e); }
+    };
+    
+    // --- פונקציה משודרגת ---
+    const deleteTask = async (id) => {
+        if (!confirm("האם אתה בטוח שברצונך למחוק משימה זו וכל תתי-המשימות שלה?")) return;
+        try { 
+            // 1. Delete all subtasks first
+            const subtasksRef = collection(db, tasksCollectionRef.path, id, 'subtasks');
+            const subtaskSnapshot = await getDocs(subtasksRef);
+            const deletePromises = [];
+            subtaskSnapshot.forEach(doc => {
+                deletePromises.push(deleteDoc(doc.ref));
+            });
+            await Promise.all(deletePromises);
+            
+            // 2. Now delete the main task
+            await deleteDoc(doc(db, tasksCollectionRef.path, id)); 
+        } catch (e) { console.error("Error deleting task: ", e); }
+    };
+
+    const addSubtask = async (parentId, text) => {
+        const subtasksRef = collection(db, tasksCollectionRef.path, parentId, 'subtasks');
+        try { await addDoc(subtasksRef, { text, completed: false, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding subtask: ", e); }
+    };
+
+    const toggleSubtaskComplete = async (parentId, subtaskId, currentStatus) => {
+        const subtaskRef = doc(db, tasksCollectionRef.path, parentId, 'subtasks', subtaskId);
+        try { await updateDoc(subtaskRef, { completed: !currentStatus }); } catch (e) { console.error("Error updating subtask: ", e); }
+    };
+
+    // --- פונקציה משודרגת ---
+    const deleteSubtask = async (parentId, subtaskId) => {
+        if (!confirm("האם אתה בטוח שברצונך למחוק תת-משימה זו?")) return;
+        const subtaskRef = doc(db, tasksCollectionRef.path, parentId, 'subtasks', subtaskId);
+        try { await deleteDoc(subtaskRef); } catch (e) { console.error("Error deleting subtask: ", e); }
+    };
+
+    const addClient = async (name, classification) => {
+        if (!clientsCollectionRef) return;
+        try { await addDoc(clientsCollectionRef, { 
+            name, 
+            classification: classification || null,
+            createdAt: serverTimestamp() 
+        }); } catch (e) { console.error("Error adding client: ", e); }
+    };
+
+    // --- פונקציה משודרגת ---
+    const deleteClient = async (id) => {
+        if (!confirm("אזהרה: מחיקת לקוח תסיר את השיוך שלו מכל המשימות ותמחק את כל סיכומי השיחה. האם אתה בטוח?")) return;
+        try { 
+            // 1. Disassociate tasks (set clientId to null)
+            const q = query(tasksCollectionRef, where("clientId", "==", id));
+            const taskSnapshot = await getDocs(q);
+            const updates = [];
+            taskSnapshot.forEach(taskDoc => {
+                updates.push(updateDoc(taskDoc.ref, { clientId: null, clientName: null }));
+            });
+            await Promise.all(updates);
+            
+            // 2. Delete call summaries
+            const summariesRef = collection(db, clientsCollectionRef.path, id, 'callSummaries');
+            const summarySnapshot = await getDocs(summariesRef);
+            const summaryDeletes = [];
+            summarySnapshot.forEach(doc => {
+                summaryDeletes.push(deleteDoc(doc.ref));
+            });
+            await Promise.all(summaryDeletes);
+
+            // 3. Delete client
+            await deleteDoc(doc(db, clientsCollectionRef.path, id)); 
+        } catch (e) { 
+            console.error("Error deleting client: ", e); 
+        }
+    };
+
+    const addCallSummary = async (clientId, text) => {
+        const summariesRef = collection(db, clientsCollectionRef.path, clientId, 'callSummaries');
+        try { await addDoc(summariesRef, { text, createdAt: serverTimestamp() }); } catch (e) { console.error("Error adding call summary: ", e); }
+    };
+
+    const addProject = async (name, classification, description, dueDate, link) => {
+        if (!projectsCollectionRef) return;
+        try { 
+            await addDoc(projectsCollectionRef, { 
+                name, 
+                classification: classification || null,
+                description: description || null,
+                dueDate: dueDate || null,
+                link: link || null,
+                createdAt: serverTimestamp() 
+            }); 
+        } catch (e) { console.error("Error adding project: ", e); }
+    };
+
+    // --- פונקציה משודרגת ---
+    const deleteProject = async (id) => {
+        if (!confirm("אזהרה: מחיקת פרויקט תסיר את השיוך שלו מכל המשימות הקיימות. האם אתה בטוח?")) return;
+         try { 
+            // 1. Disassociate tasks (set projectId to null)
+            const q = query(tasksCollectionRef, where("projectId", "==", id));
+            const taskSnapshot = await getDocs(q);
+            const updates = [];
+            taskSnapshot.forEach(taskDoc => {
+                updates.push(updateDoc(taskDoc.ref, { projectId: null, projectName: null }));
+            });
+            await Promise.all(updates);
+
+            // 2. Delete project
+            await deleteDoc(doc(db, projectsCollectionRef.path, id)); 
+        } catch (e) { 
+            console.error("Error deleting project: ", e); 
+        }
+    };
+
+    const addIdea = async (name, description, potential, stage, targetDate, link) => {
+        if (!ideasCollectionRef) return;
+        try { 
+            await addDoc(ideasCollectionRef, { 
+                name, 
+                description: description || null,
+                potential: potential || 'medium',
+                stage: stage || null,
+                targetDate: targetDate || null,
+                link: link || null,
+                createdAt: serverTimestamp() 
+            }); 
+        } catch (e) { console.error("Error adding idea: ", e); }
+    };
+
+    // --- פונקציה משודרגת ---
+    const deleteIdea = async (id) => {
+         if (!confirm("האם אתה בטוח שברצונך למחוק רעיון זה?")) return;
+         try { 
+            await deleteDoc(doc(db, ideasCollectionRef.path, id)); 
+        } catch (e) { 
+            console.error("Error deleting idea: ", e); 
+        }
+    };
+    
+    // =========================================================================
+    // Filter Logic
+    // =========================================================================
+    
+    const setViewFilter = (filter) => {
+        currentViewFilter = filter;
+        document.querySelectorAll('#filter-buttons .filter-btn').forEach(btn => {
+            const isActive = btn.dataset.filter === filter;
+            btn.classList.toggle('bg-blue-600', isActive);
+            btn.classList.toggle('text-white', isActive);
+            btn.classList.toggle('dark:bg-blue-500', isActive);
+            btn.classList.toggle('bg-gray-200', !isActive);
+            btn.classList.toggle('dark:bg-gray-700', !isActive);
+        });
+        
+        const showBusinessFilters = (filter === 'business' || filter === 'active');
+        clientFilterContainer.classList.toggle('hidden', !showBusinessFilters);
+        projectFilterContainer.classList.toggle('hidden', !showBusinessFilters);
+        
+        if (!showBusinessFilters) {
+            currentClientFilter = "";
+            clientFilterSelect.value = "";
+            currentProjectFilter = "";
+            projectFilterSelect.value = "";
+        }
+        
+        render();
+    };
+
+    const setTagFilter = (tag) => { currentTagFilter = tag; render(); };
+    const setClientFilter = (clientId) => { currentClientFilter = clientId; render(); };
+    const setProjectFilter = (projectId) => { currentProjectFilter = projectId; render(); };
+
+    const switchToTasksViewWithOptions = (options) => {
+        setActiveView('tasks');
+
+        // Set filters
+        setViewFilter(options.filter || 'active'); 
+        
+        if (options.clientId) {
+            setClientFilter(options.clientId);
+            clientFilterSelect.value = options.clientId;
+        }
+        if (options.projectId) {
+            setProjectFilter(options.projectId);
+            projectFilterSelect.value = options.projectId;
+        }
+
+        // Set layout
+        currentLayout = options.layout || 'table';
+        document.querySelectorAll('.view-btn').forEach(btn => {
+             const isActive = btn.dataset.view === currentLayout;
+             btn.classList.toggle('bg-white', isActive);
+             btn.classList.toggle('dark:bg-gray-800', isActive);
+             btn.classList.toggle('text-blue-600', isActive);
+             btn.classList.toggle('shadow', isActive);
+             btn.classList.toggle('text-gray-600', !isActive);
+             btn.classList.toggle('dark:text-gray-300', !isActive);
+         });
+
+        render();
+        setTimeout(() => {
+            taskTableContainer.scrollIntoView({ behavior: 'smooth' });
+        }, 100); 
+    };
+
+    // =========================================================================
+    // Modal Logic
+    // =========================================================================
+
+    const openEditModal = (task) => {
+        editTaskIdInput.value = task.id;
+        editTaskInput.value = task.text;
+        editTagsInput.value = (task.tags || []).join(', ');
+        editDueDateInput.value = task.dueDate || '';
+        editPriorityInput.value = task.priority || 'normal';
+        
+        editClientSelect.value = task.clientId || "";
+        editClientSelect.parentElement.style.display = (task.category === 'business') ? 'block' : 'none';
+
+        editProjectSelect.value = task.projectId || "";
+        editProjectSelect.parentElement.style.display = (task.category === 'business') ? 'block' : 'none';
+
+        editModal.classList.remove('hidden');
+    };
+
+    const closeEditModal = () => editModal.classList.add('hidden');
+
+    const saveTaskChanges = async (e) => {
+        e.preventDefault();
+        const id = editTaskIdInput.value;
+        const taskRef = doc(db, tasksCollectionRef.path, id);
+        
+        const selectedClientOption = editClientSelect.options[editClientSelect.selectedIndex];
+        const clientId = selectedClientOption.value;
+        const clientName = clientId ? selectedClientOption.text : null;
+
+        const selectedProjectOption = editProjectSelect.options[editProjectSelect.selectedIndex];
+        const projectId = selectedProjectOption.value;
+        const projectName = projectId ? selectedProjectOption.text : null;
+
+        try {
+            await updateDoc(taskRef, {
+                text: editTaskInput.value.trim(),
+                tags: editTagsInput.value.trim().split(',').filter(Boolean).map(t => t.trim()),
+                dueDate: editDueDateInput.value || null,
+                priority: editPriorityInput.value,
+                clientId: clientId || null,
+                clientName: clientName || null,
+                projectId: projectId || null,
+                projectName: projectName || null
+            });
+        } catch (error) { console.error("Error saving task changes: ", error); }
+        closeEditModal();
+    };
+
+    const openClientDetailsModal = (client) => {
+        clientModalName.textContent = client.name;
+        summaryClientId.value = client.id;
+        summaryClientName.value = client.name;
+        callSummaryList.innerHTML = '<p>טוען סיכומים...</p>';
+        clientTaskList.innerHTML = '<p>טוען משימות...</p>'; 
+        clientDetailsModal.classList.remove('hidden');
+        
+        // Listen for summaries
+        const summariesRef = collection(db, clientsCollectionRef.path, client.id, 'callSummaries');
+        const qSummaries = query(summariesRef, orderBy("createdAt", "desc"));
+        
+        if (callSummaryListeners[client.id]) callSummaryListeners[client.id]();
+        callSummaryListeners[client.id] = onSnapshot(qSummaries, summarySnapshot => {
+            const summaries = summarySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderCallSummaries(summaries);
+        });
+
+        // Listen for client-specific tasks 
+        const qTasks = query(tasksCollectionRef, where("clientId", "==", client.id), where("completed", "==", false));
+        if(clientTaskListeners[client.id]) clientTaskListeners[client.id]();
+        clientTaskListeners[client.id] = onSnapshot(qTasks, taskSnapshot => {
+             const clientTasks = taskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+             renderClientTasks(clientTasks);
+        }, (error) => {
+            console.error("Error querying client tasks:", error);
+            clientTaskList.innerHTML = `<p class="text-red-500">שגיאה בטעינת משימות.</p>`;
+        });
+    };
+    
+    const closeClientDetailsModal = () => {
+        const clientId = summaryClientId.value;
+        if (callSummaryListeners[clientId]) {
+            callSummaryListeners[clientId]();
+            delete callSummaryListeners[clientId];
+        }
+        if (clientTaskListeners[clientId]) { 
+            clientTaskListeners[clientId]();
+            delete clientTaskListeners[clientId];
+        }
+        clientDetailsModal.classList.add('hidden');
+    };
+
+    const openProjectDetailsModal = (project) => {
+        projectModalName.textContent = project.name;
+        projectModalDesc.textContent = project.description || '';
+        projectModalDueDate.textContent = project.dueDate ? `תאריך יעד: ${formatTimestamp(new Date(project.dueDate))}` : '';
+        addTaskForProjectBtn.dataset.projectId = project.id;
+        addTaskForProjectBtn.dataset.projectName = project.name;
+        projectTasksHeader.dataset.projectId = project.id;
+
+        projectTaskList.innerHTML = '<p>טוען משימות...</p>'; 
+        projectDetailsModal.classList.remove('hidden');
+        
+        // Listen for project-specific tasks 
+        const qTasks = query(tasksCollectionRef, where("projectId", "==", project.id), where("completed", "==", false));
+        if(projectTaskListeners[project.id]) projectTaskListeners[project.id]();
+        projectTaskListeners[project.id] = onSnapshot(qTasks, taskSnapshot => {
+             const projectTasks = taskSnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+             renderProjectTasks(projectTasks);
+        }, (error) => {
+            console.error("Error querying project tasks:", error);
+            projectTaskList.innerHTML = `<p class="text-red-500">שגיאה בטעינת משימות.</p>`;
+        });
+    };
+
+    const closeProjectDetailsModal = () => {
+        const projectId = addTaskForProjectBtn.dataset.projectId;
+        if (projectTaskListeners[projectId]) { 
+            projectTaskListeners[projectId]();
+            delete projectTaskListeners[projectId];
+        }
+        projectDetailsModal.classList.add('hidden');
+    };
+
+    // =========================================================================
+    // Event Listeners
+    // =========================================================================
+    
+    const setupEventListeners = () => {
+        // === הוספנו מאזין זה ===
+        themeToggleBtn.addEventListener('click', toggleTheme);
+
+        // Main Navigation
+        navButtons.tasks.addEventListener('click', () => setActiveView('tasks'));
+        navButtons.clients.addEventListener('click', () => setActiveView('clients'));
+        navButtons.projects.addEventListener('click', () => setActiveView('projects'));
+        navButtons.ideas.addEventListener('click', () => setActiveView('ideas'));
+
+        // Auth
+        syncBtn.addEventListener('click', showAuthView);
+        logoutBtn.addEventListener('click', async () => {
+            sessionStorage.setItem('logout', 'true');
+            await signOut(auth);
+            setActiveView('auth-view');
+        });
+        authFormLogin.addEventListener('submit', async (e) => {
+            e.preventDefault(); authErrorMessage.classList.add('hidden');
+            try {
+                await signInWithEmailAndPassword(auth, document.getElementById('login-email').value, document.getElementById('login-password').value);
+                setActiveView('tasks');
+            } catch (error) { showAuthError(error.message); }
+        });
+        authFormSignup.addEventListener('submit', async (e) => {
+            e.preventDefault(); authErrorMessage.classList.add('hidden');
+            try {
+                await createUserWithEmailAndPassword(auth, document.getElementById('signup-email').value, document.getElementById('signup-password').value);
+                setActiveView('tasks');
+            } catch (error) { showAuthError(error.message); }
+        });
+        authFormLink.addEventListener('submit', async (e) => {
+            e.preventDefault(); authErrorMessage.classList.add('hidden');
+            if (!auth.currentUser || !auth.currentUser.isAnonymous) {
+                showAuthError("ניתן לקשר חשבון רק ממצב אורח."); return;
+            }
+            try {
+                const credential = EmailAuthProvider.credential(document.getElementById('link-email').value, document.getElementById('link-password').value);
+                await linkWithCredential(auth.currentUser, credential);
+                setActiveView('tasks');
+            } catch (error) { showAuthError(error.message); }
+        });
+
+        // Dashboard Click
+        dashboard.onclick = () => switchToTasksViewWithOptions({ filter: 'active', layout: 'table' });
+
+        // Task Form
+        addTaskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const text = taskInput.value.trim(); if (!text) return;
+            const category = document.querySelector('input[name="category"]:checked').value;
+            const dueDate = dueDateInput.value;
+            const tags = tagsInput.value.trim().split(',').filter(Boolean).map(t => t.trim());
+            const priority = priorityInput.value;
+            
+            const selectedClientOption = clientSelect.options[clientSelect.selectedIndex];
+            const clientId = selectedClientOption.value;
+            const clientName = clientId ? selectedClientOption.text : null;
+
+            const selectedProjectOption = projectSelect.options[projectSelect.selectedIndex];
+            const projectId = selectedProjectOption.value;
+            const projectName = projectId ? selectedProjectOption.text : null;
+
+            addTask(text, category, dueDate, tags, priority, clientId, clientName, projectId, projectName);
+            
+            addTaskForm.reset(); 
+            priorityInput.value = 'normal';
+            dueDateContainer.classList.add('hidden'); 
+            addDateBtn.classList.remove('hidden');
+            if (!document.getElementById('category-business').checked) {
+                document.getElementById('category-business').checked = true;
+                clientSelectContainer.classList.remove('hidden');
+                projectSelectContainer.classList.remove('hidden');
+            }
+        });
+        
+        document.querySelectorAll('input[name="category"]').forEach(radio => {
+            radio.onchange = (e) => {
+                const showBusiness = e.target.value === 'business';
+                clientSelectContainer.classList.toggle('hidden', !showBusiness);
+                projectSelectContainer.classList.toggle('hidden', !showBusiness);
+                
+                // Also update filters
+                clientFilterContainer.classList.toggle('hidden', !showBusiness);
+                projectFilterContainer.classList.toggle('hidden', !showBusiness);
+                if (!showBusiness) {
+                    currentClientFilter = "";
+                    clientFilterSelect.value = "";
+                    currentProjectFilter = "";
+                    projectFilterSelect.value = "";
+                    if (currentViewFilter === 'business') setViewFilter('active');
+                    render();
+                }
+            };
+        });
+        // Initial check
+        clientSelectContainer.classList.toggle('hidden', !document.getElementById('category-business').checked);
+        projectSelectContainer.classList.toggle('hidden', !document.getElementById('category-business').checked);
+
+        // Task Filters
+        filterButtonsContainer.addEventListener('click', (e) => { if (e.target.matches('.filter-btn')) setViewFilter(e.target.dataset.filter); });
+        clientFilterSelect.onchange = (e) => setClientFilter(e.target.value);
+        projectFilterSelect.onchange = (e) => setProjectFilter(e.target.value);
+        addDateBtn.onclick = () => { dueDateContainer.classList.remove('hidden'); addDateBtn.classList.add('hidden'); };
+        removeDateBtn.onclick = () => { dueDateInput.value = ''; dueDateContainer.classList.add('hidden'); addDateBtn.classList.remove('hidden'); };
+        
+        // Task List Click Delegation (for tags, clients, projects)
+        const type = e.target.dataset.type;
+                const value = e.target.dataset.value;
+                const id = e.target.dataset.id;
+                
+                if (type === 'tag') {
+                    setTagFilter(value);
+                } else if (type === 'client' && id) {
+                    switchToTasksViewWithOptions({ filter: 'business', clientId: id, layout: 'cards' });
+                    clientFilterSelect.value = id;
+                } else if (type === 'project' && id) {
+                    switchToTasksViewWithOptions({ filter: 'business', projectId: id, layout: 'cards' });
+                    projectFilterSelect.value = id;
+                }
+            }
+        });
+
+        // Reminder List Click Delegation
+        remindersContainer.addEventListener('click', (e) => {
+            const taskItem = e.target.closest('li[data-task-id]');
+            if (taskItem) {
+                const taskId = taskItem.dataset.taskId;
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    openEditModal(task);
+                }
+            }
+        });
+
+        // Table Sorting
+        document.querySelector('#task-table thead').addEventListener('click', (e) => {
+            if (e.target.matches('.sortable-header')) {
+                const sortKey = e.target.dataset.sort;
+                if (currentSort.key === sortKey) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'desc';
+                } else {
+                    currentSort.key = sortKey;
+                    currentSort.direction = 'asc';
+                }
+                document.querySelectorAll('#task-table thead .sortable-header').forEach(th => {
+                    th.classList.remove('asc', 'desc');
+                    if (th.dataset.sort === currentSort.key) {
+                        th.classList.add(currentSort.direction);
+                    }
+                });
+                renderTable();
+            }
+        });
+
+        // Client Form
+        addClientForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = clientNameInput.value.trim();
+            const classification = clientClassificationInput.value.trim();
+            if (name) {
+                addClient(name, classification);
+                addClientForm.reset();
+            }
+        });
+        
+        // Project Form
+        addProjectForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = projectNameInput.value.trim();
+            const classification = projectClassificationInput.value.trim();
+            const description = projectDescInput.value.trim();
+            const dueDate = projectDueDateInput.value;
+            const link = projectLinkInput.value.trim();
+            if (name) {
+                addProject(name, classification, description, dueDate, link);
+                addProjectForm.reset();
+            }
+        });
+        projectSearchInput.addEventListener('input', renderProjectList);
+
+        // Business Idea Form
+        addIdeaForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = ideaNameInput.value.trim();
+            const description = ideaDescriptionInput.value.trim();
+            const potential = ideaPotentialInput.value;
+            const stage = ideaStageInput.value.trim();
+            const targetDate = ideaTargetDateInput.value;
+            const link = ideaLinkInput.value.trim();
+            
+            if (name) {
+                addIdea(name, description, potential, stage, targetDate, link);
+                addIdeaForm.reset();
+                ideaPotentialInput.value = 'medium';
+            }
+        });
+        ideaSearchInput.addEventListener('input', renderIdeaList);
+
+        // Modals
+        editTaskForm.addEventListener('submit', saveTaskChanges);
+        addSummaryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const clientId = summaryClientId.value;
+            const text = summaryTextInput.value.trim();
+            if (clientId && text) {
+                addCallSummary(clientId, text);
+                summaryTextInput.value = '';
+            }
+        });
+
+        // Add Task buttons from Modals
+        addTaskForClientBtn.onclick = () => {
+            const clientId = summaryClientId.value;
+            const clientName = summaryClientName.value;
+            if (!clientId || !clientName) return; 
+            closeClientDetailsModal();
+            setActiveView('tasks');
+            
+            document.getElementById('category-business').checked = true;
+            clientSelectContainer.classList.remove('hidden');
+            projectSelectContainer.classList.remove('hidden');
+            clientSelect.value = clientId;
+            taskInput.focus();
+            addTaskForm.scrollIntoView({ behavior: 'smooth' });
+        };
+        
+        addTaskForProjectBtn.onclick = () => {
+            const projectId = addTaskForProjectBtn.dataset.projectId;
+            const projectName = addTaskForProjectBtn.dataset.projectName;
+            if (!projectId || !projectName) return; 
+            closeProjectDetailsModal();
+            setActiveView('tasks');
+            
+            document.getElementById('category-business').checked = true;
+            clientSelectContainer.classList.remove('hidden');
+            projectSelectContainer.classList.remove('hidden');
+            projectSelect.value = projectId;
+            taskInput.focus();
+            addTaskForm.scrollIntoView({ behavior: 'smooth' });
+        };
+
+        // Clickable headers in Modals
+        clientTasksHeader.onclick = () => {
+            const clientId = summaryClientId.value; if (!clientId) return;
+            closeClientDetailsModal();
+            switchToTasksViewWithOptions({ filter: 'active', clientId: clientId, layout: 'table' });
+        };
+        
+        projectTasksHeader.onclick = () => {
+            const projectId = projectTasksHeader.dataset.projectId; if (!projectId) return;
+            closeProjectDetailsModal();
+            switchToTasksViewWithOptions({ filter: 'active', projectId: projectId, layout: 'table' });
+        };
+
+        // Generic Modal Close Buttons
+        document.querySelectorAll('[data-close-modal]').forEach(btn => {
+            btn.onclick = (e) => {
+                const modal = e.target.closest('.fixed');
+                if (modal.id === 'edit-modal') closeEditModal();
+                else if (modal.id === 'client-details-modal') closeClientDetailsModal();
+                else if (modal.id === 'project-details-modal') closeProjectDetailsModal();
+            };
+        });
+    };
+    
+    // =========================================================================
+    // Initial Load
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeFirebase();
+        setupEventListeners();
+    });
+
+</script>
+
+</body>
+</html>
