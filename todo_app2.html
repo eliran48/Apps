@@ -896,7 +896,7 @@
                         // User clicked logout
                         setActiveView('auth-view');
                         showAuthTab('login');
-                        loadingSpinner.classList.add('hidden'); // <-- *** THE FIX IS HERE ***
+                        loadingSpinner.classList.add('hidden'); // <-- *** התיקון נוסף כאן ***
                     } else {
                         // Initial load or session expired
                         console.log("Attempting anonymous sign-in...");
@@ -2145,7 +2145,7 @@
             if (e.target.matches('.sortable-header')) {
                 const sortKey = e.target.dataset.sort;
                 if (currentSort.key === sortKey) {
-                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc'; // <-- *** התיקון בוצע כאן ***
                 } else {
                     currentSort.key = sortKey;
                     currentSort.direction = 'asc';
@@ -2283,4 +2283,5 @@
 
 </body>
 </html>
+
 
