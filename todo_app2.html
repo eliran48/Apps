@@ -896,6 +896,7 @@
                         // User clicked logout
                         setActiveView('auth-view');
                         showAuthTab('login');
+                        loadingSpinner.classList.add('hidden'); // <-- *** THE FIX IS HERE ***
                     } else {
                         // Initial load or session expired
                         console.log("Attempting anonymous sign-in...");
@@ -1981,7 +1982,7 @@
     // =========================================================================
     
     const setupEventListeners = () => {
-        // === הוספנו מאזין זה ===
+        // === מאזין למצב חשוך ===
         themeToggleBtn.addEventListener('click', toggleTheme);
 
         // Main Navigation
@@ -2080,175 +2081,206 @@
         projectSelectContainer.classList.toggle('hidden', !document.getElementById('category-business').checked);
 
         // Task Filters
-        filterButtonsContainer.addEventListener('click', (e) => {if (e.target.matches('.tag-badge')) {
-                const type = e.target.dataset.type;
-                const value = e.target.dataset.value;
-                const id = e.target.dataset.id;
-                
-                if (type === 'tag') {
-                    setTagFilter(value);
-                } else if (type === 'client' && id) {
-                    switchToTasksViewWithOptions({ filter: 'business', clientId: id, layout: 'cards' });
-                    clientFilterSelect.value = id;
-                } else if (type === 'project' && id) {
-                    switchToTasksViewWithOptions({ filter: 'business', projectId: id, layout: 'cards' });
-                    projectFilterSelect.value = id;
-                }
-            }
-        });
+        filterButtonsContainer.addEventListener('click', (e) => { 
+            if (e.target.matches('.filter-btn')) {
+                setViewFilter(e.target.dataset.filter); 
+            }
+        });
+        clientFilterSelect.onchange = (e) => setClientFilter(e.target.value);
+        projectFilterSelect.onchange = (e) => setProjectFilter(e.target.value);
+        addDateBtn.onclick = () => { dueDateContainer.classList.remove('hidden'); addDateBtn.classList.add('hidden'); };
+        removeDateBtn.onclick = () => { dueDateInput.value = ''; dueDateContainer.classList.add('hidden'); addDateBtn.classList.remove('hidden'); };
+        
+        // View Switcher
+        viewSwitcher.addEventListener('click', (e) => {
+            if (e.target.matches('.view-btn')) {
+                const view = e.target.dataset.view;
+                currentLayout = view;
+                document.querySelectorAll('.view-btn').forEach(btn => {
+                    const isActive = btn.dataset.view === view;
+                    btn.classList.toggle('bg-white', isActive);
+                    btn.classList.toggle('dark:bg-gray-800', isActive);
+                    btn.classList.toggle('text-blue-600', isActive);
+                    btn.classList.toggle('shadow', isActive);
+                    btn.classList.toggle('text-gray-600', !isActive);
+                    btn.classList.toggle('dark:text-gray-300', !isActive);
+                });
+                render();
+            }
+        });
 
-        // Reminder List Click Delegation
-        remindersContainer.addEventListener('click', (e) => {
-            const taskItem = e.target.closest('li[data-task-id]');
-            if (taskItem) {
-                const taskId = taskItem.dataset.taskId;
-                const task = tasks.find(t => t.id === taskId);
-                if (task) {
-                    openEditModal(task);
-                }
-            }
-        });
+        // Task List Click Delegation (for tags, clients, projects)
+        taskListContainer.addEventListener('click', (e) => {
+            if (e.target.matches('.tag-badge')) {
+                const type = e.target.dataset.type;
+                const value = e.target.dataset.value;
+                const id = e.target.dataset.id;
+                
+                if (type === 'tag') {
+                    setTagFilter(value);
+                } else if (type === 'client' && id) {
+                    switchToTasksViewWithOptions({ filter: 'business', clientId: id, layout: 'cards' });
+                    clientFilterSelect.value = id;
+                } else if (type === 'project' && id) {
+                    switchToTasksViewWithOptions({ filter: 'business', projectId: id, layout: 'cards' });
+                    projectFilterSelect.value = id;
+                }
+            }
+        });
 
-        // Table Sorting
-        document.querySelector('#task-table thead').addEventListener('click', (e) => {
-            if (e.target.matches('.sortable-header')) {
-                const sortKey = e.target.dataset.sort;
-                if (currentSort.key === sortKey) {
-                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
-                } else {
-                    currentSort.key = sortKey;
-                    currentSort.direction = 'asc';
-                }
-                document.querySelectorAll('#task-table thead .sortable-header').forEach(th => {
-                    th.classList.remove('asc', 'desc');
-                    if (th.dataset.sort === currentSort.key) {
-                        th.classList.add(currentSort.direction);
-                    }
-                });
-                renderTable();
-            }
-        });
+        // Reminder List Click Delegation
+        remindersContainer.addEventListener('click', (e) => {
+            const taskItem = e.target.closest('li[data-task-id]');
+            if (taskItem) {
+                const taskId = taskItem.dataset.taskId;
+                const task = tasks.find(t => t.id === taskId);
+                if (task) {
+                    openEditModal(task);
+                }
+            }
+        });
 
-        // Client Form
-        addClientForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = clientNameInput.value.trim();
-            const classification = clientClassificationInput.value.trim();
-            if (name) {
-                addClient(name, classification);
-                addClientForm.reset();
-            }
-        });
-        
-        // Project Form
-        addProjectForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = projectNameInput.value.trim();
-            const classification = projectClassificationInput.value.trim();
-            const description = projectDescInput.value.trim();
-            const dueDate = projectDueDateInput.value;
-            const link = projectLinkInput.value.trim();
-            if (name) {
-                addProject(name, classification, description, dueDate, link);
-                addProjectForm.reset();
-            }
-        });
-        projectSearchInput.addEventListener('input', renderProjectList);
+        // Table Sorting
+        document.querySelector('#task-table thead').addEventListener('click', (e) => {
+            if (e.target.matches('.sortable-header')) {
+                const sortKey = e.target.dataset.sort;
+                if (currentSort.key === sortKey) {
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+                } else {
+                    currentSort.key = sortKey;
+                    currentSort.direction = 'asc';
+                }
+                document.querySelectorAll('#task-table thead .sortable-header').forEach(th => {
+                    th.classList.remove('asc', 'desc');
+                    if (th.dataset.sort === currentSort.key) {
+                        th.classList.add(currentSort.direction);
+                    }
+                });
+                renderTable();
+            }
+        });
 
-        // Business Idea Form
-        addIdeaForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const name = ideaNameInput.value.trim();
-            const description = ideaDescriptionInput.value.trim();
-            const potential = ideaPotentialInput.value;
-            const stage = ideaStageInput.value.trim();
-            const targetDate = ideaTargetDateInput.value;
-            const link = ideaLinkInput.value.trim();
-            
-            if (name) {
-                addIdea(name, description, potential, stage, targetDate, link);
-                addIdeaForm.reset();
-                ideaPotentialInput.value = 'medium';
-            }
-        });
-        ideaSearchInput.addEventListener('input', renderIdeaList);
+        // Client Form
+        addClientForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = clientNameInput.value.trim();
+            const classification = clientClassificationInput.value.trim();
+            if (name) {
+                addClient(name, classification);
+                addClientForm.reset();
+            }
+        });
+        
+        // Project Form
+        addProjectForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = projectNameInput.value.trim();
+            const classification = projectClassificationInput.value.trim();
+            const description = projectDescInput.value.trim();
+            const dueDate = projectDueDateInput.value;
+            const link = projectLinkInput.value.trim();
+            if (name) {
+                addProject(name, classification, description, dueDate, link);
+                addProjectForm.reset();
+            }
+        });
+        projectSearchInput.addEventListener('input', renderProjectList);
 
-        // Modals
-        editTaskForm.addEventListener('submit', saveTaskChanges);
-        addSummaryForm.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const clientId = summaryClientId.value;
-            const text = summaryTextInput.value.trim();
-            if (clientId && text) {
-                addCallSummary(clientId, text);
-                summaryTextInput.value = '';
-            }
-        });
+        // Business Idea Form
+        addIdeaForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = ideaNameInput.value.trim();
+            const description = ideaDescriptionInput.value.trim();
+            const potential = ideaPotentialInput.value;
+            const stage = ideaStageInput.value.trim();
+            const targetDate = ideaTargetDateInput.value;
+            const link = ideaLinkInput.value.trim();
+            
+            if (name) {
+                addIdea(name, description, potential, stage, targetDate, link);
+                addIdeaForm.reset();
+                ideaPotentialInput.value = 'medium';
+            }
+        });
+        ideaSearchInput.addEventListener('input', renderIdeaList);
 
-        // Add Task buttons from Modals
-        addTaskForClientBtn.onclick = () => {
-            const clientId = summaryClientId.value;
-            const clientName = summaryClientName.value;
-            if (!clientId || !clientName) return; 
-            closeClientDetailsModal();
-            setActiveView('tasks');
-            
-            document.getElementById('category-business').checked = true;
-            clientSelectContainer.classList.remove('hidden');
-            projectSelectContainer.classList.remove('hidden');
-            clientSelect.value = clientId;
-            taskInput.focus();
-            addTaskForm.scrollIntoView({ behavior: 'smooth' });
-        };
-        
-        addTaskForProjectBtn.onclick = () => {
-            const projectId = addTaskForProjectBtn.dataset.projectId;
-            const projectName = addTaskForProjectBtn.dataset.projectName;
-            if (!projectId || !projectName) return; 
-            closeProjectDetailsModal();
-            setActiveView('tasks');
-            
-            document.getElementById('category-business').checked = true;
-            clientSelectContainer.classList.remove('hidden');
-            projectSelectContainer.classList.remove('hidden');
-            projectSelect.value = projectId;
-            taskInput.focus();
-            addTaskForm.scrollIntoView({ behavior: 'smooth' });
-        };
+        // Modals
+        editTaskForm.addEventListener('submit', saveTaskChanges);
+        addSummaryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const clientId = summaryClientId.value;
+            const text = summaryTextInput.value.trim();
+            if (clientId && text) {
+                addCallSummary(clientId, text);
+                summaryTextInput.value = '';
+            }
+        });
 
-        // Clickable headers in Modals
-        clientTasksHeader.onclick = () => {
-            const clientId = summaryClientId.value; if (!clientId) return;
-            closeClientDetailsModal();
-            switchToTasksViewWithOptions({ filter: 'active', clientId: clientId, layout: 'table' });
-        };
-        
-        projectTasksHeader.onclick = () => {
-            const projectId = projectTasksHeader.dataset.projectId; if (!projectId) return;
-            closeProjectDetailsModal();
-            switchToTasksViewWithOptions({ filter: 'active', projectId: projectId, layout: 'table' });
-        };
+        // Add Task buttons from Modals
+        addTaskForClientBtn.onclick = () => {
+            const clientId = summaryClientId.value;
+            const clientName = summaryClientName.value;
+            if (!clientId || !clientName) return; 
+            closeClientDetailsModal();
+            setActiveView('tasks');
+            
+            document.getElementById('category-business').checked = true;
+            clientSelectContainer.classList.remove('hidden');
+            projectSelectContainer.classList.remove('hidden');
+            clientSelect.value = clientId;
+            taskInput.focus();
+            addTaskForm.scrollIntoView({ behavior: 'smooth' });
+        };
+        
+        addTaskForProjectBtn.onclick = () => {
+            const projectId = addTaskForProjectBtn.dataset.projectId;
+            const projectName = addTaskForProjectBtn.dataset.projectName;
+            if (!projectId || !projectName) return; 
+            closeProjectDetailsModal();
+            setActiveView('tasks');
+            
+            document.getElementById('category-business').checked = true;
+            clientSelectContainer.classList.remove('hidden');
+            projectSelectContainer.classList.remove('hidden');
+            projectSelect.value = projectId;
+            taskInput.focus();
+            addTaskForm.scrollIntoView({ behavior: 'smooth' });
+        };
 
-        // Generic Modal Close Buttons
-        document.querySelectorAll('[data-close-modal]').forEach(btn => {
-            btn.onclick = (e) => {
-                const modal = e.target.closest('.fixed');
-                if (modal.id === 'edit-modal') closeEditModal();
-                else if (modal.id === 'client-details-modal') closeClientDetailsModal();
-                else if (modal.id === 'project-details-modal') closeProjectDetailsModal();
-            };
-        });
-    };
-    
-    // =========================================================================
-    // Initial Load
-    // =========================================================================
-    document.addEventListener('DOMContentLoaded', () => {
-        initializeFirebase();
-        setupEventListeners();
-    });
+        // Clickable headers in Modals
+        clientTasksHeader.onclick = () => {
+            const clientId = summaryClientId.value; if (!clientId) return;
+            closeClientDetailsModal();
+            switchToTasksViewWithOptions({ filter: 'active', clientId: clientId, layout: 'table' });
+        };
+        
+        projectTasksHeader.onclick = () => {
+            const projectId = projectTasksHeader.dataset.projectId; if (!projectId) return;
+            closeProjectDetailsModal();
+            switchToTasksViewWithOptions({ filter: 'active', projectId: projectId, layout: 'table' });
+        };
+
+        // Generic Modal Close Buttons
+        document.querySelectorAll('[data-close-modal]').forEach(btn => {
+            btn.onclick = (e) => {
+                const modal = e.target.closest('.fixed');
+                if (modal.id === 'edit-modal') closeEditModal();
+                else if (modal.id === 'client-details-modal') closeClientDetailsModal();
+                else if (modal.id === 'project-details-modal') closeProjectDetailsModal();
+            };
+        });
+    };
+    
+    // =========================================================================
+    // Initial Load
+    // =========================================================================
+    document.addEventListener('DOMContentLoaded', () => {
+        initializeFirebase();
+        setupEventListeners();
+    });
 
 </script>
 
 </body>
 </html>
+
