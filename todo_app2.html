@@ -98,7 +98,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
+<body class="dark bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 transition-colors duration-300">
 
     <div id="loading-spinner" class="fixed inset-0 bg-white dark:bg-gray-900 flex items-center justify-center z-50">
         <div class="text-center">
@@ -523,7 +523,7 @@
 
     // Apply saved theme on load
     try {
-        const savedTheme = localStorage.getItem('theme') || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+        const savedTheme = localStorage.getItem('theme') || 'dark';
         applyTheme(savedTheme);
     } catch (e) {
         console.warn("Could not apply saved theme from localStorage.");
@@ -896,7 +896,7 @@
                         // User clicked logout
                         setActiveView('auth-view');
                         showAuthTab('login');
-                        loadingSpinner.classList.add('hidden'); // <-- *** התיקון נוסף כאן ***
+                        loadingSpinner.classList.add('hidden'); // <-- *** THE FIX IS HERE ***
                     } else {
                         // Initial load or session expired
                         console.log("Attempting anonymous sign-in...");
@@ -2145,7 +2145,7 @@
             if (e.target.matches('.sortable-header')) {
                 const sortKey = e.target.dataset.sort;
                 if (currentSort.key === sortKey) {
-                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc'; // <-- *** התיקון בוצע כאן ***
+                    currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
                 } else {
                     currentSort.key = sortKey;
                     currentSort.direction = 'asc';
@@ -2283,3 +2283,5 @@
 
 </body>
 </html>
+
+
