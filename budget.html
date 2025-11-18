@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>מערכת ניהול הכנסות Pro</title>
+    
+    <!-- טעינת פונט Rubik -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;700&display=swap" rel="stylesheet">
+
     <!-- טעינת Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- טעינת Chart.js לגרפים -->
@@ -11,8 +17,8 @@
     
     <style>
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f3f4f6;
+            font-family: 'Rubik', sans-serif; /* שינוי הפונט ל-Rubik */
+            background-color: #f8fafc; /* רקע מעט יותר בהיר ונקי */
         }
         /* החלקת גלילה */
         html { scroll-behavior: smooth; }
@@ -23,134 +29,138 @@
         
         /* עיצוב צ'קבוקס מותאם אישית */
         .form-checkbox {
-            appearance: none; background-color: #fff; border: 1px solid #d1d5db;
-            border-radius: 0.375rem; width: 1.25rem; height: 1.25rem;
+            appearance: none; background-color: #fff; border: 1px solid #cbd5e1;
+            border-radius: 0.5rem; width: 1.25rem; height: 1.25rem;
             display: inline-block; vertical-align: middle; position: relative; cursor: pointer;
-            transition: all 0.2s;
+            transition: all 0.2s ease-in-out;
         }
-        .form-checkbox:checked { background-color: #4f46e5; border-color: #4f46e5; }
+        .form-checkbox:checked { background-color: #6366f1; border-color: #6366f1; }
         .form-checkbox:checked::after {
             content: '✔'; font-size: 0.8rem; color: white;
             position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
         }
         
         /* אנימציות */
-        .fade-in { animation: fadeIn 0.3s ease-in-out; }
+        .fade-in { animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         
         /* עיצוב כרטיסי סיכום */
         .summary-card {
             background: white; border-radius: 1rem; padding: 1.5rem;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-            transition: transform 0.2s;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 1px solid #f1f5f9;
         }
-        .summary-card:hover { transform: translateY(-2px); }
+        .summary-card:hover { transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
         
         /* כפתורי טאבים */
         .auth-tab {
-            @apply px-4 py-2 font-semibold text-gray-600 rounded-lg cursor-pointer bg-gray-100 hover:bg-gray-200 transition-colors flex-grow text-center text-sm;
+            @apply px-4 py-2 font-medium text-gray-600 rounded-lg cursor-pointer bg-slate-100 hover:bg-slate-200 transition-colors flex-grow text-center text-sm;
         }
         .auth-tab.active {
             @apply bg-indigo-600 text-white hover:bg-indigo-700 shadow-md;
         }
+
+        /* שיפור נראות כפתורים כללי */
+        button { font-family: 'Rubik', sans-serif; }
     </style>
 </head>
-<body class="bg-gray-50 text-gray-800">
+<body class="bg-slate-50 text-slate-800">
 
     <!-- מסך טעינה -->
     <div id="loading-spinner" class="flex flex-col justify-center items-center min-h-screen bg-white z-50 fixed inset-0">
         <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-indigo-600 mb-4"></div>
-        <p class="text-gray-500 animate-pulse">טוען נתונים...</p>
+        <p class="text-slate-500 animate-pulse font-medium">טוען נתונים...</p>
     </div>
 
     <!-- קונטיינר ראשי -->
-    <div id="app-container" class="max-w-6xl mx-auto p-4 md:p-6 hidden min-h-screen flex flex-col">
+    <div id="app-container" class="max-w-6xl mx-auto p-4 md:p-8 hidden min-h-screen flex flex-col">
 
         <!-- ===== תצוגת דאשבורד (ראשית) ===== -->
         <div id="dashboard-view" class="fade-in flex-grow flex flex-col">
             
             <!-- כותרת עליונה וסטטוס משתמש -->
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 order-0">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-5 bg-white p-5 rounded-2xl shadow-sm border border-slate-200 order-0">
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">מערכת פיננסית</h1>
-                    <div id="user-status-container" class="text-sm text-gray-500 mt-1 flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-green-500"></span>
+                    <h1 class="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">מערכת פיננסית</h1>
+                    <div id="user-status-container" class="text-sm text-slate-500 mt-1.5 flex items-center gap-2 font-medium">
+                        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-sm"></span>
                         <span id="user-status-text">טוען...</span>
-                        <button id="logout-btn" class="text-red-500 font-medium hover:bg-red-50 px-2 rounded transition hidden">התנתק</button>
+                        <button id="logout-btn" class="text-rose-500 hover:bg-rose-50 px-2 py-0.5 rounded transition hidden">התנתק</button>
                     </div>
                 </div>
                 
                 <div class="flex flex-wrap gap-3 items-center w-full md:w-auto">
                     <!-- כפתור סנכרון -->
-                    <button id="sync-btn" class="hidden bg-gradient-to-r from-purple-600 to-indigo-600 text-white px-4 py-2 rounded-lg shadow hover:shadow-lg transition-all text-sm font-medium flex items-center gap-2">
+                    <button id="sync-btn" class="hidden bg-gradient-to-r from-violet-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl shadow-md hover:shadow-lg transition-all text-sm font-medium flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>
                         סנכרון נתונים
                     </button>
 
                     <!-- טוגל מע"מ -->
-                    <label class="flex items-center space-x-2 space-x-reverse text-sm font-medium text-gray-600 cursor-pointer bg-gray-50 px-3 py-2 rounded-lg border hover:bg-gray-100 transition">
+                    <label class="flex items-center space-x-2 space-x-reverse text-sm font-medium text-slate-600 cursor-pointer bg-slate-50 px-4 py-2.5 rounded-xl border border-slate-200 hover:bg-white hover:border-indigo-300 transition select-none">
                         <input type="checkbox" id="vat-toggle-dashboard" class="form-checkbox h-4 w-4 text-indigo-600 focus:ring-indigo-500">
                         <span>כולל מע"מ</span>
                     </label>
 
-                    <div class="h-6 w-px bg-gray-300 hidden md:block"></div>
+                    <div class="h-8 w-px bg-slate-200 hidden md:block mx-1"></div>
 
-                    <button id="collection-btn" class="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg shadow transition-all flex items-center gap-2 text-sm font-medium">
+                    <button id="collection-btn" class="bg-amber-500 hover:bg-amber-600 text-white px-5 py-2.5 rounded-xl shadow-sm hover:shadow transition-all flex items-center gap-2 text-sm font-medium">
                         <span>גבייה</span>
-                        <span id="collection-total-badge" class="bg-white text-amber-600 text-xs font-bold px-1.5 py-0.5 rounded-full hidden">0</span>
+                        <span id="collection-total-badge" class="bg-white text-amber-600 text-xs font-bold px-2 py-0.5 rounded-full hidden shadow-sm">0</span>
                     </button>
                     
-                    <button id="reports-btn" class="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg shadow transition-all text-sm font-medium flex items-center gap-2">
+                    <button id="reports-btn" class="bg-slate-700 hover:bg-slate-800 text-white px-5 py-2.5 rounded-xl shadow-sm hover:shadow transition-all text-sm font-medium flex items-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /></svg>
                         דוחות
                     </button>
                     
-                    <button id="add-payment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg shadow-lg hover:shadow-xl transition-all transform hover:-translate-y-0.5 text-sm font-bold flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    <button id="add-payment-btn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2.5 rounded-xl shadow-lg hover:shadow-indigo-500/30 transition-all transform hover:-translate-y-0.5 text-sm font-bold flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
                         תשלום חדש
                     </button>
                 </div>
             </header>
             
             <!-- ווידג'טים לסיכום (סדר 2 במובייל, 1 בדסקטופ) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 order-2 md:order-1">
-                <div class="summary-card border-r-4 border-green-500">
-                    <p id="summary-year-title" class="text-gray-500 text-xs font-bold uppercase">צפי הכנסות לשנת ...</p>
-                    <p id="summary-ytd" class="text-2xl font-bold text-gray-800 mt-1">₪0</p>
-                    <p class="text-xs text-green-600 mt-1 flex items-center">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-8 order-2 md:order-1">
+                <div class="summary-card border-r-4 border-emerald-500">
+                    <p id="summary-year-title" class="text-slate-500 text-xs font-bold uppercase tracking-wider">צפי הכנסות לשנת ...</p>
+                    <p id="summary-ytd" class="text-3xl font-bold text-slate-800 mt-2">₪0</p>
+                    <p class="text-xs text-emerald-600 mt-2 flex items-center font-medium">
                         <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
                         שנתי כולל
                     </p>
                 </div>
                 <div class="summary-card border-r-4 border-blue-500">
-                    <p class="text-gray-500 text-xs font-bold uppercase">ממוצע חודשי (צפי שנתי)</p>
-                    <p id="summary-avg" class="text-2xl font-bold text-gray-800 mt-1">₪0</p>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">ממוצע חודשי (צפי שנתי)</p>
+                    <p id="summary-avg" class="text-3xl font-bold text-slate-800 mt-2">₪0</p>
                 </div>
                 <div class="summary-card border-r-4 border-indigo-500">
-                    <p class="text-gray-500 text-xs font-bold uppercase">צפי חודש נוכחי</p>
-                    <p id="summary-current-month" class="text-2xl font-bold text-gray-800 mt-1">₪0</p>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">צפי חודש נוכחי</p>
+                    <p id="summary-current-month" class="text-3xl font-bold text-slate-800 mt-2">₪0</p>
                 </div>
                 <div class="summary-card border-r-4 border-amber-500">
-                    <p class="text-gray-500 text-xs font-bold uppercase">חוב פתוח (גבייה)</p>
-                    <p id="summary-collection" class="text-2xl font-bold text-gray-800 mt-1">₪0</p>
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-wider">חוב פתוח (גבייה)</p>
+                    <p id="summary-collection" class="text-3xl font-bold text-slate-800 mt-2">₪0</p>
                 </div>
             </div>
 
             <!-- אזור קרוסלה (סדר 1 במובייל, 2 בדסקטופ) -->
-            <div class="flex flex-col order-1 md:order-2 mb-6">
-                <div class="mb-4 flex justify-between items-center">
-                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                        <span class="bg-indigo-100 text-indigo-600 p-1.5 rounded-lg">
+            <div class="flex flex-col order-1 md:order-2 mb-8">
+                <div class="mb-5 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-3">
+                        <span class="bg-indigo-100 text-indigo-600 p-2 rounded-lg shadow-sm">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
                         </span>
                         תחזית חודשית
                     </h2>
                     
                     <!-- חיפוש -->
-                    <div class="relative">
-                        <input type="text" id="dashboard-search" placeholder="חיפוש לקוח..." class="pl-4 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm w-32 md:w-64 transition-all">
-                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                            <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <div class="relative group">
+                        <input type="text" id="dashboard-search" placeholder="חיפוש לקוח..." class="pl-4 pr-10 py-2.5 rounded-full border border-slate-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm w-36 md:w-64 transition-all bg-white shadow-sm group-hover:shadow-md">
+                        <div class="absolute inset-y-0 right-0 pr-3.5 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-slate-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
                             </svg>
                         </div>
@@ -158,8 +168,8 @@
                 </div>
 
                 <!-- קרוסלת חודשים -->
-                <div class="relative group">
-                    <button id="next-month-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 z-10 bg-white p-2 rounded-full shadow-md text-gray-600 hover:text-indigo-600 hover:scale-110 transition hidden md:block">
+                <div class="relative group/carousel">
+                    <button id="next-month-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 z-10 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-600 hover:text-indigo-600 hover:scale-110 transition hidden md:block">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
                     </button>
                     
@@ -167,16 +177,16 @@
                         <!-- כרטיסי חודשים יוזרקו כאן -->
                     </div>
 
-                    <button id="prev-month-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 z-10 bg-white p-2 rounded-full shadow-md text-gray-600 hover:text-indigo-600 hover:scale-110 transition hidden md:block">
+                    <button id="prev-month-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 z-10 bg-white p-3 rounded-full shadow-lg border border-slate-100 text-slate-600 hover:text-indigo-600 hover:scale-110 transition hidden md:block">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
                     </button>
                 </div>
                 
                 <div class="text-center mt-1 md:hidden">
-                    <div class="inline-flex gap-4">
-                        <button onclick="document.getElementById('next-month-btn').click()" class="bg-white p-2 rounded-full shadow text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
-                        <span class="text-sm text-gray-500 self-center">חודשים</span>
-                        <button onclick="document.getElementById('prev-month-btn').click()" class="bg-white p-2 rounded-full shadow text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+                    <div class="inline-flex gap-6 items-center bg-white px-4 py-2 rounded-full shadow-sm border border-slate-100">
+                        <button onclick="document.getElementById('next-month-btn').click()" class="text-indigo-600 hover:bg-indigo-50 p-1 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                        <span class="text-xs font-bold text-slate-400 uppercase tracking-widest">ניווט חודשים</span>
+                        <button onclick="document.getElementById('prev-month-btn').click()" class="text-indigo-600 hover:bg-indigo-50 p-1 rounded-full"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
                     </div>
                 </div>
             </div>
@@ -184,46 +194,49 @@
 
         <!-- ===== תצוגת טופס קליטת תשלום ===== -->
         <div id="payment-form-view" class="hidden max-w-2xl mx-auto w-full mt-8 fade-in">
-            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-gray-100">
-                <div class="bg-indigo-600 px-6 py-4 flex justify-between items-center">
+            <div class="bg-white rounded-2xl shadow-xl overflow-hidden border border-slate-100">
+                <div class="bg-indigo-600 px-6 py-5 flex justify-between items-center">
                     <h2 id="form-title" class="text-xl font-bold text-white">קליטת תשלום חדש</h2>
-                    <button id="cancel-form-icon-btn" class="text-indigo-200 hover:text-white transition">
+                    <button id="cancel-form-icon-btn" class="text-indigo-100 hover:text-white transition bg-indigo-500/20 p-1 rounded-lg hover:bg-indigo-500/40">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                     </button>
                 </div>
                 
-                <form id="payment-form" class="p-6 space-y-5">
-                    <div class="bg-indigo-50 border-r-4 border-indigo-500 p-4 rounded-r shadow-sm">
+                <form id="payment-form" class="p-6 md:p-8 space-y-6">
+                    <div class="bg-indigo-50 border-r-4 border-indigo-500 p-4 rounded-r-lg shadow-sm flex items-start gap-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-indigo-600 mt-0.5 flex-shrink-0" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
                         <p class="text-sm text-indigo-800">
                             <span class="font-bold">שים לב:</span> יש להזין סכומים לפני מע"מ. המערכת תוסיף מע"מ אוטומטית בתצוגה אם יידרש.
                         </p>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">שם לקוח</label>
-                            <input list="customers-list" id="customer-name-input" name="customer-name" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" required placeholder="התחל להקליד...">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">שם לקוח</label>
+                            <input list="customers-list" id="customer-name-input" name="customer-name" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-slate-50 focus:bg-white" required placeholder="התחל להקליד...">
                             <datalist id="customers-list"></datalist>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">סיווג לקוח (אופציונלי)</label>
-                            <input type="text" id="customer-classification" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">סיווג לקוח (אופציונלי)</label>
+                            <input type="text" id="customer-classification" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-slate-50 focus:bg-white">
                         </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">סכום (לפני מע"מ)</label>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">סכום (לפני מע"מ)</label>
                             <div class="relative">
                                 <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                    <span class="text-gray-500 sm:text-sm">₪</span>
+                                    <span class="text-slate-500 font-bold sm:text-sm">₪</span>
                                 </div>
-                                <input type="number" id="payment-amount" min="0" step="0.01" class="w-full px-4 py-2 pl-7 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition" required>
+                                <input type="number" id="payment-amount" min="0" step="0.01" class="w-full px-4 py-2.5 pl-8 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition font-mono font-medium bg-slate-50 focus:bg-white" required>
                             </div>
                         </div>
                         <div>
-                            <label class="block text-sm font-semibold text-gray-700 mb-1">סוג תשלום</label>
-                            <select id="payment-type" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white" required>
+                            <label class="block text-sm font-semibold text-slate-700 mb-2">סוג תשלום</label>
+                            <select id="payment-type" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-slate-50 focus:bg-white cursor-pointer" required>
                                 <option value="" disabled selected>בחר...</option>
                                 <option value="immediate">מיידי (התקבל)</option>
                                 <option value="current">שוטף (+30 יום ממוצע)</option>
@@ -238,38 +251,41 @@
                     </div>
 
                     <!-- --- חדש: שדה תאריך גנרי לכל התשלומים --- -->
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">תאריך תשלום / צפי (ניתן לשינוי ידני)</label>
-                        <input type="date" id="payment-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
-                        <p class="text-xs text-gray-500 mt-1">התאריך מתעדכן אוטומטית לפי סוג התשלום, אך ניתן לשנות אותו עבור תשלומים רטרואקטיביים.</p>
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200">
+                        <label class="block text-sm font-semibold text-slate-700 mb-2 flex items-center gap-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                            תאריך תשלום / צפי
+                        </label>
+                        <input type="date" id="payment-date" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-white">
+                        <p class="text-xs text-slate-500 mt-2">התאריך מתעדכן אוטומטית, אך ניתן לשנות ידנית עבור תשלומים רטרואקטיביים.</p>
                     </div>
                     <!-- --- סוף חדש --- -->
 
                     <!-- שדות דינמיים -->
-                    <div id="payment-due-date-container" class="hidden p-4 bg-gray-50 rounded-lg border border-gray-200 animate-pulse-once">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">תאריך יעד לגמר חשבון (50% הנותרים)</label>
-                        <input type="date" id="payment-due-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
+                    <div id="payment-due-date-container" class="hidden p-5 bg-indigo-50 rounded-xl border border-indigo-100 animate-pulse-once">
+                        <label class="block text-sm font-semibold text-indigo-900 mb-2">תאריך יעד לגמר חשבון (50% הנותרים)</label>
+                        <input type="date" id="payment-due-date" class="w-full px-4 py-2.5 border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 bg-white">
                     </div>
 
-                    <div id="retainer-renewal-date-container" class="hidden p-4 bg-gray-50 rounded-lg border border-gray-200">
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">תאריך סיום ריטיינר (עד מתי לשכפל?)</label>
-                        <input type="date" id="retainer-renewal-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                        <p class="text-xs text-gray-500 mt-1">המערכת תיצור חיובים חודשיים החל מהתאריך הנבחר למעלה ועד תאריך הסיום.</p>
+                    <div id="retainer-renewal-date-container" class="hidden p-5 bg-purple-50 rounded-xl border border-purple-100">
+                        <label class="block text-sm font-semibold text-purple-900 mb-2">תאריך סיום ריטיינר (עד מתי לשכפל?)</label>
+                        <input type="date" id="retainer-renewal-date" class="w-full px-4 py-2.5 border border-purple-200 rounded-xl focus:ring-2 focus:ring-purple-500 bg-white">
+                        <p class="text-xs text-purple-700 mt-2">המערכת תיצור חיובים חודשיים החל מהתאריך הנבחר למעלה ועד תאריך הסיום.</p>
                     </div>
 
                     <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">הערות / פירוט</label>
-                        <textarea id="payment-details" rows="3" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition"></textarea>
+                        <label class="block text-sm font-semibold text-slate-700 mb-2">הערות / פירוט</label>
+                        <textarea id="payment-details" rows="3" class="w-full px-4 py-2.5 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition bg-slate-50 focus:bg-white"></textarea>
                     </div>
 
-                    <div id="form-error-message" class="hidden bg-red-50 text-red-700 p-3 rounded-lg text-sm border border-red-200"></div>
+                    <div id="form-error-message" class="hidden bg-red-50 text-red-700 p-4 rounded-xl text-sm border border-red-200 font-medium"></div>
 
-                    <div class="flex gap-3 pt-2">
-                        <button type="submit" id="save-btn" class="flex-1 bg-indigo-600 text-white px-6 py-2.5 rounded-lg shadow hover:bg-indigo-700 focus:ring-4 focus:ring-indigo-200 transition font-medium flex justify-center items-center">
+                    <div class="flex gap-4 pt-4">
+                        <button type="submit" id="save-btn" class="flex-1 bg-indigo-600 text-white px-6 py-3 rounded-xl shadow-md hover:bg-indigo-700 hover:shadow-lg focus:ring-4 focus:ring-indigo-200 transition font-bold text-base flex justify-center items-center">
                             <span class="btn-text">שמור תשלום</span>
                             <svg class="animate-spin ml-2 h-5 w-5 text-white hidden btn-spinner" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
                         </button>
-                        <button type="button" id="cancel-form-btn" class="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-50 transition font-medium">ביטול</button>
+                        <button type="button" id="cancel-form-btn" class="px-6 py-3 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-50 transition font-bold text-base">ביטול</button>
                     </div>
                 </form>
             </div>
@@ -277,137 +293,137 @@
 
         <!-- ===== תצוגת חלון גבייה ===== -->
         <div id="collection-view" class="hidden fade-in">
-            <header class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">חלון גבייה</h2>
-                <button id="back-to-dashboard-btn" class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-1">
+            <header class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-slate-800">חלון גבייה</h2>
+                <button id="back-to-dashboard-btn" class="text-indigo-600 hover:text-indigo-800 font-medium flex items-center gap-2 bg-white px-4 py-2 rounded-lg shadow-sm border border-slate-200 hover:bg-indigo-50 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3" /></svg>
                     חזור לדאשבורד
                 </button>
             </header>
-            <div class="bg-white p-6 rounded-xl shadow-md border border-gray-200">
-                <div class="flex justify-between items-end mb-6 border-b pb-4">
+            <div class="bg-white p-6 md:p-8 rounded-2xl shadow-md border border-slate-200">
+                <div class="flex justify-between items-end mb-6 border-b border-slate-100 pb-6">
                     <div>
-                        <p class="text-sm text-gray-500">סה"כ פתוח לגבייה</p>
-                        <p id="collection-total" class="text-3xl font-bold text-amber-600">₪0</p>
+                        <p class="text-sm text-slate-500 font-medium uppercase tracking-wider mb-1">סה"כ פתוח לגבייה</p>
+                        <p id="collection-total" class="text-4xl font-bold text-amber-500">₪0</p>
                     </div>
                 </div>
-                <ul id="collection-list" class="space-y-3"></ul>
+                <ul id="collection-list" class="space-y-4"></ul>
             </div>
         </div>
 
         <!-- ===== תצוגת דוחות ===== -->
         <div id="reports-view" class="hidden fade-in">
-            <header class="flex justify-between items-center mb-6">
-                <h2 class="text-2xl font-bold text-gray-800">דוחות וניתוח נתונים</h2>
-                <div class="flex gap-2">
+            <header class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-slate-800">דוחות וניתוח נתונים</h2>
+                <div class="flex gap-3">
                     <!-- כפתור יצוא לאקסל -->
-                    <button onclick="exportToCSV()" class="bg-green-600 text-white px-3 py-2 rounded-lg shadow hover:bg-green-700 text-sm font-medium flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    <button onclick="exportToCSV()" class="bg-emerald-600 text-white px-4 py-2.5 rounded-xl shadow hover:bg-emerald-700 text-sm font-bold flex items-center gap-2 hover:shadow-lg transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
                         יצוא CSV
                     </button>
-                    <button id="back-to-dashboard-from-reports-btn" class="bg-white border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition text-sm font-medium">
+                    <button id="back-to-dashboard-from-reports-btn" class="bg-white border border-slate-300 text-slate-700 px-5 py-2.5 rounded-xl hover:bg-slate-50 transition text-sm font-bold">
                         חזור
                     </button>
                 </div>
             </header>
             
             <!-- אזור גרף -->
-            <div class="bg-white p-6 rounded-xl shadow-md mb-6 h-80">
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 mb-8 h-96">
                 <canvas id="revenueChart"></canvas>
             </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100 h-96 flex flex-col">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">לפי לקוח</h3>
-                    <ul id="report-by-customer-list" class="overflow-y-auto flex-grow custom-scrollbar space-y-2 pr-2"></ul>
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 h-[500px] flex flex-col">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100">לפי לקוח</h3>
+                    <ul id="report-by-customer-list" class="overflow-y-auto flex-grow custom-scrollbar space-y-3 pr-2"></ul>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100 h-96 flex flex-col">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">לפי חודש</h3>
-                    <ul id="report-by-month-list" class="overflow-y-auto flex-grow custom-scrollbar space-y-2 pr-2"></ul>
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 h-[500px] flex flex-col">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100">לפי חודש</h3>
+                    <ul id="report-by-month-list" class="overflow-y-auto flex-grow custom-scrollbar space-y-3 pr-2"></ul>
                 </div>
-                <div class="bg-white p-5 rounded-xl shadow-md border border-gray-100 h-96 flex flex-col">
-                    <h3 class="text-lg font-bold text-gray-800 mb-4 pb-2 border-b">לפי שנה</h3>
-                    <ul id="report-by-year-list" class="overflow-y-auto flex-grow custom-scrollbar space-y-2 pr-2"></ul>
+                <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200 h-[500px] flex flex-col">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 pb-3 border-b border-slate-100">לפי שנה</h3>
+                    <ul id="report-by-year-list" class="overflow-y-auto flex-grow custom-scrollbar space-y-3 pr-2"></ul>
                 </div>
             </div>
         </div>
         
         <!-- ===== תצוגת התחברות ===== -->
-        <div id="auth-view" class="hidden max-w-md mx-auto mt-12 fade-in">
-            <div class="bg-white p-8 rounded-2xl shadow-2xl border border-gray-100">
-                <div class="text-center mb-6">
-                    <h2 class="text-2xl font-bold text-gray-900">התחברות למערכת</h2>
-                    <p class="text-sm text-gray-500 mt-1">נהל את הכספים שלך בצורה חכמה</p>
+        <div id="auth-view" class="hidden max-w-md mx-auto mt-20 fade-in px-4">
+            <div class="bg-white p-8 md:p-10 rounded-3xl shadow-2xl border border-slate-100">
+                <div class="text-center mb-8">
+                    <h2 class="text-3xl font-extrabold text-slate-900">כניסה למערכת</h2>
+                    <p class="text-slate-500 mt-2 font-medium">ניהול תזרים חכם ופשוט</p>
                 </div>
 
-                <div class="flex gap-2 mb-6 bg-gray-100 p-1 rounded-lg">
+                <div class="flex gap-2 mb-8 bg-slate-100 p-1.5 rounded-2xl">
                     <button id="auth-tab-login" class="auth-tab active" onclick="showAuthTab('login')">כניסה</button>
                     <button id="auth-tab-signup" class="auth-tab" onclick="showAuthTab('signup')">הרשמה</button>
                     <button id="auth-tab-link" class="auth-tab" onclick="showAuthTab('link')">סינכרון</button>
                 </div>
         
                 <!-- טפסים -->
-                <form id="auth-form-login" class="space-y-4">
+                <form id="auth-form-login" class="space-y-5">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">אימייל</label>
-                        <input type="email" id="login-email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5">אימייל</label>
+                        <input type="email" id="login-email" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-slate-50 focus:bg-white" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">סיסמה</label>
-                        <input type="password" id="login-password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5">סיסמה</label>
+                        <input type="password" id="login-password" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-slate-50 focus:bg-white" required>
                     </div>
-                    <button type="submit" class="w-full bg-indigo-600 text-white py-2.5 rounded-lg hover:bg-indigo-700 shadow-md transition font-medium">התחבר</button>
+                    <button type="submit" class="w-full bg-indigo-600 text-white py-3.5 rounded-xl hover:bg-indigo-700 shadow-lg shadow-indigo-500/30 transition font-bold text-lg mt-2">התחבר למערכת</button>
                 </form>
         
-                <form id="auth-form-signup" class="space-y-4 hidden">
+                <form id="auth-form-signup" class="space-y-5 hidden">
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">אימייל</label>
-                        <input type="email" id="signup-email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5">אימייל</label>
+                        <input type="email" id="signup-email" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-slate-50 focus:bg-white" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">סיסמה (6+ תווים)</label>
-                        <input type="password" id="signup-password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5">סיסמה (6+ תווים)</label>
+                        <input type="password" id="signup-password" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-slate-50 focus:bg-white" required>
                     </div>
-                    <button type="submit" class="w-full bg-green-600 text-white py-2.5 rounded-lg hover:bg-green-700 shadow-md transition font-medium">צור חשבון</button>
+                    <button type="submit" class="w-full bg-emerald-600 text-white py-3.5 rounded-xl hover:bg-emerald-700 shadow-lg shadow-emerald-500/30 transition font-bold text-lg mt-2">צור חשבון חדש</button>
                 </form>
 
-                <form id="auth-form-link" class="space-y-4 hidden">
-                    <div class="bg-blue-50 text-blue-800 p-3 rounded text-sm mb-2">
+                <form id="auth-form-link" class="space-y-5 hidden">
+                    <div class="bg-blue-50 text-blue-800 p-4 rounded-xl text-sm mb-4 border border-blue-100">
                         משתמש במצב אורח? הזן פרטים כדי לשמור את הנתונים שלך בענן לתמיד.
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">אימייל</label>
-                        <input type="email" id="link-email" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5">אימייל</label>
+                        <input type="email" id="link-email" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-slate-50 focus:bg-white" required>
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-gray-700 mb-1">סיסמה</label>
-                        <input type="password" id="link-password" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-indigo-500" required>
+                        <label class="block text-sm font-bold text-slate-700 mb-1.5">סיסמה</label>
+                        <input type="password" id="link-password" class="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-indigo-500 transition bg-slate-50 focus:bg-white" required>
                     </div>
-                    <button type="submit" class="w-full bg-purple-600 text-white py-2.5 rounded-lg hover:bg-purple-700 shadow-md transition font-medium">סנכרן נתונים</button>
+                    <button type="submit" class="w-full bg-violet-600 text-white py-3.5 rounded-xl hover:bg-violet-700 shadow-lg shadow-violet-500/30 transition font-bold text-lg mt-2">סנכרן נתונים</button>
                 </form>
                 
-                <div id="auth-error-message" class="text-red-600 text-sm p-3 bg-red-50 rounded-lg hidden mt-4 border border-red-100"></div>
+                <div id="auth-error-message" class="text-rose-600 text-sm p-4 bg-rose-50 rounded-xl hidden mt-6 border border-rose-100 font-medium text-center"></div>
             </div>
         </div>
 
     </div>
 
     <!-- ===== מודל פירוט חודש ===== -->
-    <div id="month-details-modal" class="fixed inset-0 bg-gray-900 bg-opacity-60 backdrop-blur-sm flex justify-center items-center p-4 hidden z-50 transition-opacity">
-        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col transform transition-all scale-100">
-            <header class="flex justify-between items-center p-5 border-b border-gray-100">
-                <h3 id="month-details-title" class="text-xl font-bold text-gray-900"></h3>
-                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition">
+    <div id="month-details-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex justify-center items-center p-4 hidden z-50 transition-all duration-300">
+        <div class="bg-white rounded-3xl shadow-2xl w-full max-w-lg max-h-[85vh] flex flex-col transform transition-all scale-100 border border-slate-200">
+            <header class="flex justify-between items-center p-6 border-b border-slate-100 bg-slate-50/50 rounded-t-3xl">
+                <h3 id="month-details-title" class="text-2xl font-bold text-slate-800"></h3>
+                <button id="close-modal-btn" class="text-slate-400 hover:text-slate-600 p-2 rounded-full hover:bg-slate-100 transition">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </header>
-            <section class="p-2 overflow-y-auto bg-gray-50 flex-grow">
-                <ul id="month-details-list" class="space-y-3 p-3"></ul>
+            <section class="p-2 overflow-y-auto bg-slate-50 flex-grow custom-scrollbar">
+                <ul id="month-details-list" class="space-y-3 p-4"></ul>
             </section>
-            <div class="p-4 border-t border-gray-100 bg-white rounded-b-2xl">
-                <div class="flex justify-between text-sm font-medium text-gray-600">
-                   <span>סה"כ צפוי: <span id="modal-total-expected" class="text-blue-600"></span></span>
-                   <span>בפועל: <span id="modal-total-received" class="text-green-600"></span></span>
+            <div class="p-5 border-t border-slate-100 bg-white rounded-b-3xl shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.02)]">
+                <div class="flex justify-between text-sm font-bold text-slate-600">
+                   <div class="bg-indigo-50 px-4 py-2 rounded-lg text-indigo-700">צפי: <span id="modal-total-expected"></span></div>
+                   <div class="bg-emerald-50 px-4 py-2 rounded-lg text-emerald-700">בפועל: <span id="modal-total-received"></span></div>
                 </div>
             </div>
         </div>
@@ -628,12 +644,17 @@
 
         function createMonthCard(monthIndex, year, searchTerm) {
             const card = document.createElement('div');
-            card.className = "bg-white p-5 rounded-2xl shadow-lg border border-gray-100 min-w-[260px] w-72 flex-shrink-0 cursor-pointer hover:shadow-xl transition-all transform hover:-translate-y-1 snap-center group";
+            card.className = "bg-white p-6 rounded-2xl shadow-md border border-slate-100 min-w-[280px] w-80 flex-shrink-0 cursor-pointer hover:shadow-xl hover:-translate-y-1 transition-all snap-center group relative overflow-hidden";
             
             // סימון חודש נוכחי
             const isCurrentViewed = (monthIndex === new Date().getMonth() + currentMonthOffset) && (year === new Date().getFullYear());
             if (isCurrentViewed) {
                 card.classList.add('ring-2', 'ring-indigo-500', 'ring-offset-2');
+                // תווית "נוכחי"
+                const badge = document.createElement('div');
+                badge.className = "absolute top-0 right-0 bg-indigo-500 text-white text-[10px] font-bold px-2 py-1 rounded-bl-lg";
+                badge.innerText = "נוכחי";
+                card.appendChild(badge);
             }
 
             // חישוב טוטאלים לחודש
@@ -654,22 +675,28 @@
 
             const progress = expected > 0 ? Math.round((received / expected) * 100) : 0;
 
-            card.innerHTML = `
-                <div class="text-center mb-3">
-                    <h3 class="text-lg font-bold text-gray-800">${monthNames[monthIndex]} <span class="text-gray-400 text-sm">${year}</span></h3>
+            // קונטיינר פנימי
+            const content = document.createElement('div');
+            content.innerHTML = `
+                <div class="text-center mb-4">
+                    <h3 class="text-xl font-bold text-slate-800">${monthNames[monthIndex]} <span class="text-slate-400 text-base font-normal">${year}</span></h3>
                 </div>
-                <div class="flex justify-between items-end mb-2">
-                    <span class="text-gray-500 text-sm">צפי</span>
-                    <span class="text-xl font-bold text-indigo-600">${formatMoney(expected)}</span>
+                <div class="flex justify-between items-end mb-3">
+                    <span class="text-slate-500 text-sm font-medium">צפי הכנסות</span>
+                    <span class="text-2xl font-bold text-indigo-600 tracking-tight">${formatMoney(expected)}</span>
                 </div>
-                <div class="w-full bg-gray-100 rounded-full h-2 mb-3 overflow-hidden">
-                    <div class="bg-green-500 h-2 rounded-full" style="width: ${progress}%"></div>
+                
+                <!-- פרוגרס בר -->
+                <div class="w-full bg-slate-100 rounded-full h-3 mb-4 overflow-hidden shadow-inner">
+                    <div class="bg-gradient-to-r from-emerald-400 to-emerald-600 h-3 rounded-full transition-all duration-1000 ease-out" style="width: ${progress}%"></div>
                 </div>
-                <div class="flex justify-between items-center text-xs text-gray-500">
-                    <span>התקבל: <span class="font-medium text-green-600">${formatMoney(received)}</span></span>
-                    <span>${progress}%</span>
+                
+                <div class="flex justify-between items-center text-sm">
+                    <span class="text-slate-600">התקבל: <span class="font-bold text-emerald-600">${formatMoney(received)}</span></span>
+                    <span class="font-bold text-slate-400">${progress}%</span>
                 </div>
             `;
+            card.appendChild(content);
             card.onclick = () => showMonthDetailsModal(monthIndex, year);
             return card;
         }
@@ -700,7 +727,7 @@
             let totalExp = 0, totalRec = 0;
 
             if (payments.length === 0) {
-                listEl.innerHTML = '<div class="flex flex-col items-center justify-center py-10 text-gray-400"><svg class="w-12 h-12 mb-2 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>אין תשלומים בחודש זה</div>';
+                listEl.innerHTML = '<div class="flex flex-col items-center justify-center py-12 text-slate-400"><svg class="w-16 h-16 mb-3 opacity-30" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg><span class="text-lg font-medium">אין תשלומים בחודש זה</span></div>';
             } else {
                 payments.forEach(p => {
                     totalExp += p.amount;
@@ -708,7 +735,7 @@
 
                     const el = document.createElement('li');
                     const isRec = p.status === 'received';
-                    el.className = `bg-white rounded-xl p-3 border-l-4 shadow-sm hover:shadow-md transition flex flex-col gap-2 ${isRec ? 'border-green-500' : 'border-indigo-500'}`;
+                    el.className = `bg-white rounded-xl p-4 border-l-[6px] shadow-sm hover:shadow-md transition flex flex-col gap-3 ${isRec ? 'border-emerald-500' : 'border-indigo-500'}`;
                     
                     // תאריך יפה
                     const day = new Date(p.expectedDate).getDate();
@@ -716,28 +743,34 @@
                     el.innerHTML = `
                         <div class="flex justify-between items-start">
                             <div>
-                                <span class="font-bold text-gray-800 text-lg">${p.customerName}</span>
-                                <div class="text-xs text-gray-400">${day} לחודש • ${p.paymentType === 'retainer' ? 'ריטיינר' : 'חד פעמי'}</div>
-                                ${p.details ? `<div class="text-xs text-gray-500 mt-1 bg-gray-50 p-1 rounded">${p.details}</div>` : ''}
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-slate-800 text-lg">${p.customerName}</span>
+                                </div>
+                                <div class="text-sm text-slate-500 mt-0.5 flex items-center gap-2">
+                                    <span class="font-mono bg-slate-100 px-1.5 rounded text-slate-600">${day} לחודש</span>
+                                    <span class="w-1 h-1 rounded-full bg-slate-300"></span>
+                                    <span>${p.paymentType === 'retainer' ? 'ריטיינר' : 'חד פעמי'}</span>
+                                </div>
+                                ${p.details ? `<div class="text-sm text-slate-600 mt-2 bg-slate-50 p-2 rounded-lg border border-slate-100 leading-relaxed">${p.details}</div>` : ''}
                             </div>
                             <div class="text-left">
-                                <div class="font-bold text-lg text-gray-900">${formatMoney(p.amount)}</div>
-                                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium ${isRec ? 'bg-green-100 text-green-800' : 'bg-blue-100 text-blue-800'}">
+                                <div class="font-bold text-xl text-slate-900 tracking-tight">${formatMoney(p.amount)}</div>
+                                <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold mt-1 ${isRec ? 'bg-emerald-100 text-emerald-700' : 'bg-indigo-50 text-indigo-700'}">
                                     ${isRec ? 'התקבל' : 'צפוי'}
                                 </span>
                             </div>
                         </div>
                         
                         <!-- פעולות -->
-                        <div class="flex justify-end gap-2 mt-2 pt-2 border-t border-gray-100">
-                             <button onclick="togglePaymentStatus('${p.id}', '${p.status}')" class="text-xs px-3 py-1.5 rounded bg-gray-100 hover:bg-gray-200 text-gray-700 transition">
-                                ${isRec ? 'סמן כלא שולם ✕' : 'סמן כשולם ✔'}
+                        <div class="flex justify-end gap-2 mt-1 pt-3 border-t border-slate-100">
+                             <button onclick="togglePaymentStatus('${p.id}', '${p.status}')" class="text-xs font-bold px-3 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-600 transition flex items-center gap-1">
+                                ${isRec ? '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg> בטל קבלה' : '<svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> סמן כהתקבל'}
                              </button>
-                             <button onclick="editPayment('${p.id}')" class="text-xs px-3 py-1.5 rounded bg-indigo-50 hover:bg-indigo-100 text-indigo-700 transition">ערוך</button>
-                             <button onclick="duplicatePayment('${p.id}')" class="text-xs px-2 py-1.5 rounded bg-gray-50 hover:bg-gray-100 text-gray-500 transition" title="שכפל">
+                             <button onclick="editPayment('${p.id}')" class="text-xs font-bold px-3 py-2 rounded-lg bg-indigo-50 hover:bg-indigo-100 text-indigo-600 transition">ערוך</button>
+                             <button onclick="duplicatePayment('${p.id}')" class="text-xs font-bold px-3 py-2 rounded-lg bg-slate-50 hover:bg-slate-100 text-slate-500 transition" title="שכפל">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7v8a2 2 0 002 2h6M8 7V5a2 2 0 012-2h4.586a1 1 0 01.707.293l4.414 4.414a1 1 0 01.293.707V15a2 2 0 01-2 2h-2M8 7H6a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2v-2"></path></svg>
                              </button>
-                             <button onclick="deletePayment('${p.id}')" class="text-xs px-2 py-1.5 rounded bg-red-50 hover:bg-red-100 text-red-600 transition" title="מחק">
+                             <button onclick="deletePayment('${p.id}')" class="text-xs font-bold px-3 py-2 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-600 transition" title="מחק">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                              </button>
                         </div>
