@@ -919,15 +919,15 @@
                     if (manualDate) {
                          // אם המשתמש בחר תאריך ידני, נכבד אותו
                          formData.expectedDate = new Date(manualDate).toISOString();
-                         // אם התאריך בעבר או היום, נניח שזה התקבל (אלא אם זה עתידי)
-                         // אבל בוא נשמור על הלוגיקה המקורית: immediate = received, others = expected?
-                         // המשתמש ביקש לעדכן רטרואקטיבית.
+                         
                          if (formData.paymentType === 'immediate') {
                              formData.status = 'received';
-                         } else {
-                             // אם זה תשלום רגיל עם תאריך, זה expected אלא אם המשתמש יסמן אחרת
-                             // אבל אם זה רטרואקטיבי (immediate), זה received.
-                             // נשאיר כ-expected אלא אם זה immediate
+                         } else if (formData.paymentType === 'future') {
+                             formData.status = 'collection';
+                             // Optionally clear date if we don't want dates for collection, 
+                             // but user might want a target date for collection. 
+                             // The bug description says "it placed it in current month". 
+                             // This happens because status defaulted to 'expected'.
                          }
                     } else {
                         // חישוב אוטומטי אם לא נבחר תאריך
@@ -1066,7 +1066,8 @@
             
             // --- עדכון אוטומטי של שדה התאריך הגנרי ---
             const dateInput = document.getElementById('payment-date');
-            if (!dateInput.value && val !== 'retainer' && val !== 'split_50_50' && !forceHide) { // רק אם ריק
+            // --- שינוי: הוספנו val !== 'future' ---
+            if (!dateInput.value && val !== 'retainer' && val !== 'split_50_50' && val !== 'future' && !forceHide) { // רק אם ריק
                  const today = new Date().toISOString().substring(0, 10);
                  dateInput.value = today;
             }
