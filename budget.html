@@ -772,6 +772,13 @@
             showPaymentFormView(newPayment);
         };
 
+        // --- פונקציה חדשה לפתיחת הסדר חוב מהגבייה ---
+        window.initiateSettlement = (id) => {
+            const p = allPayments.find(item => item.id === id);
+            if (p) showPaymentFormView(p);
+        };
+        // --------------------------------------------
+
         window.togglePaymentStatus = async (id, currentStatus) => {
             try {
                 const newStatus = currentStatus === 'received' ? 'expected' : 'received';
@@ -1179,14 +1186,21 @@
                 const val = applyVat(p.amount);
                 const li = document.createElement('li');
                 li.className = "flex justify-between items-center p-4 bg-gray-50 rounded-lg border hover:bg-white transition shadow-sm";
+                // --- שינוי: הסרנו את השימוש ב-showPaymentFormView המקוצר לטובת פונקציה נקייה יותר ---
                 li.innerHTML = `
                     <div>
                         <div class="font-bold text-gray-900">${p.customerName}</div>
                         <div class="text-sm text-gray-500">₪${val.toLocaleString()}</div>
                         ${p.expectedDate ? `<div class="text-xs text-red-500 font-medium mt-1">יעד: ${new Date(p.expectedDate).toLocaleDateString()}</div>` : ''}
                     </div>
-                    <button onclick="showPaymentFormView({id:'${p.id}', ...${JSON.stringify(p).replace(/"/g, '&quot;')}})" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-200 transition">הסדר חוב</button>
+                    <div class="flex gap-2">
+                        <button onclick="initiateSettlement('${p.id}')" class="bg-indigo-100 text-indigo-700 px-4 py-2 rounded-lg text-sm font-bold hover:bg-indigo-200 transition">הסדר חוב</button>
+                        <button onclick="deletePayment('${p.id}')" class="bg-red-100 text-red-700 px-3 py-2 rounded-lg text-sm hover:bg-red-200 transition" title="מחק חוב">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+                        </button>
+                    </div>
                 `;
+                // --- סוף שינוי ---
                 list.appendChild(li);
             });
             document.getElementById('collection-total').innerText = formatMoney(total);
