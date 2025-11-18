@@ -67,10 +67,10 @@
     <div id="app-container" class="max-w-6xl mx-auto p-4 md:p-6 hidden min-h-screen flex flex-col">
 
         <!-- ===== תצוגת דאשבורד (ראשית) ===== -->
-        <div id="dashboard-view" class="fade-in flex-grow">
+        <div id="dashboard-view" class="fade-in flex-grow flex flex-col">
             
             <!-- כותרת עליונה וסטטוס משתמש -->
-            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100">
+            <header class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 bg-white p-4 rounded-xl shadow-sm border border-gray-100 order-0">
                 <div>
                     <h1 class="text-2xl md:text-3xl font-extrabold text-gray-900 tracking-tight">מערכת פיננסית</h1>
                     <div id="user-status-container" class="text-sm text-gray-500 mt-1 flex items-center gap-2">
@@ -112,18 +112,18 @@
                 </div>
             </header>
             
-            <!-- ווידג'טים לסיכום (חדש) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            <!-- ווידג'טים לסיכום (סדר 2 במובייל, 1 בדסקטופ) -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6 order-2 md:order-1">
                 <div class="summary-card border-r-4 border-green-500">
-                    <p class="text-gray-500 text-xs font-bold uppercase">הכנסות שנה נוכחית</p>
+                    <p id="summary-year-title" class="text-gray-500 text-xs font-bold uppercase">צפי הכנסות לשנת ...</p>
                     <p id="summary-ytd" class="text-2xl font-bold text-gray-800 mt-1">₪0</p>
                     <p class="text-xs text-green-600 mt-1 flex items-center">
                         <svg class="w-3 h-3 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg>
-                        מצטבר
+                        שנתי כולל
                     </p>
                 </div>
                 <div class="summary-card border-r-4 border-blue-500">
-                    <p class="text-gray-500 text-xs font-bold uppercase">ממוצע חודשי (שנה זו)</p>
+                    <p class="text-gray-500 text-xs font-bold uppercase">ממוצע חודשי (צפי שנתי)</p>
                     <p id="summary-avg" class="text-2xl font-bold text-gray-800 mt-1">₪0</p>
                 </div>
                 <div class="summary-card border-r-4 border-indigo-500">
@@ -136,46 +136,48 @@
                 </div>
             </div>
 
-            <!-- אזור קרוסלה וחיפוש -->
-            <div class="mb-6 flex justify-between items-center">
-                <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
-                    <span class="bg-indigo-100 text-indigo-600 p-1.5 rounded-lg">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
-                    </span>
-                    תחזית חודשית
-                </h2>
-                
-                <!-- חיפוש -->
-                <div class="relative">
-                    <input type="text" id="dashboard-search" placeholder="חיפוש לקוח..." class="pl-4 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm w-48 md:w-64 transition-all">
-                    <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                        <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                        </svg>
+            <!-- אזור קרוסלה (סדר 1 במובייל, 2 בדסקטופ) -->
+            <div class="flex flex-col order-1 md:order-2 mb-6">
+                <div class="mb-4 flex justify-between items-center">
+                    <h2 class="text-xl font-bold text-gray-800 flex items-center gap-2">
+                        <span class="bg-indigo-100 text-indigo-600 p-1.5 rounded-lg">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                        </span>
+                        תחזית חודשית
+                    </h2>
+                    
+                    <!-- חיפוש -->
+                    <div class="relative">
+                        <input type="text" id="dashboard-search" placeholder="חיפוש לקוח..." class="pl-4 pr-10 py-2 rounded-full border border-gray-300 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-sm w-32 md:w-64 transition-all">
+                        <div class="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
+                            <svg class="h-4 w-4 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <!-- קרוסלת חודשים -->
-            <div class="relative group">
-                <button id="next-month-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 z-10 bg-white p-2 rounded-full shadow-md text-gray-600 hover:text-indigo-600 hover:scale-110 transition hidden md:block">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
-                </button>
-                
-                <div id="months-carousel" class="flex overflow-x-auto gap-6 p-4 pb-8 justify-start md:justify-center items-center snap-x snap-mandatory">
-                    <!-- כרטיסי חודשים יוזרקו כאן -->
+                <!-- קרוסלת חודשים -->
+                <div class="relative group">
+                    <button id="next-month-btn" class="absolute left-0 top-1/2 transform -translate-y-1/2 -translate-x-4 z-10 bg-white p-2 rounded-full shadow-md text-gray-600 hover:text-indigo-600 hover:scale-110 transition hidden md:block">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg>
+                    </button>
+                    
+                    <div id="months-carousel" class="flex overflow-x-auto gap-6 p-4 pb-8 justify-start md:justify-center items-center snap-x snap-mandatory">
+                        <!-- כרטיסי חודשים יוזרקו כאן -->
+                    </div>
+
+                    <button id="prev-month-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 z-10 bg-white p-2 rounded-full shadow-md text-gray-600 hover:text-indigo-600 hover:scale-110 transition hidden md:block">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
+                    </button>
                 </div>
-
-                <button id="prev-month-btn" class="absolute right-0 top-1/2 transform -translate-y-1/2 translate-x-4 z-10 bg-white p-2 rounded-full shadow-md text-gray-600 hover:text-indigo-600 hover:scale-110 transition hidden md:block">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg>
-                </button>
-            </div>
-            
-            <div class="text-center mt-4 md:hidden">
-                <div class="inline-flex gap-4">
-                    <button onclick="document.getElementById('next-month-btn').click()" class="bg-white p-2 rounded-full shadow text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
-                    <span class="text-sm text-gray-500 self-center">ניווט חודשים</span>
-                    <button onclick="document.getElementById('prev-month-btn').click()" class="bg-white p-2 rounded-full shadow text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+                
+                <div class="text-center mt-1 md:hidden">
+                    <div class="inline-flex gap-4">
+                        <button onclick="document.getElementById('next-month-btn').click()" class="bg-white p-2 rounded-full shadow text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" /></svg></button>
+                        <span class="text-sm text-gray-500 self-center">חודשים</span>
+                        <button onclick="document.getElementById('prev-month-btn').click()" class="bg-white p-2 rounded-full shadow text-indigo-600"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" /></svg></button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -235,6 +237,14 @@
                         </div>
                     </div>
 
+                    <!-- --- חדש: שדה תאריך גנרי לכל התשלומים --- -->
+                    <div>
+                        <label class="block text-sm font-semibold text-gray-700 mb-1">תאריך תשלום / צפי (ניתן לשינוי ידני)</label>
+                        <input type="date" id="payment-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition">
+                        <p class="text-xs text-gray-500 mt-1">התאריך מתעדכן אוטומטית לפי סוג התשלום, אך ניתן לשנות אותו עבור תשלומים רטרואקטיביים.</p>
+                    </div>
+                    <!-- --- סוף חדש --- -->
+
                     <!-- שדות דינמיים -->
                     <div id="payment-due-date-container" class="hidden p-4 bg-gray-50 rounded-lg border border-gray-200 animate-pulse-once">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">תאריך יעד לגמר חשבון (50% הנותרים)</label>
@@ -244,7 +254,7 @@
                     <div id="retainer-renewal-date-container" class="hidden p-4 bg-gray-50 rounded-lg border border-gray-200">
                         <label class="block text-sm font-semibold text-gray-700 mb-1">תאריך סיום ריטיינר (עד מתי לשכפל?)</label>
                         <input type="date" id="retainer-renewal-date" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500">
-                        <p class="text-xs text-gray-500 mt-1">המערכת תיצור חיובים חודשיים ב-1 לחודש החל מהחודש הנוכחי ועד התאריך הנבחר.</p>
+                        <p class="text-xs text-gray-500 mt-1">המערכת תיצור חיובים חודשיים החל מהתאריך הנבחר למעלה ועד תאריך הסיום.</p>
                     </div>
 
                     <div>
@@ -542,7 +552,7 @@
             showView('dashboard-view');
         }
 
-        // --- פונקציות ניווט שנוספו ---
+        // --- פונקציות ניווט ---
         function showCollectionView() {
             renderCollectionView();
             showView('collection-view');
@@ -560,6 +570,7 @@
             // חישוב נתוני סיכום לראש הדף
             const now = new Date();
             const startOfYear = new Date(now.getFullYear(), 0, 1).getTime();
+            const endOfYear = new Date(now.getFullYear(), 11, 31, 23, 59, 59).getTime();
             const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
             const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getTime();
 
@@ -577,15 +588,20 @@
                     collectionTotal += p.amount;
                 } else if (p.expectedDate) {
                     const d = new Date(p.expectedDate).getTime();
-                    if (d >= startOfYear) ytdTotal += p.amount;
+                    // --- חישוב שנתי מלא (צפי) ---
+                    if (d >= startOfYear && d <= endOfYear) ytdTotal += p.amount;
                     if (d >= startOfMonth && d <= endOfMonth) currentMonthExpected += p.amount;
                 }
             });
+            
+            // עדכון כותרת השנה
+            document.getElementById('summary-year-title').innerText = `צפי הכנסות לשנת ${now.getFullYear()}`;
 
             document.getElementById('summary-ytd').innerText = formatMoney(ytdTotal);
             document.getElementById('summary-collection').innerText = formatMoney(collectionTotal);
             document.getElementById('summary-current-month').innerText = formatMoney(currentMonthExpected);
-            document.getElementById('summary-avg').innerText = formatMoney(ytdTotal / (now.getMonth() + 1)); // ממוצע פשוט
+            // ממוצע חודשי שנתי (צפי שנתי / 12)
+            document.getElementById('summary-avg').innerText = formatMoney(ytdTotal / 12); 
             
             // עדכון באדג' גבייה
             const badge = document.getElementById('collection-total-badge');
@@ -815,6 +831,11 @@
                 document.getElementById('payment-type').value = data.paymentType || '';
                 document.getElementById('payment-details').value = data.details || '';
                 
+                // אם זה עריכה, נמלא את שדה התאריך הגנרי
+                if (data.expectedDate) {
+                     document.getElementById('payment-date').value = data.expectedDate.substring(0, 10);
+                }
+
                 // טיפול בתאריכים
                 if(data.paymentType === 'split_50_50' && data.expectedDate) {
                     // לוגיקה פשוטה לעריכה: לא מנסים לשחזר את החלק השני כרגע
@@ -840,6 +861,9 @@
             text.innerText = 'שומר...';
             
             try {
+                // קריאת התאריך הגנרי מהטופס
+                const manualDate = document.getElementById('payment-date').value;
+
                 const formData = {
                     customerName: document.getElementById('customer-name-input').value,
                     classification: document.getElementById('customer-classification').value,
@@ -856,8 +880,10 @@
                 // לוגיקה מורכבת (ריטיינר/פיצול) רק ביצירה חדשה, לא בעריכה
                 if (!editId && formData.paymentType === 'retainer') {
                     const endDate = new Date(document.getElementById('retainer-renewal-date').value);
-                    let curr = new Date();
-                    curr.setDate(1); // תמיד 1 לחודש
+                    
+                    // --- שינוי: שימוש בתאריך הנבחר כתאריך התחלה ---
+                    let curr = manualDate ? new Date(manualDate) : new Date();
+                    curr.setDate(1); // תמיד 1 לחודש (אלא אם נרצה לדייק)
                     
                     const batch = [];
                     while(curr <= endDate) {
@@ -870,29 +896,48 @@
                      const dueDate = document.getElementById('payment-due-date').value;
                      if(!dueDate) throw new Error("חובה לבחור תאריך גמר");
                      
+                     // שימוש בתאריך הידני עבור החלק הראשון
+                     const firstPartDate = manualDate ? new Date(manualDate).toISOString() : new Date().toISOString();
+
                      // חלק 1
-                     await addDoc(collectionRef, { ...formData, amount: formData.amount/2, status: 'received', paymentType: 'split_50_50 (immediate)', expectedDate: new Date().toISOString(), details: formData.details + ' (1/2)' });
+                     await addDoc(collectionRef, { ...formData, amount: formData.amount/2, status: 'received', paymentType: 'split_50_50 (immediate)', expectedDate: firstPartDate, details: formData.details + ' (1/2)' });
                      // חלק 2
                      await addDoc(collectionRef, { ...formData, amount: formData.amount/2, status: 'collection', paymentType: 'split_50_50 (due)', expectedDate: new Date(dueDate).toISOString(), details: formData.details + ' (2/2)' });
                      
                 } else {
                     // רגיל
-                    if (formData.paymentType === 'immediate') {
-                        formData.status = 'received';
-                        formData.expectedDate = new Date().toISOString();
-                    } else if (formData.paymentType === 'future') {
-                        formData.status = 'collection';
-                        formData.expectedDate = null;
+                    if (manualDate) {
+                         // אם המשתמש בחר תאריך ידני, נכבד אותו
+                         formData.expectedDate = new Date(manualDate).toISOString();
+                         // אם התאריך בעבר או היום, נניח שזה התקבל (אלא אם זה עתידי)
+                         // אבל בוא נשמור על הלוגיקה המקורית: immediate = received, others = expected?
+                         // המשתמש ביקש לעדכן רטרואקטיבית.
+                         if (formData.paymentType === 'immediate') {
+                             formData.status = 'received';
+                         } else {
+                             // אם זה תשלום רגיל עם תאריך, זה expected אלא אם המשתמש יסמן אחרת
+                             // אבל אם זה רטרואקטיבי (immediate), זה received.
+                             // נשאיר כ-expected אלא אם זה immediate
+                         }
                     } else {
-                        // חישוב שוטף וכו'
-                        const d = new Date();
-                        if(formData.paymentType.includes('current')) {
-                             if(formData.paymentType === 'current') d.setMonth(d.getMonth() + 2, 0); // סוף חודש הבא
-                             if(formData.paymentType === 'current_30') d.setMonth(d.getMonth() + 2, 0);
-                             if(formData.paymentType === 'current_45') d.setDate(d.getDate() + 45);
-                             if(formData.paymentType === 'current_60') d.setDate(d.getDate() + 60);
+                        // חישוב אוטומטי אם לא נבחר תאריך
+                        if (formData.paymentType === 'immediate') {
+                            formData.status = 'received';
+                            formData.expectedDate = new Date().toISOString();
+                        } else if (formData.paymentType === 'future') {
+                            formData.status = 'collection';
+                            formData.expectedDate = null;
+                        } else {
+                            // חישוב שוטף וכו'
+                            const d = new Date();
+                            if(formData.paymentType.includes('current')) {
+                                 if(formData.paymentType === 'current') d.setMonth(d.getMonth() + 2, 0); // סוף חודש הבא
+                                 if(formData.paymentType === 'current_30') d.setMonth(d.getMonth() + 2, 0);
+                                 if(formData.paymentType === 'current_45') d.setDate(d.getDate() + 45);
+                                 if(formData.paymentType === 'current_60') d.setDate(d.getDate() + 60);
+                            }
+                            formData.expectedDate = d.toISOString();
                         }
-                        formData.expectedDate = d.toISOString();
                     }
 
                     if (editId) {
@@ -1008,6 +1053,13 @@
             const val = forceHide ? '' : (e ? e.target.value : document.getElementById('payment-type').value);
             document.getElementById('payment-due-date-container').style.display = (val === 'split_50_50') ? 'block' : 'none';
             document.getElementById('retainer-renewal-date-container').style.display = (val === 'retainer') ? 'block' : 'none';
+            
+            // --- עדכון אוטומטי של שדה התאריך הגנרי ---
+            const dateInput = document.getElementById('payment-date');
+            if (!dateInput.value && val !== 'retainer' && val !== 'split_50_50' && !forceHide) { // רק אם ריק
+                 const today = new Date().toISOString().substring(0, 10);
+                 dateInput.value = today;
+            }
         };
 
         window.changeMonth = (dir) => { currentMonthOffset += dir; renderDashboard(); };
