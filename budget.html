@@ -522,8 +522,11 @@
             document.getElementById('back-to-dashboard-btn').onclick = showDashboardView;
             document.getElementById('back-to-dashboard-from-reports-btn').onclick = showDashboardView;
             
-            document.getElementById('prev-month-btn').onclick = () => changeMonth(1);
-            document.getElementById('next-month-btn').onclick = () => changeMonth(-1);
+            // --- FIX: Swapped directions ---
+            document.getElementById('prev-month-btn').onclick = () => changeMonth(-1); // Right arrow goes back
+            document.getElementById('next-month-btn').onclick = () => changeMonth(1);  // Left arrow goes forward
+            // -------------------------------
+
             document.getElementById('close-modal-btn').onclick = closeMonthDetailsModal;
             document.getElementById('vat-toggle-dashboard').onchange = handleVatToggle;
             
