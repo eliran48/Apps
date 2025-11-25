@@ -1,22 +1,949 @@
-<!-- שאלת מחשבה -->
-<div class="section-title">🧠 שאלת מחשבה (ענה עליה בחלק של ה-QA)</div>
-<div class="box" style="margin-bottom: 10px;">
-  <p id="reflectionText" class="focus-text"></p>
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>תכנית 30 ימים לפני זוגיות בריאה</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f6f7f9;
+      --card: #ffffff;
+      --text: #111827;
+      --muted: #6b7280;
+      --primary: #2563eb;
+      --primary-soft: #e0ecff;
+      --border: #e5e7eb;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 16px;
+      font-family: Heebo, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      direction: rtl;
+    }
+
+    body.dark {
+      background: #111827;
+      color: #e5e7eb;
+    }
+    body.dark .card {
+      background: #020617;
+      border-color: #1f2937;
+      box-shadow: none;
+    }
+    body.dark textarea,
+    body.dark select {
+      background: #020617;
+      color: #e5e7eb;
+      border-color: #1f2937;
+    }
+    body.dark .subtitle { color: #9ca3af; }
+    body.dark .muted { color: #9ca3af; }
+
+    .app {
+      max-width: 540px;
+      margin: 0 auto;
+    }
+
+    .card {
+      background: var(--card);
+      border-radius: 18px;
+      padding: 18px 16px 16px;
+      border: 1px solid var(--border);
+      box-shadow: 0 16px 30px rgba(15,23,42,0.08);
+    }
+
+    .header-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .subtitle {
+      margin: 2px 0 0;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .mode-btn {
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      padding: 4px 10px;
+      font-size: 11px;
+      background: #020617;
+      color: #f9fafb;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      padding: 3px 10px;
+      font-size: 11px;
+      background: var(--primary-soft);
+      color: #1d4ed8;
+      margin-bottom: 8px;
+    }
+
+    .pill-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #1d4ed8;
+    }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 6px;
+    }
+
+    .progress-text {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .progress {
+      width: 100%;
+      height: 6px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 10px;
+    }
+
+    .progress-inner {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #2563eb, #4f46e5);
+      transition: width 0.25s ease;
+    }
+
+    select, textarea {
+      width: 100%;
+      font-family: inherit;
+      font-size: 13px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      padding: 7px 9px;
+      background: #ffffff;
+      color: var(--text);
+    }
+
+    select {
+      margin-bottom: 10px;
+    }
+
+    textarea {
+      resize: none;
+      min-height: 64px;
+    }
+
+    .day-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 4px 0 6px;
+    }
+
+    .focus-text {
+      font-size: 13px;
+      margin: 0 0 4px;
+    }
+
+    .section-title {
+      font-size: 12px;
+      font-weight: 600;
+      margin: 10px 0 4px;
+      color: var(--muted);
+    }
+
+    .muted { font-size: 11px; color: var(--muted); }
+
+    ul {
+      margin: 0;
+      padding-right: 18px;
+    }
+
+    li {
+      font-size: 13px;
+      margin-bottom: 2px;
+    }
+
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .row > * {
+      flex: 1 1 0;
+      min-width: 0;
+    }
+
+    .chip {
+      font-size: 11px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .chip input[type="checkbox"] {
+      width: 14px;
+      height: 14px;
+    }
+
+    .box {
+      background: #f9fafb;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      padding: 8px;
+      margin-top: 6px;
+    }
+
+    body.dark .box {
+      background: #020617;
+      border-color: #1f2937;
+    }
+
+    .btn {
+      width: 100%;
+      margin-top: 10px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      border: none;
+      font-family: inherit;
+      font-size: 13px;
+      cursor: pointer;
+      background: var(--primary);
+      color: #ffffff;
+    }
+
+    .btn-secondary {
+      width: auto;
+      padding: 5px 10px;
+      font-size: 11px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: transparent;
+      color: var(--muted);
+      cursor: pointer;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10px;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .mantra {
+      font-size: 12px;
+      margin: 0;
+      padding: 6px 8px;
+      border-radius: 10px;
+      background: #eef2ff;
+      color: #312e81;
+    }
+
+    body.dark .mantra {
+      background: #111827;
+      color: #c7d2fe;
+    }
+
+    @media (max-width: 480px) {
+      .card { padding: 16px 12px 12px; }
+      h1 { font-size: 18px; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="app">
+  <div class="header-row">
+    <div>
+      <h1>תכנית 30 ימים לפני זוגיות</h1>
+      <p class="subtitle">בנייה פנימית, התבוננות, ותרגול שהייה בתחושה לא נעימה.</p>
+    </div>
+    <button id="modeBtn" class="mode-btn">🌙 מצב לילה</button>
+  </div>
+
+  <div class="card">
+    <div class="pill">
+      <span class="pill-dot"></span>
+      <span id="phaseLabel">שלב 1 · יציבות פנימית</span>
+    </div>
+
+    <div class="progress-row">
+      <span id="progressText" class="progress-text">יום 1 מתוך 30 · 0 ימים הושלמו</span>
+      <button id="exportBtn" class="btn-secondary">ייצוא JSON</button>
+    </div>
+
+    <div class="progress">
+      <div id="progressBar" class="progress-inner"></div>
+    </div>
+
+    <select id="daySelect"></select>
+
+    <div class="day-title" id="dayTitle"></div>
+    <p class="focus-text" id="focusText"></p>
+
+    <div class="section-title">תרגיל יומי</div>
+    <ul id="practiceList"></ul>
+
+    <!-- שאלת מחשבה + מנטרה -->
+    <div class="section-title">🧠 שאלת מחשבה (עליה עונים ב-QA למטה)</div>
+    <div class="box" style="margin-bottom: 6px;">
+      <p id="reflectionText" class="focus-text"></p>
+    </div>
+
+    <div class="section-title">🌿 מנטרה יומית</div>
+    <div class="box" style="background:#eef2ff;border:1px solid #c7d2fe;">
+      <p id="mantraText" class="mantra" style="margin:0;"></p>
+    </div>
+
+    <div class="section-title">QA יומי – בדיקה עצמית קצרה</div>
+    <div class="box">
+      <p class="muted">
+        היום פעלתי יותר מתוך:
+        רוגע/בחירה, לחץ/כיווץ/מחשבות יתר, או שילוב? כתוב כמה מילים על זה.
+      </p>
+      <textarea id="qaInput" placeholder="כמה מילים על איך פעלתי היום – יותר מרוגע או יותר מכיווץ..."></textarea>
+    </div>
+
+    <div class="section-title">תרגול שהייה בתחושה לא נעימה</div>
+    <div class="box">
+      <p class="muted">
+        תאר רגע אחד מהיום שבו חווית תחושה לא נעימה (חרדה, כיווץ, ספק, בושה) – ואיך בחרת להגיב באותו רגע.
+      </p>
+      <textarea id="unpleasantInput"
+                placeholder="מה קרה? איזה רגש עלה? איך הגבתי? מה הייתי רוצה לנסות בפעם הבאה?"></textarea>
+    </div>
+
+    <!-- מודול Overthinking -->
+    <div class="section-title">מחשבת יתר שחזרה היום</div>
+    <div class="box">
+      <p class="muted">
+        כתוב מחשבה אחת שחזרה היום שוב ושוב – רק לזהות, בלי לשפוט.
+      </p>
+      <textarea id="overthinkingInput"
+                placeholder="איזו מחשבה חזרה היום?"></textarea>
+
+      <p class="muted" style="margin-top:6px;">מה אני יודע בוודאות על המחשבה הזו (עובדות בלבד)?</p>
+      <textarea id="overthinkingFact"
+                placeholder="עובדות בלבד, בלי פרשנות..."></textarea>
+
+      <p class="muted" style="margin-top:6px;">מה לא בטוח במחשבה הזו? מה יכול להיות רק תרחיש?</p>
+      <textarea id="overthinkingNotSure"
+                placeholder="מה חלק מהסיפור ולא מהעובדות?"></textarea>
+
+      <p id="overthinkingMantra" class="mantra" style="margin-top:6px;">
+        אני לא חייב לפתור את כל המחשבות שלי היום. חלק מהן יכול לחכות.
+      </p>
+    </div>
+
+    <div class="section-title">מד רוגע / כיווץ</div>
+    <div class="box">
+      <select id="meterSelect">
+        <option value="">איך הגוף שלי היה היום?</option>
+        <option value="רגוע">רגוע</option>
+        <option value="נינוח">נינוח</option>
+        <option value="בדריכות">בדריכות</option>
+        <option value="כיווץ">כיווץ</option>
+      </select>
+    </div>
+
+    <div class="section-title">תובנה לשבוע</div>
+    <div class="box">
+      <p class="muted">משפט קטן שלמדתי על עצמי מהימים האחרונים.</p>
+      <textarea id="insightInput" placeholder="תובנה קצרה שאני רוצה לזכור..."></textarea>
+    </div>
+
+    <div class="row" style="margin-top:10px;">
+      <div class="chip">
+        <input type="checkbox" id="doneCheckbox">
+        <label for="doneCheckbox" style="font-size:11px;cursor:pointer;">סימנתי את היום הזה כבוצע</label>
+      </div>
+    </div>
+
+    <div class="btn-row">
+      <div class="btn-group">
+        <button id="prevBtn" class="btn-secondary">◀ אתמול</button>
+        <button id="nextBtn" class="btn-secondary">מחר ▶</button>
+      </div>
+      <div class="btn-group">
+        <button id="resetBtn" class="btn-secondary">איפוס התקדמות</button>
+      </div>
+    </div>
+
+    <button id="saveBtn" class="btn">שמור את היום</button>
+  </div>
 </div>
 
-<!-- מנטרה יומית -->
-<div class="section-title">🌿 מנטרה יומית</div>
-<div class="box" style="
-  background: #eef2ff;
-  border: 1px solid #c7d2fe;
-  padding: 10px;
-  border-radius: 12px;
-">
-  <p id="mantraText" style="
-    font-size: 13px;
-    color: #312e81;
-    margin: 0;
-    line-height: 1.5;
-    text-align: right;
-  "></p>
-</div>
+<script>
+  // --- מודל 30 הימים ---
+  const program = [
+    // שלב 1: יציבות פנימית (1–10)
+    {
+      day: 1,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "לשים לב לגוף לפני הסיפור",
+      focus: "ללמוד לזהות תחושה בגוף בלי ישר לפרש אותה.",
+      practice: [
+        "עצור היום 3 פעמים ל־20 שניות ושאל: מה אני מרגיש בגוף (כיווץ, חום, קור, לחץ, שקט)?",
+        "תן שם רק לתחושה – בלי להסביר למה היא שם."
+      ],
+      reflection: "מה קורה כשאתה רק שם לב לתחושה בלי להפוך אותה לסיפור עליך או על הקשר?",
+      mantra: "התחושה שלי לגיטימית גם בלי הסבר מושלם."
+    },
+    {
+      day: 2,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "נשימה כעוגן",
+      focus: "להכיר נשימה פשוטה שיכולה להחזיר אותך אל עצמך כשעולה סטרס.",
+      practice: [
+        "פעמיים היום תרגל נשימה: שאיפה באף ל־4 שניות, החזקת אוויר ל־2, נשיפה איטית ל־6.",
+        "שים לב אם המתח יורד אפילו ב־10% אחרי הסבב."
+      ],
+      reflection: "האם אתה מרגיש שיש לך קצת יותר שליטה על המערכת שלך כשאתה נושם כך?",
+      mantra: "אני יכול להאט את הקצב ולתת לגוף להירגע."
+    },
+    {
+      day: 3,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "מה באמת מרגיע אותי",
+      focus: "להבין בצורה מודעת מה עוזר לך להירגע ביום־יום.",
+      practice: [
+        "תחשוב על 3 דברים קטנים שמרגיעים אותך (מוזיקה, הליכה, מקלחת, קפה בשקט).",
+        "בחר אחד מהם ועשה אותו היום בכוונה – כפעולה של דאגה לעצמך."
+      ],
+      reflection: "איך זה מרגיש כשאתה עושה משהו מרגיע מתוך בחירה ולא רק כי 'יצא ככה'?",
+      mantra: "מותר לי לעשות דברים קטנים שטובים לי."
+    },
+    {
+      day: 4,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "עובדה מול סיפור",
+      focus: "להפחית עומס מנטלי על ידי הפרדה בין מה שקרה לבין מה הסקתי מזה.",
+      practice: [
+        "בחר אירוע קטן מהיום שהכניס סטרס.",
+        "כתוב/תחשוב: מה העובדות היבשות? מה הסיפור שסיפרתי לעצמי על זה?"
+      ],
+      reflection: "האם הסיפור שסיפרת לעצמך היה קשה יותר מהמציאות עצמה?",
+      mantra: "יש הבדל בין מה שקורה לבין מה שאני מפרש."
+    },
+    {
+      day: 5,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "זה מה שיש כרגע",
+      focus: "להתרגל לקבל רגעים לא מושלמים בלי להילחם בהם מיד.",
+      practice: [
+        "כשמשהו מעצבן קורה היום, אמור לעצמך: 'זה מה שיש כרגע'.",
+        "אחר כך שאל: מה הדבר הקטן הבא שאני יכול לעשות עכשיו?"
+      ],
+      reflection: "האם 'זה מה שיש כרגע' מוריד מעט את הלחץ – גם אם המצב עצמו לא השתנה?",
+      mantra: "אני לא חייב לפתור כל דבר מיד."
+    },
+    {
+      day: 6,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "רגש כגל שעובר",
+      focus: "להיזכר שרגשות באים והולכים ולא מגדירים אותך.",
+      practice: [
+        "כשעולה היום רגש חזק, שים לב מתי הוא מתחיל ומתי הוא נחלש.",
+        "התבונן בו כמו בגל שעולה, מגיע לשיא ואז יורד."
+      ],
+      reflection: "כמה זמן הרגש באמת נשאר בעוצמה מלאה לפני שהוא מתחיל להיחלש?",
+      mantra: "גם זה יחלוף – אני לא הרגש שלי."
+    },
+    {
+      day: 7,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "להחזיר לעצמי קרדיט",
+      focus: "לחזק אמון בסיסי בעצמך דרך החלטות עבר טובות.",
+      practice: [
+        "תזכר ב־3 החלטות טובות שקיבלת בשנתיים האחרונות (גם אם היו קטנות).",
+        "הכנס אותן לתודעה שלך כראיות לכך שאתה יודע לפעול לטובתך."
+      ],
+      reflection: "מה קורה לדימוי שלך כשאתה זוכר גם את ההצלחות ולא רק את המקומות הכואבים?",
+      mantra: "כבר היו רגעים שבהם בחרתי נכון לעצמי."
+    },
+    {
+      day: 8,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "רמת אנרגיה כמצפן",
+      focus: "להשתמש באנרגיה שלך כמדד למה טוב לך ומה שוחק אותך.",
+      practice: [
+        "שלוש פעמים היום דרג את האנרגיה שלך בין 1 ל־10.",
+        "שאל: מה הוריד לי אנרגיה? מה העלה?"
+      ],
+      reflection: "האם אתה מזהה דבר אחד שחוזר על עצמו כמעלה אנרגיה, ודבר אחד שמוריד?",
+      mantra: "הגוף שלי מסמן לי מה מדויק לי."
+    },
+    {
+      day: 9,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "איך אני מדבר לעצמי",
+      focus: "להפוך את הקול הפנימי לפחות תוקפני וקצת יותר תומך.",
+      practice: [
+        "תתפוס היום רגע של ביקורת עצמית.",
+        "תנסה לנסח מחדש את אותו משפט כאילו אתה מדבר לחבר טוב."
+      ],
+      reflection: "איך זה משפיע עליך כשאתה מחליף האשמה בסקרנות או חמלה?",
+      mantra: "מותר לי לדבר לעצמי בצורה אנושית ורכה יותר."
+    },
+    {
+      day: 10,
+      phase: "שלב 1 · יציבות פנימית",
+      title: "ראש, גוף, לב",
+      focus: "להבדיל בין שלושת הקולות בתוכך.",
+      practice: [
+        "קח התלבטות קטנה מהיום.",
+        "שאל: מה הגוף אומר? מה הרגש אומר? מה הראש אומר?"
+      ],
+      reflection: "איזה קול אתה נוטה להעצים יותר מדי, ואיזה קול כמעט לא מקבל מקום?",
+      mantra: "יש בי כמה קולות – מותר לי להקשיב לכולם."
+    },
+
+    // שלב 2: זהות, צרכים וגבולות (11–20)
+    {
+      day: 11,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "מה חשוב לי בקשר",
+      focus: "להגדיר בצורה מודעת מה צריך להיות בזוגיות כדי שיהיה לך טוב.",
+      practice: [
+        "כתוב/תחשוב 3 דברים שחובה שיהיו בקשר (למשל: כבוד, שקט, הקשבה…).",
+        "סמן ליד כל דבר: 'חובה' או 'נחמד שיהיה'."
+      ],
+      reflection: "האם בקשרים קודמים שמרת על הדברים שהגדרת כחובה – או שוויתרת עליהם?",
+      mantra: "יש לי זכות להחליט מה חשוב לי בזוגיות."
+    },
+    {
+      day: 12,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "מה אני לא מוכן לסבול שוב",
+      focus: "לזהות את הקווים האדומים שלך מתוך ניסיון העבר.",
+      practice: [
+        "תזכר ב־3 דברים שבקשרים קודמים הרגישו לך קו אדום.",
+        "כתוב/תחשוב ליד כל אחד: 'היום אני מזהה את זה מוקדם יותר'."
+      ],
+      reflection: "איך זה מרגיש להבין שמותר לך לעצור משהו שפוגע בך לאורך זמן?",
+      mantra: "הגבולות שלי מגנים עלי – הם לא בעיה."
+    },
+    {
+      day: 13,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "מי אני מחוץ לזוגיות",
+      focus: "לחזק זהות שאינה תלויה בזוגיות כדי לא ללכת שם לאיבוד.",
+      practice: [
+        "כתוב/תחשוב 3 דברים שאתה אוהב בעצמך שלא קשורים לזוגיות בכלל.",
+        "שים לב שהזהות שלך רחבה יותר מהסטטוס הזוגי."
+      ],
+      reflection: "איך זה משפיע על תחושת הערך שלך כשאתה זוכר את כל מי שאתה מעבר לקשר?",
+      mantra: "אני לא שווה פחות כשאני לבד."
+    },
+    {
+      day: 14,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "לבקש משהו קטן",
+      focus: "תרגול ביטוי צורך בלי דרמה.",
+      practice: [
+        "בחר אדם קרוב ובקש ממנו משהו קטן (עזרה, שיחה, עצה, חיבוק).",
+        "שים לב מה קורה בגוף ברגע הבקשה."
+      ],
+      reflection: "מה היה קשה יותר – לבקש, או לאפשר לעצמך לקבל?",
+      mantra: "מותר לי לבקש. אין בזה שום בושה."
+    },
+    {
+      day: 15,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "איך אני בורח כשקשה לי",
+      focus: "להכיר את דפוסי הבריחה שלך במקום לשפוט אותם.",
+      practice: [
+        "תשאל את עצמך: כשקשה לי – אני נוטה יותר להתנתק, לתקוף, להתמוסס, או להיסגר בשקט?",
+        "רק לזהות – בלי להגיד 'טוב' או 'רע'."
+      ],
+      reflection: "איך הדפוס הזה הגן עליך בעבר, ואיפה היום הוא כבר פחות משרת אותך?",
+      mantra: "כדי לשנות דפוס – קודם צריך לזהות אותו."
+    },
+    {
+      day: 16,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "קולות חיצוניים לעומת רצון פנימי",
+      focus: "להבדיל בין מה שאתה באמת רוצה לבין מה שמצופה ממך.",
+      practice: [
+        "בחר מחשבה חוזרת על זוגיות ('בגיל שלי כבר צריך...', 'כולם סביבי...').",
+        "שאל: זה באמת הרצון שלי, או קול חברתי/משפחתי?"
+      ],
+      reflection: "איך משתנה הלחץ כשאתה מפריד בין רצון פנימי לבין ציפיות מבחוץ?",
+      mantra: "המסלול שלי לא חייב להיראות כמו של אף אחד אחר."
+    },
+    {
+      day: 17,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "לא צריך להחזיק את שנינו",
+      focus: "לשחרר אחריות עודפת על רגשות של אחרים.",
+      practice: [
+        "תיזכר ברגע שבו הרגשת שאתה מחזיק גם את עצמך וגם את הצד השני.",
+        "אמור לעצמך: 'בזוגיות הבאה, אני אחראי על עצמי – לא על החלק של השני'."
+      ],
+      reflection: "מה קורה בגוף כשאתה משחרר את הצורך להציל את כולם?",
+      mantra: "אני אחראי לחלק שלי. זה מספיק."
+    },
+    {
+      day: 18,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "להחזיק אי־ודאות קטנה",
+      focus: "להתרגל למחשבה שלא כל דבר חייב להיות סגור מיד.",
+      practice: [
+        "בחר נושא קטן שאתה לא בטוח בו (לא קשור לזוגיות).",
+        "אמור לעצמך: 'אני לא יודע כרגע – וזה בסדר שלא לדעת'."
+      ],
+      reflection: "האם אתה מסוגל לנשום גם ליד חוסר ידיעה קטן כזה?",
+      mantra: "לא לדעת הכול זה חלק מהחיים, לא כישלון."
+    },
+    {
+      day: 19,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "לתת מקום לרגעים טובים",
+      focus: "לשים לב גם לחלקים הטובים, לא רק למה לא עובד.",
+      practice: [
+        "פעם אחת היום, כשטוב לך, עצור ל־20 שניות ותן לרגע שם: 'הנה רגע טוב'.",
+        "אפשר לעצמך ליהנות מזה בלי ישר לחפש מה הבעיה הבאה."
+      ],
+      reflection: "האם אתה נותן לעצמך ליהנות מרגעים טובים, או ישר עובר לניתוח הבא?",
+      mantra: "מותר לי להרגיש טוב גם בלי לבדוק אם זה 'מגיע לי'."
+    },
+    {
+      day: 20,
+      phase: "שלב 2 · זהות, צרכים וגבולות",
+      title: "צילום מצב של החיים שלי",
+      focus: "להבין איפה אתה עומד היום בתחומים המרכזיים.",
+      practice: [
+        "תן ציון מ־1 עד 10 לשלושה תחומים: גוף, עבודה, קשרים קרובים.",
+        "בחר תחום אחד שאתה רוצה לחזק בחודש הקרוב – בלי קשר לזוגיות."
+      ],
+      reflection: "איך זה מרגיש לכוון אנרגיה לחיזוק החיים שלך עצמם, לא רק לחיפוש קשר?",
+      mantra: "זוגיות טובה תבוא לחיים מלאים – לא תציל חיים ריקים."
+    },
+
+    // שלב 3: ספק, אהבה ואותנטיות (21–30)
+    {
+      day: 21,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "להכיר את הספק",
+      focus: "להפסיק לפחד מהספק ולהתחיל לדבר איתו.",
+      practice: [
+        "תיזכר בסיטואציה זוגית שבה הספק היה חזק מאוד.",
+        "בדמיון, שאל את הספק: 'ממה אתה בעצם מנסה להגן עליי?'"
+      ],
+      reflection: "איזו תשובה אינטואיטיבית עולה כשאתה נותן לספק לדבר?",
+      mantra: "הספק לא אויב – הוא חלק שמנסה להגן עליי."
+    },
+    {
+      day: 22,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "רגש היום ≠ חוזה לנצח",
+      focus: "להבין שמחווה רגשית לא מכריחה אותך לנצח.",
+      practice: [
+        "חשוב על פעולה זוגית (מתנה, מסר, 'אני אוהב אותך').",
+        "אמור לעצמך: 'פעולה היום מבטאת את איך שאני מרגיש עכשיו – לא התחייבות לכל החיים'."
+      ],
+      reflection: "מה קורה לפחד מ'שקר' כשאתה מפריד בין עכשיו לבין לנצח?",
+      mantra: "אני יכול להיות אמיתי למה שאני מרגיש היום – גם אם זה עוד ישתנה."
+    },
+    {
+      day: 23,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "לכתוב בלי מילים מוחלטות",
+      focus: "לתרגל ביטוי רגש בלי 'תמיד' ו'לעולם'.",
+      practice: [
+        "נסה לנסח משפט עתידי לפרטנרית, בלי מילים מוחלטות. למשל: 'טוב לי איתך עכשיו', 'אני נהנה להכיר אותך'.",
+        "שים לב אם זה מרגיש לך יותר אמיתי ופחות מפחיד."
+      ],
+      reflection: "איך הגוף מגיב למשפטים מדויקים לרגע – לעומת הצהרות נצח דרמטיות?",
+      mantra: "דיוק עדין עדיף על הצהרה מוחלטת שלא מרגישה אמיתית."
+    },
+    {
+      day: 24,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "מתי אני מתחיל להרגיש מזויף",
+      focus: "לזהות את הנקודה שבה אתה מרגיש שאתה 'נכנס לשקר'.",
+      practice: [
+        "תיזכר ברגע שבו הרגשת שאתה אומר/עושה משהו שלא תואם את הלב.",
+        "זהה מה הפעיל את זה: לחץ שלה? פחד להיות לבד? ציפייה חברתית?"
+      ],
+      reflection: "מה היית צריך באותו רגע כדי להרגיש יותר אמיתי עם עצמך?",
+      mantra: "האותנטיות שלי חשובה לא פחות מהרגשות של הצד השני."
+    },
+    {
+      day: 25,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "מהי אהבה בריאה עבורי",
+      focus: "להגדיר אהבה במילים שלך, לא של אחרים.",
+      practice: [
+        "כתוב/תחשוב 3 מילים שמתארות אהבה בריאה מבחינתך (למשל: שקט, משחקיות, כבוד, אותנטיות).",
+        "שמור אותן כמצפן לקשר הבא."
+      ],
+      reflection: "כמה המילים האלה דומות או שונות ממה שחווית בקשרים האחרונים?",
+      mantra: "מותר לי לבחור איזה סוג אהבה מתאימה לנשמה שלי."
+    },
+    {
+      day: 26,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "מה תפקיד הזוגיות בחיים שלי",
+      focus: "לא להפוך את הזוגיות למקור הערך היחיד.",
+      practice: [
+        "ענה לעצמך במשפט: בשביל מה אני רוצה זוגיות? מה היא אמורה להוסיף לחיים שלי?",
+        "שאל: האם אני מצפה שהיא 'תציל' אותי, או תאפשר לי להתרחב עם מי שאני כבר היום?"
+      ],
+      reflection: "איזו תשובה מרגישה לך בריאה ויציבה יותר?",
+      mantra: "זוגיות טובה מצטרפת לחיים שלי – לא באה במקום החיים שלי."
+    },
+    {
+      day: 27,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "24 שעות לפני החלטה גדולה",
+      focus: "להכניס מרווח בין רגש רגעי לבין החלטה.",
+      practice: [
+        "תרגל היום על נושא קטן: אל תקבל החלטה ברגע של סערה – חכה לפחות כמה שעות.",
+        "שים לב מה קורה לרגש כשהזמן עובר."
+      ],
+      reflection: "איך זה מרגיש כשאתה לא חייב להחליט מיד – גם אם הראש לוחץ?",
+      mantra: "אני לא חייב לענות ולהחליט מתוך לחץ."
+    },
+    {
+      day: 28,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "להפסיק למדוד את עצמי מול אחרים",
+      focus: "להתנקות קצת מהשוואות.",
+      practice: [
+        "תתפוס רגע שבו השווית את עצמך/הזוגיות הדמיונית שלך לאחרים.",
+        "אמור לעצמך: 'הקצב שלי לגמרי בסדר כמו שהוא'."
+      ],
+      reflection: "האם הלחץ יורד אפילו קצת כשאתה מפסיק למדוד את עצמך לפי אחרים?",
+      mantra: "אני לא תחרות. אני אדם עם קצב ותהליך משלי."
+    },
+    {
+      day: 29,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "לכבד את עצמי על הפרידה",
+      focus: "להכיר במקום שבו שמרת על עצמך ולא סתם 'ברחת'.",
+      practice: [
+        "כתוב/תחשוב משפט תודה לעצמך על ההחלטה לצאת מהקשר האחרון.",
+        "לדוגמה: 'תודה שלא ויתרת על הרווחה הנפשית שלך'."
+      ],
+      reflection: "איך משתנה התחושה כשאתה מסתכל על הפרידה כגבול בריא ולא ככישלון?",
+      mantra: "הפרידה הייתה גם בחירה בעד עצמי – לא רק נגד הקשר."
+    },
+    {
+      day: 30,
+      phase: "שלב 3 · ספק, אהבה ואותנטיות",
+      title: "הגרסה המוכנה יותר שלך",
+      focus: "לסכם מה התחזק בך בחודש הזה.",
+      practice: [
+        "ענה לעצמך: במה אני היום קצת יותר יציב, מודע או רך עם עצמי לעומת תחילת התהליך?",
+        "בחר עיקרון אחד שתיקח איתך לזוגיות הבאה (למשל: 'לא מוותר על שקט פנימי')."
+      ],
+      reflection: "כשאתה חושב על הקשר הבא – האם אתה מרגיש קצת יותר מוכן להיות שם כאדם שלם יותר?",
+      mantra: "אני בדרך לזוגיות שתואמת את מי שאני גדל להיות."
+    }
+  ];
+
+  const STORAGE_KEY = "pre_relationship_30_state_v3";
+
+  let state;
+  try {
+    state = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
+  } catch (e) {
+    state = {};
+  }
+  if (!state.currentDay) state.currentDay = 1;
+  if (!state.days) state.days = {};
+
+  const daySelect = document.getElementById("daySelect");
+  const phaseLabel = document.getElementById("phaseLabel");
+  const progressBar = document.getElementById("progressBar");
+  const progressText = document.getElementById("progressText");
+  const dayTitle = document.getElementById("dayTitle");
+  const focusText = document.getElementById("focusText");
+  const practiceList = document.getElementById("practiceList");
+  const reflectionText = document.getElementById("reflectionText");
+  const mantraText = document.getElementById("mantraText");
+  const qaInput = document.getElementById("qaInput");
+  const unpleasantInput = document.getElementById("unpleasantInput");
+  const overthinkingInput = document.getElementById("overthinkingInput");
+  const overthinkingFact = document.getElementById("overthinkingFact");
+  const overthinkingNotSure = document.getElementById("overthinkingNotSure");
+  const meterSelect = document.getElementById("meterSelect");
+  const insightInput = document.getElementById("insightInput");
+  const doneCheckbox = document.getElementById("doneCheckbox");
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+  const resetBtn = document.getElementById("resetBtn");
+  const saveBtn = document.getElementById("saveBtn");
+  const modeBtn = document.getElementById("modeBtn");
+  const exportBtn = document.getElementById("exportBtn");
+
+  program.forEach(d => {
+    const opt = document.createElement("option");
+    opt.value = d.day;
+    opt.textContent = `יום ${d.day}`;
+    daySelect.appendChild(opt);
+  });
+
+  function saveState() {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  }
+
+  function updateProgress() {
+    const completedDays = program.filter(d => state.days[d.day]?.done).length;
+    const percent = (completedDays / program.length) * 100;
+    progressBar.style.width = percent + "%";
+    progressText.textContent = `יום ${state.currentDay} מתוך ${program.length} · ${completedDays} ימים הושלמו`;
+  }
+
+  function loadDay(dayNumber) {
+    const data = program.find(d => d.day === dayNumber) || program[0];
+    state.currentDay = data.day;
+
+    const dayState = state.days[data.day] || {};
+
+    daySelect.value = String(data.day);
+    phaseLabel.textContent = data.phase;
+    dayTitle.textContent = `יום ${data.day} · ${data.title}`;
+    focusText.textContent = data.focus;
+
+    practiceList.innerHTML = "";
+    data.practice.forEach(item => {
+      const li = document.createElement("li");
+      li.textContent = item;
+      practiceList.appendChild(li);
+    });
+
+    reflectionText.textContent = data.reflection;
+    mantraText.textContent = data.mantra;
+
+    qaInput.value = dayState.qa || "";
+    unpleasantInput.value = dayState.unpleasant || "";
+    overthinkingInput.value = dayState.overthinking || "";
+    overthinkingFact.value = dayState.overthinkingFact || "";
+    overthinkingNotSure.value = dayState.overthinkingNotSure || "";
+    meterSelect.value = dayState.meter || "";
+    insightInput.value = dayState.insight || "";
+    doneCheckbox.checked = !!dayState.done;
+
+    prevBtn.disabled = data.day === 1;
+    nextBtn.disabled = data.day === program.length;
+
+    updateProgress();
+    saveState();
+  }
+
+  function saveCurrentDay() {
+    const current = state.currentDay;
+    if (!state.days[current]) state.days[current] = {};
+    const dState = state.days[current];
+
+    dState.qa = qaInput.value;
+    dState.unpleasant = unpleasantInput.value;
+    dState.overthinking = overthinkingInput.value;
+    dState.overthinkingFact = overthinkingFact.value;
+    dState.overthinkingNotSure = overthinkingNotSure.value;
+    dState.meter = meterSelect.value;
+    dState.insight = insightInput.value;
+    dState.done = doneCheckbox.checked;
+
+    saveState();
+    updateProgress();
+  }
+
+  daySelect.addEventListener("change", e => {
+    const val = parseInt(e.target.value, 10);
+    if (!isNaN(val)) loadDay(val);
+  });
+
+  prevBtn.addEventListener("click", () => {
+    if (state.currentDay > 1) {
+      loadDay(state.currentDay - 1);
+    }
+  });
+
+  nextBtn.addEventListener("click", () => {
+    if (state.currentDay < program.length) {
+      loadDay(state.currentDay + 1);
+    }
+  });
+
+  doneCheckbox.addEventListener("change", saveCurrentDay);
+  qaInput.addEventListener("blur", saveCurrentDay);
+  unpleasantInput.addEventListener("blur", saveCurrentDay);
+  overthinkingInput.addEventListener("blur", saveCurrentDay);
+  overthinkingFact.addEventListener("blur", saveCurrentDay);
+  overthinkingNotSure.addEventListener("blur", saveCurrentDay);
+  meterSelect.addEventListener("change", saveCurrentDay);
+  insightInput.addEventListener("blur", saveCurrentDay);
+  saveBtn.addEventListener("click", saveCurrentDay);
+
+  resetBtn.addEventListener("click", () => {
+    if (confirm("לאפס את כל ההתקדמות והשדות?")) {
+      state = { currentDay: 1, days: {} };
+      saveState();
+      loadDay(1);
+    }
+  });
+
+  modeBtn.addEventListener("click", () => {
+    document.body.classList.toggle("dark");
+    modeBtn.textContent = document.body.classList.contains("dark") ?
+      "☀️ מצב יום" :
+      "🌙 מצב לילה";
+  });
+
+  exportBtn.addEventListener("click", () => {
+    const dataStr = JSON.stringify(state, null, 2);
+    const w = window.open("", "_blank");
+    if (w) {
+      w.document.write("<pre style='direction:ltr;white-space:pre-wrap;font-family:monospace;font-size:12px;'>" +
+        dataStr.replace(/</g, "&lt;") +
+        "</pre>");
+      w.document.close();
+    } else {
+      alert("לא ניתן לפתוח חלון חדש. אפשר לנסות לאפשר פופאפים לדפדפן.");
+    }
+  });
+
+  loadDay(state.currentDay || 1);
+</script>
+</body>
+</html>
