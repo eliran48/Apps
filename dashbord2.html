@@ -77,7 +77,7 @@
                             <i data-lucide="lock" class="w-3 h-3"></i> eliran-apps
                         </span>
                     </div>
-                    <p class="text-xs text-slate-400">סנכרון וניתוח מרובה קבצים בזמן אמת</p>
+                    <p class="text-xs text-slate-400">מעקב, סנכרון וניהול קמפיינים בזמן אמת</p>
                 </div>
             </div>
 
@@ -314,23 +314,58 @@
 
         <!-- טבלת לידים בזמן אמת עם שדות מורחבים -->
         <div class="bg-slate-800/60 rounded-2xl border border-slate-700/60 backdrop-blur overflow-hidden">
-            <div class="p-5 border-b border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i data-lucide="list-checks" class="w-5 h-5 text-blue-400"></i>
-                        ניהול לידים ושאלות מפתח בזמן אמת
-                    </h2>
-                    <p class="text-xs text-slate-400">שאיבה אוטומטית של first_name, phone_number, שם הגיליון ותאריכים מקוריים</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="relative">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3 top-2.5"></i>
-                        <input type="text" id="searchInput" oninput="filterLeadsTable()" placeholder="חפש לפי שם, טלפון, קמפיין, גיליון..." class="bg-slate-900 border border-slate-700 rounded-lg pr-9 pl-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 w-48 sm:w-64">
+            <div class="p-5 border-b border-slate-700/60 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="list-checks" class="w-5 h-5 text-blue-400"></i>
+                            ניהול מעקב לידים והערות בזמן אמת
+                        </h2>
+                        <p class="text-xs text-slate-400">שאיבה אוטומטית של first_name, phone_number, הערות השיטס וסטטוס מעודכן</p>
                     </div>
-                    <!-- תפריט סינון לפי קמפיין/גיליון פנימי -->
-                    <select id="sourceFilter" onchange="filterLeadsTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
-                        <option value="ALL">כל הגיליונות/הטאבים</option>
-                    </select>
+
+                    <div class="flex items-center gap-2">
+                        <!-- כפתור ייצוא ל-CSV -->
+                        <button onclick="exportLeadsToCSV()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition" title="הורד קובץ אקסל/CSV">
+                            <i data-lucide="download" class="w-4 h-4 text-indigo-400"></i>
+                            <span>ייצוא CSV</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- לשוניות סינון לפי סטטוס + תיבת חיפוש ותפריט טאבים -->
+                <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 pt-2">
+                    
+                    <!-- כפתורי לשוניות סטטוס -->
+                    <div class="flex flex-wrap items-center gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-700/60 text-xs font-semibold" id="statusTabsContainer">
+                        <button onclick="setTabStatusFilter('ALL')" id="tabStatus-ALL" class="px-3 py-1.5 rounded-lg transition bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                            הכל (<span id="cnt-ALL">0</span>)
+                        </button>
+                        <button onclick="setTabStatusFilter('חדש')" id="tabStatus-חדש" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white">
+                            🔵 חדש (<span id="cnt-חדש">0</span>)
+                        </button>
+                        <button onclick="setTabStatusFilter('בטיפול')" id="tabStatus-בטיפול" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white">
+                            🟡 בטיפול (<span id="cnt-בטיפול">0</span>)
+                        </button>
+                        <button onclick="setTabStatusFilter('הפך לקוח')" id="tabStatus-הפך לקוח" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white">
+                            🟢 הפך לקוח (<span id="cnt-הפך לקוח">0</span>)
+                        </button>
+                        <button onclick="setTabStatusFilter('לא רלוונטי')" id="tabStatus-לא רלוונטי" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white">
+                            ⚪ לא רלוונטי (<span id="cnt-לא רלוונטי">0</span>)
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div class="relative flex-1 sm:flex-initial">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3 top-2.5"></i>
+                            <input type="text" id="searchInput" oninput="filterLeadsTable()" placeholder="חפש לפי שם, טלפון, הערות..." class="bg-slate-900 border border-slate-700 rounded-lg pr-9 pl-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 w-full sm:w-60">
+                        </div>
+                        <!-- תפריט סינון לפי קמפיין/גיליון פנימי -->
+                        <select id="sourceFilter" onchange="filterLeadsTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">כל הגיליונות/הטאבים</option>
+                        </select>
+                    </div>
+
                 </div>
             </div>
 
@@ -340,11 +375,11 @@
                         <tr>
                             <th class="py-3.5 px-4">תאריך ושעה</th>
                             <th class="py-3.5 px-4">שם מלא (first_name)</th>
-                            <th class="py-3.5 px-4">טלפון (phone_number)</th>
+                            <th class="py-3.5 px-4">טלפון & וואטסאפ</th>
                             <th class="py-3.5 px-4 text-emerald-400 font-bold">שם קמפיין / קובץ</th>
                             <th class="py-3.5 px-4 text-indigo-400 font-bold">שם הגיליון (Tab)</th>
-                            <th class="py-3.5 px-4">תשובות מפתח</th>
-                            <th class="py-3.5 px-4">סטטוס טיפול</th>
+                            <th class="py-3.5 px-4 text-amber-400 font-bold">הערות השיטס & שאלות</th>
+                            <th class="py-3.5 px-4">סטטוס טיפול מעודכן</th>
                             <th class="py-3.5 px-4 text-center">פעולות</th>
                         </tr>
                     </thead>
@@ -387,7 +422,7 @@
         </div>
     </div>
 
-    <!-- מודאל צפייה בפרטי ליד מורחבים -->
+    <!-- מודאל צפייה בפרטי ליד מורחבים (כולל הערות) -->
     <div id="viewLeadModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-slate-700 flex items-center justify-between bg-slate-850">
@@ -417,7 +452,7 @@
             <div class="p-5 border-b border-slate-700 flex items-center justify-between bg-slate-850">
                 <div class="flex items-center gap-2 text-white font-bold text-base">
                     <i data-lucide="code-2" class="w-5 h-5 text-emerald-400"></i>
-                    <span>קוד Google Apps Script המעודכן - מניעת כפילויות וסנכרון חכם</span>
+                    <span>קוד Google Apps Script המעודכן - מפותח אוטומטית לכל טופס ושיטס</span>
                 </div>
                 <button onclick="closeModal('securityModal')" class="text-slate-400 hover:text-white">
                     <i data-lucide="x" class="w-5 h-5"></i>
@@ -428,14 +463,17 @@
                 
                 <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 space-y-2">
                     <p class="font-bold text-emerald-200 flex items-center gap-1.5">
-                        <i data-lucide="check-circle-2" class="w-4 h-4"></i> שיפורים קריטיים בקוד החדש:
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i> הוראות פשוטות לחיבור קבצים וטפסים חדשים:
                     </p>
-                    <ul class="list-disc list-inside text-slate-300 space-y-1 leading-relaxed">
-                        <li><code>docId</code> - מזהה ייחודי קבוע לכל שורה בשיטס המונע כפילויות גם בהרצת סנכרון חוזרת.</li>
-                        <li><code>PATCH</code> - עדכון חכם של הרשומות ב-Firebase ללא הכפלת הנתונים.</li>
-                        <li><code>syncAllExistingLeads()</code> - עובר אוטומטית על כל הטאבים והגיליונות בקובץ ושואב אותם.</li>
-                        <li><code>parseSheetDate</code> - מזהה ומפענח תאריכים מקוריים מתוך עמודת ה-Timestamp/תאריך בשיטס.</li>
-                    </ul>
+                    <ol class="list-decimal list-inside text-slate-300 space-y-1.5 leading-relaxed">
+                        <li>**שימוש באותו קוד בדיוק**: הדבק את הקוד למטה בעורך ה-Apps Script בכל קובץ Google Sheets שברצונך לחבר.</li>
+                        <li>**משיכה אוטומטית של שדות מיוחדים**: הקוד מזהה עמודות רגילות (שם, טלפון, מייל, הערות, סטטוס), ו**כל שאר העמודות והשאלות המיוחדות** מנזילות אוטומטית ל-"שדות נוספים" המוצגים בדאשבורד בלחיצה על העין (👁️)!</li>
+                        <li>**הגדרת טריגר לעדכון אוטומטי בלייב**:
+                            <br>&bull; בסרגל הצדדי ב-Apps Script לחץ על **סמל השעון ⏰ (טריגרים / Triggers)**.
+                            <br>&bull; לחץ למטה על **"הוספת טריגר" (Add Trigger)**.
+                            <br>&bull; בחירת פונקציה: <code>sendLeadToFirebase</code>.
+                            <br>&bull; בחירת סוג האירוע: שנה ל-**<code>בעת שליחת טופס</code> (On form submit)** ולחץ שמירה.</li>
+                    </ol>
                 </div>
 
                 <!-- קוד Apps Script להעתקה -->
@@ -449,6 +487,7 @@
                     <pre class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-[11px] text-emerald-400 font-mono overflow-x-auto text-left dir-ltr max-h-80" id="scriptCodeBlock">
 // ========================================================
 // סקריפט סנכרון גוגל שיטס ל-Firebase (eliran-apps)
+// מיועד לשימוש אוניברסלי בכל קובץ גוגל שיטס וטופס!
 // ========================================================
 
 // 👈 רשום כאן את שם הקמפיין הרצוי. אם תשאיר ריק (""), הקוד ייקח את שם קובץ ה-Google Sheet אוטומטית!
@@ -477,8 +516,9 @@ function syncAllExistingLeads() {
     
     for (var s = 0; s < sheets.length; s++) {
       var sheet = sheets[s];
-      var lastRow = sheet.getLastRow();
+      if (sheet.isSheetHidden()) continue; // דילוג על גיליונות מוסתרים
       
+      var lastRow = sheet.getLastRow();
       if (lastRow > 1) {
         for (var r = 2; r <= lastRow; r++) {
           var sent = sendRowToFirebase(ss, sheet, r);
@@ -488,9 +528,9 @@ function syncAllExistingLeads() {
     }
     
     if (totalCount === 0) {
-      SpreadsheetApp.getUi().alert("לא נמצאו שורות לידים לסנכרון בגיליונות אלו.");
+      SpreadsheetApp.getUi().alert("לא נמצאו שורות לידים תקינות לסנכרון בגיליונות אלו.");
     } else {
-      SpreadsheetApp.getUi().alert("הסנכרון הושלם בהצלחה! מסונכרנים " + totalCount + " לידים מכלל הגיליונות בקובץ זה לדאשבורד.");
+      SpreadsheetApp.getUi().alert("הסנכרון הושלם בהצלחה! מסונכרנים " + totalCount + " לידים תקינים מכלל הגיליונות בקובץ זה לדאשבורד.");
     }
   } catch (err) {
     SpreadsheetApp.getUi().alert("שגיאה בסנכרון: " + err.toString());
@@ -500,7 +540,8 @@ function syncAllExistingLeads() {
 // 3. פונקציית איפוס וניקוי ישירה מתוך Apps Script
 function clearFirebaseDatabase() {
   try {
-    var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads";
+    var apiKey = "AIzaSyCotYARE-PfM2vPdr3UtRzVu5M_1FieYKk";
+    var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads?key=" + apiKey;
     var res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
     if (res.getResponseCode() !== 200) {
       SpreadsheetApp.getUi().alert("מסד הנתונים ב-Firebase כבר ריק (0 לידים).");
@@ -514,7 +555,7 @@ function clearFirebaseDatabase() {
     var count = 0;
     for (var i = 0; i < data.documents.length; i++) {
       var docPath = data.documents[i].name;
-      var delUrl = "https://firestore.googleapis.com/v1/" + docPath;
+      var delUrl = "https://firestore.googleapis.com/v1/" + docPath + "?key=" + apiKey;
       UrlFetchApp.fetch(delUrl, { method: "delete", muteHttpExceptions: true });
       count++;
     }
@@ -569,16 +610,7 @@ function sendRowToFirebase(ss, sheet, row) {
   var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
   var values = sheet.getRange(row, 1, 1, lastCol).getValues()[0];
 
-  var hasContent = false;
-  for (var k = 0; k < values.length; k++) {
-    if (values[k] !== "" && values[k] !== null && values[k] !== undefined) {
-      hasContent = true;
-      break;
-    }
-  }
-  if (!hasContent) return false;
-
-  var name = "", phone = "", email = "";
+  var name = "", phone = "", email = "", notes = "", sheetStatus = "";
   var maritalStatus = "", gamblingStatus = "", lgbtq = "";
   var extraDetails = {};
   var rowDate = null;
@@ -590,23 +622,41 @@ function sendRowToFirebase(ss, sheet, row) {
 
     if (!val) continue;
 
-    if (headerClean.indexOf("חותמת") !== -1 || headerClean.indexOf("תאריך") !== -1 || headerClean.indexOf("timestamp") !== -1 || headerClean.indexOf("date") !== -1 || headerClean.indexOf("time") !== -1) {
+    // 1. זיהוי תאריך/חותמת זמן
+    if (headerClean.indexOf("חותמת") !== -1 || headerClean.indexOf("תאריך") !== -1 || headerClean.indexOf("timestamp") !== -1 || headerClean.indexOf("date") !== -1) {
       if (!rowDate) rowDate = parseSheetDate(values[i]);
     }
-
-    if (headerClean === "first name" || headerClean.indexOf("first_name") !== -1 || headerClean.indexOf("שם") !== -1 || headerClean.indexOf("name") !== -1) {
-      if (!name) name = val;
-    } else if (headerClean === "phone number" || headerClean.indexOf("phone_number") !== -1 || headerClean.indexOf("טלפון") !== -1 || headerClean.indexOf("phone") !== -1 || headerClean.indexOf("mobile") !== -1) {
+    // 2. זיהוי שם (first_name / שם פרטי / שם מלא)
+    else if (headerClean === "first name" || headerClean === "first_name" || headerClean === "שם פרטי" || headerClean === "שם מלא") {
+      name = val;
+    } else if (!name && (headerClean === "שם" || headerClean === "name") && headerClean.indexOf("משפחה") === -1 && headerClean.indexOf("קמפיין") === -1 && headerClean.indexOf("גיליון") === -1) {
+      name = val;
+    }
+    // 3. זיהוי טלפון (phone_number / טלפון / נייד)
+    else if (headerClean === "phone number" || headerClean === "phone_number" || headerClean.indexOf("טלפון") !== -1 || headerClean.indexOf("phone") !== -1 || headerClean.indexOf("נייד") !== -1) {
       if (!phone) phone = val;
-    } else if (headerClean.indexOf("מייל") !== -1 || headerClean.indexOf("email") !== -1) {
+    }
+    // 4. זיהוי מייל
+    else if (headerClean.indexOf("מייל") !== -1 || headerClean.indexOf("email") !== -1) {
       if (!email) email = val;
-    } else if (headerClean.indexOf("זוגי") !== -1 || headerClean.indexOf("סטטוס") !== -1) {
+    }
+    // 5. זיהוי הערות / הערה / comments
+    else if (headerClean.indexOf("הערות") !== -1 || headerClean.indexOf("הערה") !== -1 || headerClean.indexOf("note") !== -1 || headerClean.indexOf("comment") !== -1 || headerClean.indexOf("remark") !== -1) {
+      notes = val;
+    }
+    // 6. זיהוי סטטוס מעודכן בשיטס
+    else if (headerClean === "סטטוס" || headerClean === "מצב טיפול" || headerClean === "status") {
+      sheetStatus = val;
+    }
+    // 7. שאלות עומק
+    else if (headerClean.indexOf("זוגי") !== -1 || headerClean.indexOf("סטטוס_הזוגי") !== -1) {
       if (!maritalStatus) maritalStatus = val;
-    } else if (headerClean.indexOf("הימורים") !== -1 || headerClean.indexOf("מצב") !== -1) {
+    } else if (headerClean.indexOf("הימורים") !== -1 || headerClean.indexOf("מצב_ההימורים") !== -1) {
       if (!gamblingStatus) gamblingStatus = val;
     } else if (headerClean.indexOf("להט") !== -1 || headerClean.indexOf("lgbt") !== -1) {
       if (!lgbtq) lgbtq = val;
     } else {
+      // 👈 כל שדה מיוחד אחר בכל טופס מנזיל אוטומטית ל"שדות נוספים"!
       extraDetails[headerRaw] = val;
     }
   }
@@ -614,15 +664,17 @@ function sendRowToFirebase(ss, sheet, row) {
   if (!rowDate && values.length > 0 && values[0]) {
     rowDate = parseSheetDate(values[0]);
   }
+  if (!rowDate) rowDate = new Date();
 
-  if (!rowDate) {
-    rowDate = new Date();
+  // סינון שמות שפוענחו בטעות כתאריכים
+  if (name && (name.indexOf(":") !== -1 && name.indexOf("/") !== -1 || /^\d{1,4}[\/\.-]\d{1,2}[\/\.-]\d{1,4}/.test(name))) {
+    name = "";
   }
 
-  if (!name && values.length > 0) name = String(values[0] || values[1] || "");
-  if (!phone && values.length > 1) phone = String(values[1] || values[2] || "");
-
-  if (!name && !phone && Object.keys(extraDetails).length === 0) return false;
+  // סינון שורות ריקות/לא תקינות
+  if (!phone && !name && !email) {
+    return false;
+  }
 
   var docId = (ss.getId() + "_" + sheet.getSheetId() + "_row_" + row).replace(/[^a-zA-Z0-9_-]/g, "_");
 
@@ -636,13 +688,15 @@ function sendRowToFirebase(ss, sheet, row) {
       maritalStatus: { stringValue: String(maritalStatus || "") },
       gamblingStatus: { stringValue: String(gamblingStatus || "") },
       lgbtq: { stringValue: String(lgbtq || "") },
+      notes: { stringValue: String(notes || "") },
       extraDetailsJson: { stringValue: String(JSON.stringify(extraDetails) || "{}") },
-      status: { stringValue: "חדש" },
+      status: { stringValue: String(sheetStatus || "חדש") },
       timestamp: { stringValue: rowDate.toISOString() }
     }
   };
   
-  var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads/" + docId;
+  var apiKey = "AIzaSyCotYARE-PfM2vPdr3UtRzVu5M_1FieYKk";
+  var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads/" + docId + "?key=" + apiKey;
   
   var options = {
     method: "patch",
@@ -729,13 +783,13 @@ function sendRowToFirebase(ss, sheet, row) {
             measurementId: "G-F862TNM65X"
         };
 
-        // התאמה קבועה והרמטית לנתיב ה-Firebase של eliran-apps
         const currentAppId = 'eliran-apps';
         let db = null;
         let auth = null;
 
-        // מודל נתונים מקומי - נקי לחלוטין מנתוני דמו
+        // מודל נתונים מקומי
         let leadsData = [];
+        let activeStatusTabFilter = 'ALL';
         let trendChartObj = null;
         let sourceChartObj = null;
         let hourlyChartObj = null;
@@ -783,7 +837,7 @@ function sendRowToFirebase(ss, sheet, row) {
             }
         });
 
-        // האזנה בזמן אמת לנתיב ב-Firestore (אפס ייצור נתוני דמו מדומים!)
+        // האזנה בזמן אמת לנתיב ב-Firestore
         function listenToFirestoreLeads() {
             if (!db) return;
 
@@ -807,6 +861,7 @@ function sendRowToFirebase(ss, sheet, row) {
                         maritalStatus: data.maritalStatus || '',
                         gamblingStatus: data.gamblingStatus || '',
                         lgbtq: data.lgbtq || '',
+                        notes: data.notes || '',
                         extraDetails: extraObj,
                         status: data.status || 'חדש',
                         date: data.timestamp ? new Date(data.timestamp) : new Date()
@@ -861,83 +916,110 @@ function sendRowToFirebase(ss, sheet, row) {
             return leadsData.filter(l => l.source === selectedFile);
         }
 
-        // מחיקה אטומית מרובת נתיבים בלחיצה על כפתור האישור במודאל
+        // שינוי סינון לפי בלוקי סטטוס
+        window.setTabStatusFilter = function(status) {
+            activeStatusTabFilter = status;
+            
+            const statuses = ['ALL', 'חדש', 'בטיפול', 'הפך לקוח', 'לא רלוונטי'];
+            statuses.forEach(s => {
+                const btn = document.getElementById(`tabStatus-${s}`);
+                if (btn) {
+                    if (s === status) {
+                        btn.className = "px-3 py-1.5 rounded-lg transition bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold";
+                    } else {
+                        btn.className = "px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white";
+                    }
+                }
+            });
+
+            filterLeadsTable();
+        };
+
+        // מחיקה אטומית מרוחבת של כל הרשומות מ-Firebase
         window.executeClearAllLeads = async function() {
             closeModal('confirmClearModal');
-            showNotification("מבצע איפוס מוחלט של Firebase...", "amber");
+            showNotification("מבצע איפוס מוחלט ב-Firebase...", "amber");
 
             leadsData = [];
             populateGlobalFileFilter();
             updateDashboard();
 
-            if (!db) {
-                showNotification("בסיס הנתונים לא מחובר", "amber");
-                return;
-            }
+            let deletedCount = 0;
 
             try {
                 if (auth && !auth.currentUser) {
-                    try {
-                        await signInAnonymously(auth);
-                    } catch (authErr) {
-                        console.warn("Auth retry warning:", authErr);
+                    try { await signInAnonymously(auth); } catch(aErr) {}
+                }
+
+                if (db) {
+                    const paths = ['eliran-apps'];
+                    if (typeof __app_id !== 'undefined' && __app_id && __app_id !== 'eliran-apps') {
+                        paths.push(__app_id);
+                    }
+
+                    for (const pid of paths) {
+                        try {
+                            const leadsRef = collection(db, 'artifacts', pid, 'public', 'data', 'leads');
+                            const snapshot = await getDocs(leadsRef);
+                            if (!snapshot.empty) {
+                                const deletePromises = snapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
+                                await Promise.all(deletePromises);
+                                deletedCount += snapshot.size;
+                            }
+                        } catch (pathErr) {
+                            console.warn("SDK delete path error:", pathErr);
+                        }
                     }
                 }
-
-                const leadsRef = collection(db, 'artifacts', 'eliran-apps', 'public', 'data', 'leads');
-                const snapshot = await getDocs(leadsRef);
-                
-                if (snapshot.empty) {
-                    leadsData = [];
-                    populateGlobalFileFilter();
-                    updateDashboard();
-                    showNotification("בסיס הנתונים ב-Firebase כבר ריק לחלוטין (0 לידים).", "emerald");
-                    return;
-                }
-
-                const docs = snapshot.docs;
-                const chunkSize = 400;
-                for (let i = 0; i < docs.length; i += chunkSize) {
-                    const batch = writeBatch(db);
-                    const chunk = docs.slice(i, i + chunkSize);
-                    chunk.forEach(docSnap => batch.delete(docSnap.ref));
-                    await batch.commit();
-                }
-
-                leadsData = [];
-                populateGlobalFileFilter();
-                updateDashboard();
-
-                showNotification(`האיפוס הושלם! נמחקו ${docs.length} רשומות מ-Firebase.`, "emerald");
-            } catch (e) {
-                console.error("Error clearing leads from Firestore:", e);
-                try {
-                    await clearLeadsViaRest();
-                    leadsData = [];
-                    populateGlobalFileFilter();
-                    updateDashboard();
-                    showNotification("האיפוס בוצע בהצלחה!", "emerald");
-                } catch (restErr) {
-                    showNotification("שגיאה באיפוס: " + e.message, "rose");
-                }
+            } catch (sdkErr) {
+                console.warn("SDK Clear error:", sdkErr);
             }
+
+            try {
+                const restCount = await clearLeadsViaRest();
+                deletedCount += restCount;
+            } catch (restErr) {
+                console.warn("REST Clear error:", restErr);
+            }
+
+            leadsData = [];
+            populateGlobalFileFilter();
+            updateDashboard();
+
+            showNotification(`איפוס הושלם בהצלחה! נמחקו הרשומות מ-Firebase.`, "emerald");
         };
 
-        // מנגנון גיבוי למחיקת לידים דרך REST API ישיר
+        // מנגנון גיבוי למחיקת לידים דרך REST API עם Key מאושר
         async function clearLeadsViaRest() {
-            const listUrl = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads";
-            const res = await fetch(listUrl);
-            if (!res.ok) return;
-            const data = await res.json();
-            if (!data.documents || data.documents.length === 0) return;
+            let totalDeleted = 0;
+            const projectIds = ['eliran-apps'];
+            if (typeof __app_id !== 'undefined' && __app_id && __app_id !== 'eliran-apps') {
+                projectIds.push(__app_id);
+            }
 
-            const deletePromises = data.documents.map(docObj => {
-                const docPath = docObj.name;
-                const deleteUrl = "https://firestore.googleapis.com/v1/" + docPath;
-                return fetch(deleteUrl, { method: "DELETE" });
-            });
+            const keyParam = `?key=${firebaseConfig.apiKey}`;
 
-            await Promise.all(deletePromises);
+            for (const pid of projectIds) {
+                try {
+                    const listUrl = `https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/${pid}/public/data/leads${keyParam}`;
+                    const res = await fetch(listUrl);
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.documents && data.documents.length > 0) {
+                            const deletePromises = data.documents.map(docObj => {
+                                const docPath = docObj.name;
+                                const deleteUrl = `https://firestore.googleapis.com/v1/${docPath}${keyParam}`;
+                                return fetch(deleteUrl, { method: "DELETE" });
+                            });
+                            await Promise.all(deletePromises);
+                            totalDeleted += data.documents.length;
+                        }
+                    }
+                } catch (e) {
+                    console.warn("REST clear error for pid " + pid, e);
+                }
+            }
+            return totalDeleted;
         }
 
         // עדכון סטטוס טיפול ב-Firestore
@@ -946,6 +1028,7 @@ function sendRowToFirebase(ss, sheet, row) {
                 try {
                     const docRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'leads', leadId);
                     await updateDoc(docRef, { status: newStatus });
+                    showNotification("הסטטוס עודכן ל: " + newStatus, "emerald");
                 } catch (e) {
                     console.error("Failed to update status", e);
                 }
@@ -958,22 +1041,40 @@ function sendRowToFirebase(ss, sheet, row) {
 
         // מחיקת ליד ב-Firestore
         window.deleteLeadFromFirestore = async function(leadId) {
+            leadsData = leadsData.filter(l => l.id !== leadId);
+            updateDashboard();
+
             if (db) {
                 try {
-                    const docRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'leads', leadId);
-                    await deleteDoc(docRef);
+                    const docRef1 = doc(db, 'artifacts', 'eliran-apps', 'public', 'data', 'leads', leadId);
+                    await deleteDoc(docRef1);
+                    if (typeof __app_id !== 'undefined' && __app_id && __app_id !== 'eliran-apps') {
+                        try {
+                            const docRef2 = doc(db, 'artifacts', __app_id, 'public', 'data', 'leads', leadId);
+                            await deleteDoc(docRef2);
+                        } catch(e2){}
+                    }
                     showNotification("הליד נמחק בהצלחה", "emerald");
                 } catch (e) {
                     console.error("Failed to delete lead", e);
-                    showNotification("שגיאה במחיקת הליד", "rose");
+                    const keyParam = `?key=${firebaseConfig.apiKey}`;
+                    fetch(`https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads/${leadId}${keyParam}`, { method: 'DELETE' });
+                    showNotification("הליד נמחק בהצלחה", "emerald");
                 }
-            } else {
-                leadsData = leadsData.filter(l => l.id !== leadId);
-                updateDashboard();
             }
         };
 
-        // הצגת מודאל עם כל פרטי הליד
+        // יצירת קישור ישיר לוואטסאפ
+        function getWhatsAppUrl(phone) {
+            if (!phone) return '#';
+            let cleaned = phone.replace(/\D/g, '');
+            if (cleaned.startsWith('0')) {
+                cleaned = '972' + cleaned.substring(1);
+            }
+            return `https://wa.me/${cleaned}`;
+        }
+
+        // הצגת מודאל עם כל פרטי הליד (כולל הערות)
         window.viewLeadDetails = function(leadId) {
             const lead = leadsData.find(l => l.id === leadId);
             if (!lead) return;
@@ -997,15 +1098,24 @@ function sendRowToFirebase(ss, sheet, row) {
                 `;
             }
 
+            const waUrl = getWhatsAppUrl(lead.phone);
+
             document.getElementById('leadModalContent').innerHTML = `
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
                         <span class="text-slate-400 block mb-1">שם מלא (first_name):</span>
                         <strong class="text-white text-sm">${lead.name}</strong>
                     </div>
-                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
-                        <span class="text-slate-400 block mb-1">מספר טלפון (phone_number):</span>
-                        <strong class="text-white text-sm dir-ltr inline-block">${lead.phone}</strong>
+                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70 flex items-center justify-between">
+                        <div>
+                            <span class="text-slate-400 block mb-1">מספר טלפון (phone_number):</span>
+                            <strong class="text-white text-sm dir-ltr inline-block">${lead.phone}</strong>
+                        </div>
+                        ${lead.phone ? `
+                            <a href="${waUrl}" target="_blank" class="p-2 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded-lg transition" title="פתח שיחה בוואטסאפ">
+                                <i data-lucide="message-square" class="w-4 h-4"></i>
+                            </a>
+                        ` : ''}
                     </div>
                 </div>
 
@@ -1018,6 +1128,14 @@ function sendRowToFirebase(ss, sheet, row) {
                         <span class="text-slate-400 block mb-1">שם הגיליון (Tab Name):</span>
                         <span class="text-indigo-400 font-semibold">${lead.sheetName}</span>
                     </div>
+                </div>
+
+                <!-- בלוק הערות מתוך השיטס -->
+                <div class="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-xl text-xs space-y-1">
+                    <span class="text-amber-400 font-bold flex items-center gap-1.5 mb-1">
+                        <i data-lucide="file-text" class="w-4 h-4"></i> הערות מתוך ה-Google Sheet:
+                    </span>
+                    <p class="text-slate-200 text-sm leading-relaxed">${lead.notes || 'אין הערות מתועדות עבור פנייה זו.'}</p>
                 </div>
 
                 <!-- תשובות השאלון -->
@@ -1067,6 +1185,7 @@ function sendRowToFirebase(ss, sheet, row) {
                     maritalStatus: 'ידני',
                     gamblingStatus: 'ידני',
                     lgbtq: 'ללא',
+                    notes: '',
                     status: 'חדש',
                     timestamp: new Date().toISOString()
                 });
@@ -1081,6 +1200,7 @@ function sendRowToFirebase(ss, sheet, row) {
                     maritalStatus: 'ידני',
                     gamblingStatus: 'ידני',
                     lgbtq: 'ללא',
+                    notes: '',
                     status: 'חדש'
                 });
                 updateDashboard();
@@ -1125,6 +1245,14 @@ function sendRowToFirebase(ss, sheet, row) {
             return { total, today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth };
         }
 
+        function updateStatusTabCounts(activeData) {
+            document.getElementById('cnt-ALL').innerText = activeData.length;
+            document.getElementById('cnt-חדש').innerText = activeData.filter(l => l.status === 'חדש').length;
+            document.getElementById('cnt-בטיפול').innerText = activeData.filter(l => l.status === 'בטיפול').length;
+            document.getElementById('cnt-הפך לקוח').innerText = activeData.filter(l => l.status === 'הפך לקוח').length;
+            document.getElementById('cnt-לא רלוונטי').innerText = activeData.filter(l => l.status === 'לא רלוונטי').length;
+        }
+
         function updateDashboard() {
             const activeData = getActiveLeadsData();
             const metrics = calculateMetrics(activeData);
@@ -1142,6 +1270,7 @@ function sendRowToFirebase(ss, sheet, row) {
             renderDiffBadge('kpiWeekDiff', metrics.thisWeek, metrics.lastWeek);
             renderDiffBadge('kpiMonthDiff', metrics.thisMonth, metrics.lastMonth);
 
+            updateStatusTabCounts(activeData);
             updateTrendChart(activeData);
             updateSourceChart(activeData);
             updateHourlyChart(activeData);
@@ -1414,27 +1543,41 @@ function sendRowToFirebase(ss, sheet, row) {
                     lead.phone.includes(searchTerm) || 
                     lead.source.toLowerCase().includes(searchTerm) ||
                     lead.sheetName.toLowerCase().includes(searchTerm) ||
+                    lead.notes.toLowerCase().includes(searchTerm) ||
                     lead.maritalStatus.toLowerCase().includes(searchTerm) ||
                     lead.gamblingStatus.toLowerCase().includes(searchTerm) ||
                     lead.lgbtq.toLowerCase().includes(searchTerm);
 
                 const matchesTab = (tabFilterVal === 'ALL') || (lead.sheetName === tabFilterVal);
-                return matchesSearch && matchesTab;
+                const matchesStatus = (activeStatusTabFilter === 'ALL') || (lead.status === activeStatusTabFilter);
+
+                return matchesSearch && matchesTab && matchesStatus;
             });
 
             const tbody = document.getElementById('leadsTableBody');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">אין כרגע לידים במערכת. חבר קובץ Google Sheets והרץ סנכרון.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">אין כרגע לידים התואמים את הסטטוס או הסינון הנבחר.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filtered.slice(0, 30).map(lead => `
+            tbody.innerHTML = filtered.slice(0, 50).map(lead => {
+                const waUrl = getWhatsAppUrl(lead.phone);
+                return `
                 <tr class="hover:bg-slate-800/40 transition">
                     <td class="py-3 px-4 text-slate-400">
                         ${lead.date.toLocaleDateString('he-IL')} <span class="text-slate-500 mr-1">${lead.date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</span>
                     </td>
                     <td class="py-3 px-4 font-semibold text-white">${lead.name}</td>
-                    <td class="py-3 px-4 text-slate-300 dir-ltr text-right">${lead.phone}</td>
+                    <td class="py-3 px-4 text-slate-300">
+                        <div class="flex items-center gap-2 dir-ltr justify-end">
+                            <span class="font-mono">${lead.phone}</span>
+                            ${lead.phone ? `
+                                <a href="${waUrl}" target="_blank" class="p-1 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-emerald-400 rounded transition" title="שלח הודעת WhatsApp">
+                                    <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
+                                </a>
+                            ` : ''}
+                        </div>
+                    </td>
                     <td class="py-3 px-4">
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
                             ${lead.source}
@@ -1445,11 +1588,17 @@ function sendRowToFirebase(ss, sheet, row) {
                             ${lead.sheetName}
                         </span>
                     </td>
-                    <td class="py-3 px-4 text-slate-300">
-                        <div class="flex items-center gap-1.5">
-                            ${lead.maritalStatus ? `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">${lead.maritalStatus}</span>` : ''}
-                            ${lead.gamblingStatus ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 text-[10px]">${lead.gamblingStatus}</span>` : ''}
-                        </div>
+                    <td class="py-3 px-4 text-slate-300 max-w-xs">
+                        ${lead.notes ? `
+                            <div class="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] truncate" title="${lead.notes}">
+                                📝 ${lead.notes}
+                            </div>
+                        ` : `
+                            <div class="flex items-center gap-1">
+                                ${lead.maritalStatus ? `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">${lead.maritalStatus}</span>` : ''}
+                                ${lead.gamblingStatus ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 text-[10px]">${lead.gamblingStatus}</span>` : ''}
+                            </div>
+                        `}
                     </td>
                     <td class="py-3 px-4">
                         <select onchange="updateLeadStatusInFirestore('${lead.id}', this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
@@ -1461,7 +1610,7 @@ function sendRowToFirebase(ss, sheet, row) {
                     </td>
                     <td class="py-3 px-4 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            <button onclick="viewLeadDetails('${lead.id}')" class="text-blue-400 hover:text-blue-300 transition p-1" title="צפה בפרטים מלאים">
+                            <button onclick="viewLeadDetails('${lead.id}')" class="text-blue-400 hover:text-blue-300 transition p-1" title="צפה בפרטים מלאים והערות">
                                 <i data-lucide="eye" class="w-4 h-4"></i>
                             </button>
                             <button onclick="deleteLeadFromFirestore('${lead.id}')" class="text-slate-500 hover:text-rose-400 transition p-1" title="מחק ליד">
@@ -1470,9 +1619,51 @@ function sendRowToFirebase(ss, sheet, row) {
                         </div>
                     </td>
                 </tr>
-            `).join('');
+                `;
+            }).join('');
 
             lucide.createIcons();
+        };
+
+        // ייצוא קובץ CSV/Excel של הלידים המסוננים
+        window.exportLeadsToCSV = function() {
+            const activeData = getActiveLeadsData();
+            if (activeData.length === 0) {
+                showNotification("אין לידים לייצוא", "amber");
+                return;
+            }
+
+            let csvContent = "\uFEFF"; // UTF-8 BOM for Hebrew
+            csvContent += "תאריך ושעה,שם מלא,טלפון,אימייל,קמפיין,גיליון,סטטוס,הערות,סטטוס זוגי,מצב הימורים,להט״ב\n";
+
+            activeData.forEach(lead => {
+                const dateStr = lead.date ? lead.date.toLocaleString('he-IL') : '';
+                const row = [
+                    `"${dateStr}"`,
+                    `"${lead.name || ''}"`,
+                    `"${lead.phone || ''}"`,
+                    `"${lead.email || ''}"`,
+                    `"${lead.source || ''}"`,
+                    `"${lead.sheetName || ''}"`,
+                    `"${lead.status || ''}"`,
+                    `"${(lead.notes || '').replace(/"/g, '""')}"`,
+                    `"${lead.maritalStatus || ''}"`,
+                    `"${lead.gamblingStatus || ''}"`,
+                    `"${lead.lgbtq || ''}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.setAttribute("href", url);
+            link.setAttribute("download", `leads_export_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            showNotification("קובץ ה-CSV יוצא בהצלחה!", "emerald");
         };
 
         function renderSourceOptions(activeData) {
