@@ -57,6 +57,12 @@
 </head>
 <body class="min-h-screen bg-slate-900 text-slate-100 pb-12">
 
+    <!-- הודעות התראה צפות -->
+    <div id="notificationToast" class="fixed bottom-5 left-5 z-50 hidden px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold flex items-center gap-2 transition-all duration-300">
+        <i data-lucide="info" class="w-4 h-4"></i>
+        <span id="toastMessage">הודעה</span>
+    </div>
+
     <!-- סרגל כלים עליון -->
     <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
@@ -95,7 +101,7 @@
                 </div>
 
                 <!-- כפתור איפוס וניקוי Firebase -->
-                <button onclick="clearAllLeadsFromFirestore()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium border border-rose-500/20 transition" title="איפוס וניקוי כל הלידים ב-Firebase לצורך סנכרון מחדש">
+                <button onclick="openModal('confirmClearModal')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium border border-rose-500/20 transition" title="איפוס וניקוי כל הלידים ב-Firebase לצורך סנכרון מחדש">
                     <i data-lucide="trash-2" class="w-4 h-4 text-rose-400"></i>
                     <span class="hidden md:inline">איפוס ב-Firebase</span>
                 </button>
@@ -117,7 +123,7 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
 
-        <!-- שורת כרטיסיות KPI (5 כרטיסיות) -->
+        <!-- שורת כרטיסיות KPI -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
             
             <!-- סה"כ לידים -->
@@ -350,6 +356,37 @@
 
     </main>
 
+    <!-- מודאל אישור איפוס ב-Firebase -->
+    <div id="confirmClearModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div class="p-5 border-b border-slate-700 flex items-center justify-between bg-slate-850">
+                <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    <span>אישור איפוס בסיס הנתונים</span>
+                </div>
+                <button onclick="closeModal('confirmClearModal')" class="text-slate-400 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-slate-300 leading-relaxed">
+                    פעולה זו תמחק לחלוטין ואטומית את **כל הלידים הניסיוניים והקודמים** משרתי Firebase ב-eliran-apps.
+                </p>
+                <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300 font-medium">
+                    ⚠️ לאחר המחיקה המערכת תתאפס ל-0 נקי מוחלט. לא ייווצרו יותר שום לידים לדוגמה!
+                </div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('confirmClearModal')" class="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700 transition">ביטול</button>
+                    <button type="button" onclick="executeClearAllLeads()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs rounded-lg transition flex items-center gap-1.5">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>מחק ונתק הכל עכשיו</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- מודאל צפייה בפרטי ליד מורחבים -->
     <div id="viewLeadModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl">
@@ -460,6 +497,33 @@ function syncAllExistingLeads() {
   }
 }
 
+// 3. פונקציית איפוס וניקוי ישירה מתוך Apps Script
+function clearFirebaseDatabase() {
+  try {
+    var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads";
+    var res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) {
+      SpreadsheetApp.getUi().alert("מסד הנתונים ב-Firebase כבר ריק (0 לידים).");
+      return;
+    }
+    var data = JSON.parse(res.getContentText());
+    if (!data.documents || data.documents.length === 0) {
+      SpreadsheetApp.getUi().alert("מסד הנתונים ב-Firebase כבר ריק (0 לידים).");
+      return;
+    }
+    var count = 0;
+    for (var i = 0; i < data.documents.length; i++) {
+      var docPath = data.documents[i].name;
+      var delUrl = "https://firestore.googleapis.com/v1/" + docPath;
+      UrlFetchApp.fetch(delUrl, { method: "delete", muteHttpExceptions: true });
+      count++;
+    }
+    SpreadsheetApp.getUi().alert("בוצע ניקוי מלא ב-Firebase! נמחקו " + count + " לידים בענן.");
+  } catch (err) {
+    SpreadsheetApp.getUi().alert("שגיאה בניקוי: " + err.toString());
+  }
+}
+
 // פונקציה לפענוח תאריכים מתוך הגוגל שיטס
 function parseSheetDate(val) {
   if (!val) return null;
@@ -505,7 +569,6 @@ function sendRowToFirebase(ss, sheet, row) {
   var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
   var values = sheet.getRange(row, 1, 1, lastCol).getValues()[0];
 
-  // דילוג על שורות ריקות לגמרי
   var hasContent = false;
   for (var k = 0; k < values.length; k++) {
     if (values[k] !== "" && values[k] !== null && values[k] !== undefined) {
@@ -527,12 +590,10 @@ function sendRowToFirebase(ss, sheet, row) {
 
     if (!val) continue;
 
-    // זיהוי עמודת תאריך / חותמת זמן
     if (headerClean.indexOf("חותמת") !== -1 || headerClean.indexOf("תאריך") !== -1 || headerClean.indexOf("timestamp") !== -1 || headerClean.indexOf("date") !== -1 || headerClean.indexOf("time") !== -1) {
       if (!rowDate) rowDate = parseSheetDate(values[i]);
     }
 
-    // זיהוי שדות first_name, phone_number
     if (headerClean === "first name" || headerClean.indexOf("first_name") !== -1 || headerClean.indexOf("שם") !== -1 || headerClean.indexOf("name") !== -1) {
       if (!name) name = val;
     } else if (headerClean === "phone number" || headerClean.indexOf("phone_number") !== -1 || headerClean.indexOf("טלפון") !== -1 || headerClean.indexOf("phone") !== -1 || headerClean.indexOf("mobile") !== -1) {
@@ -561,7 +622,8 @@ function sendRowToFirebase(ss, sheet, row) {
   if (!name && values.length > 0) name = String(values[0] || values[1] || "");
   if (!phone && values.length > 1) phone = String(values[1] || values[2] || "");
 
-  // מזהה ייחודי למניעת כפילויות ב-Firebase
+  if (!name && !phone && Object.keys(extraDetails).length === 0) return false;
+
   var docId = (ss.getId() + "_" + sheet.getSheetId() + "_row_" + row).replace(/[^a-zA-Z0-9_-]/g, "_");
 
   var payload = {
@@ -580,7 +642,6 @@ function sendRowToFirebase(ss, sheet, row) {
     }
   };
   
-  // שימוש ב-PATCH עם Document ID מוגדר למניעת כפילויות
   var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads/" + docId;
   
   var options = {
@@ -668,16 +729,30 @@ function sendRowToFirebase(ss, sheet, row) {
             measurementId: "G-F862TNM65X"
         };
 
-        const currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'eliran-apps';
+        // התאמה קבועה והרמטית לנתיב ה-Firebase של eliran-apps
+        const currentAppId = 'eliran-apps';
         let db = null;
         let auth = null;
-        let currentUser = null;
 
-        // מודל נתונים מקומי
+        // מודל נתונים מקומי - נקי לחלוטין מנתוני דמו
         let leadsData = [];
         let trendChartObj = null;
         let sourceChartObj = null;
         let hourlyChartObj = null;
+
+        function showNotification(msg, color = "emerald") {
+            const toast = document.getElementById('notificationToast');
+            const msgEl = document.getElementById('toastMessage');
+            if (!toast || !msgEl) return;
+
+            msgEl.innerText = msg;
+            toast.className = `fixed bottom-5 left-5 z-50 px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold flex items-center gap-2 transition-all duration-300 bg-slate-900 border-${color}-500/50 text-${color}-400`;
+            toast.classList.remove('hidden');
+
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 4000);
+        }
 
         // טעינה ראשונית וחיבור ל-Firebase
         window.addEventListener('DOMContentLoaded', async () => {
@@ -696,20 +771,21 @@ function sendRowToFirebase(ss, sheet, row) {
                 }
 
                 onAuthStateChanged(auth, (user) => {
-                    currentUser = user;
                     if (user) {
                         listenToFirestoreLeads();
                     }
                 });
 
+                listenToFirestoreLeads();
+
             } catch (err) {
-                console.warn("Firebase Fallback", err);
+                console.warn("Firebase Auth Error", err);
             }
         });
 
-        // האזנה בזמן אמת לנתיב ב-Firestore (ללא שום ייצור נתוני דמו מדומים!)
+        // האזנה בזמן אמת לנתיב ב-Firestore (אפס ייצור נתוני דמו מדומים!)
         function listenToFirestoreLeads() {
-            if (!db || !currentUser) return;
+            if (!db) return;
 
             const leadsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'leads');
 
@@ -723,10 +799,10 @@ function sendRowToFirebase(ss, sheet, row) {
                     }
                     loaded.push({
                         id: docSnap.id,
-                        name: data.name || 'ללא שם',
+                        name: data.name || 'פנייה ללא שם',
                         phone: data.phone || '',
                         email: data.email || '',
-                        source: data.source || 'קמפיין כללי',
+                        source: data.source || 'ללא מקור',
                         sheetName: data.sheetName || 'גיליון 1',
                         maritalStatus: data.maritalStatus || '',
                         gamblingStatus: data.gamblingStatus || '',
@@ -752,6 +828,12 @@ function sendRowToFirebase(ss, sheet, row) {
 
             const currentVal = select.value;
             const uniqueFiles = Array.from(new Set(leadsData.map(l => l.source).filter(Boolean)));
+
+            if (uniqueFiles.length === 0) {
+                select.innerHTML = `<option value="ALL" class="bg-slate-900 text-white">אין קבצים מחוברים (0 לידים)</option>`;
+                select.value = 'ALL';
+                return;
+            }
 
             select.innerHTML = `<option value="ALL" class="bg-slate-900 text-white">כל הקבצים והקמפיינים (${leadsData.length})</option>` +
                 uniqueFiles.map(file => `<option value="${file}" class="bg-slate-900 text-white">${file}</option>`).join('');
@@ -779,54 +861,88 @@ function sendRowToFirebase(ss, sheet, row) {
             return leadsData.filter(l => l.source === selectedFile);
         }
 
-        // מחיקה אטומית של כל הלידים ב-Firebase (בביטחון מלא ללא שחזור אוטומטי)
-        window.clearAllLeadsFromFirestore = async function() {
-            if (!confirm("האם אתה בטוח שברצונך למחוק לחלוטין את כל הלידים ב-Firebase? המערכת תתאפס ל-0 נקי מוחלט ולא תייצר שום לידים דמו!")) return;
-            
-            if (db && currentUser) {
-                try {
-                    const leadsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'leads');
-                    const snapshot = await getDocs(leadsRef);
-                    
-                    if (snapshot.empty) {
-                        alert("מסד הנתונים ב-Firebase כבר ריק לחלוטין (0 לידים).");
-                        leadsData = [];
-                        populateGlobalFileFilter();
-                        updateDashboard();
-                        return;
-                    }
+        // מחיקה אטומית מרובת נתיבים בלחיצה על כפתור האישור במודאל
+        window.executeClearAllLeads = async function() {
+            closeModal('confirmClearModal');
+            showNotification("מבצע איפוס מוחלט של Firebase...", "amber");
 
-                    // מחיקה אטומית בבאת'צ (writeBatch) בתוך חלונות של 400 מסמכים
-                    const docs = snapshot.docs;
-                    const chunkSize = 400;
-                    for (let i = 0; i < docs.length; i += chunkSize) {
-                        const batch = writeBatch(db);
-                        const chunk = docs.slice(i, i + chunkSize);
-                        chunk.forEach(docSnap => {
-                            batch.delete(docSnap.ref);
-                        });
-                        await batch.commit();
-                    }
+            leadsData = [];
+            populateGlobalFileFilter();
+            updateDashboard();
 
+            if (!db) {
+                showNotification("בסיס הנתונים לא מחובר", "amber");
+                return;
+            }
+
+            try {
+                if (auth && !auth.currentUser) {
+                    try {
+                        await signInAnonymously(auth);
+                    } catch (authErr) {
+                        console.warn("Auth retry warning:", authErr);
+                    }
+                }
+
+                const leadsRef = collection(db, 'artifacts', 'eliran-apps', 'public', 'data', 'leads');
+                const snapshot = await getDocs(leadsRef);
+                
+                if (snapshot.empty) {
                     leadsData = [];
                     populateGlobalFileFilter();
                     updateDashboard();
-
-                    alert("כל הנתונים ב-Firebase נמחקו בהצלחה! הדאשבורד כעת נקי לחלוטין (0 לידים).");
-                } catch (e) {
-                    console.error("Error clearing leads:", e);
-                    alert("שגיאה במחיקת הלידים: " + e.message);
+                    showNotification("בסיס הנתונים ב-Firebase כבר ריק לחלוטין (0 לידים).", "emerald");
+                    return;
                 }
-            } else {
+
+                const docs = snapshot.docs;
+                const chunkSize = 400;
+                for (let i = 0; i < docs.length; i += chunkSize) {
+                    const batch = writeBatch(db);
+                    const chunk = docs.slice(i, i + chunkSize);
+                    chunk.forEach(docSnap => batch.delete(docSnap.ref));
+                    await batch.commit();
+                }
+
                 leadsData = [];
                 populateGlobalFileFilter();
                 updateDashboard();
+
+                showNotification(`האיפוס הושלם! נמחקו ${docs.length} רשומות מ-Firebase.`, "emerald");
+            } catch (e) {
+                console.error("Error clearing leads from Firestore:", e);
+                try {
+                    await clearLeadsViaRest();
+                    leadsData = [];
+                    populateGlobalFileFilter();
+                    updateDashboard();
+                    showNotification("האיפוס בוצע בהצלחה!", "emerald");
+                } catch (restErr) {
+                    showNotification("שגיאה באיפוס: " + e.message, "rose");
+                }
             }
         };
 
+        // מנגנון גיבוי למחיקת לידים דרך REST API ישיר
+        async function clearLeadsViaRest() {
+            const listUrl = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads";
+            const res = await fetch(listUrl);
+            if (!res.ok) return;
+            const data = await res.json();
+            if (!data.documents || data.documents.length === 0) return;
+
+            const deletePromises = data.documents.map(docObj => {
+                const docPath = docObj.name;
+                const deleteUrl = "https://firestore.googleapis.com/v1/" + docPath;
+                return fetch(deleteUrl, { method: "DELETE" });
+            });
+
+            await Promise.all(deletePromises);
+        }
+
         // עדכון סטטוס טיפול ב-Firestore
         window.updateLeadStatusInFirestore = async function(leadId, newStatus) {
-            if (db && currentUser) {
+            if (db) {
                 try {
                     const docRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'leads', leadId);
                     await updateDoc(docRef, { status: newStatus });
@@ -842,12 +958,14 @@ function sendRowToFirebase(ss, sheet, row) {
 
         // מחיקת ליד ב-Firestore
         window.deleteLeadFromFirestore = async function(leadId) {
-            if (db && currentUser) {
+            if (db) {
                 try {
                     const docRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'leads', leadId);
                     await deleteDoc(docRef);
+                    showNotification("הליד נמחק בהצלחה", "emerald");
                 } catch (e) {
                     console.error("Failed to delete lead", e);
+                    showNotification("שגיאה במחיקת הליד", "rose");
                 }
             } else {
                 leadsData = leadsData.filter(l => l.id !== leadId);
@@ -939,7 +1057,7 @@ function sendRowToFirebase(ss, sheet, row) {
             const source = document.getElementById('manualSource').value.trim();
             const sheetName = document.getElementById('manualSheetName').value.trim() || 'גיליון ידני';
 
-            if (db && currentUser) {
+            if (db) {
                 const leadsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'leads');
                 await addDoc(leadsRef, {
                     name: name,
@@ -1095,6 +1213,14 @@ function sendRowToFirebase(ss, sheet, row) {
             const select = document.getElementById('globalFileFilter');
             const selectedFile = select ? select.value : 'ALL';
 
+            if (activeData.length === 0) {
+                sourceChartObj.data.labels = [];
+                sourceChartObj.data.datasets[0].data = [];
+                sourceChartObj.update();
+                document.getElementById('sourceLegend').innerHTML = '<p class="col-span-2 text-slate-500 text-center py-2 text-xs">אין נתונים להצגה</p>';
+                return;
+            }
+
             const counts = {};
             if (selectedFile === 'ALL') {
                 document.getElementById('sourceChartTitle').innerHTML = `<i data-lucide="pie-chart" class="w-5 h-5 text-indigo-400"></i> התפלגות לפי קמפיינים`;
@@ -1148,7 +1274,7 @@ function sendRowToFirebase(ss, sheet, row) {
             if (activeData.length === 0) {
                 container.innerHTML = `
                     <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-xs text-slate-400 text-center">
-                        טרם נתקבלו לידים במערכת. מומלץ להריץ סנכרון ב-Apps Script בגוגל שיטס שלך.
+                        אין כרגע לידים במערכת. חבר את קובץ ה-Google Sheets והרץ סנכרון ב-Apps Script.
                     </div>
                 `;
                 return;
@@ -1204,6 +1330,12 @@ function sendRowToFirebase(ss, sheet, row) {
             const aiBtn = document.getElementById('aiBtn');
             const aiOutputBox = document.getElementById('aiOutputBox');
             const activeData = getActiveLeadsData();
+
+            if (activeData.length === 0) {
+                aiOutputBox.classList.remove('hidden');
+                aiOutputBox.innerHTML = `<span class="text-slate-400 italic">אין לידים במערכת לביצוע ניתוח AI. הרץ סנכרון ב-Google Sheets.</span>`;
+                return;
+            }
             
             aiBtn.disabled = true;
             aiBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>מנתח קמפיינים...</span>`;
@@ -1292,7 +1424,7 @@ function sendRowToFirebase(ss, sheet, row) {
 
             const tbody = document.getElementById('leadsTableBody');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">לא נמצאו לידים במערכת. הרץ סנכרון ב-Google Sheets או המתן לפניות חדשות.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">אין כרגע לידים במערכת. חבר קובץ Google Sheets והרץ סנכרון.</td></tr>`;
                 return;
             }
 
@@ -1345,22 +1477,38 @@ function sendRowToFirebase(ss, sheet, row) {
 
         function renderSourceOptions(activeData) {
             const select = document.getElementById('sourceFilter');
+            if (!select) return;
             const currentVal = select.value;
-            const uniqueTabs = Array.from(new Set(activeData.map(l => l.sheetName)));
+            const uniqueTabs = Array.from(new Set(activeData.map(l => l.sheetName).filter(Boolean)));
+
+            if (uniqueTabs.length === 0) {
+                select.innerHTML = `<option value="ALL">כל הגיליונות/הטאבים (0)</option>`;
+                select.value = 'ALL';
+                return;
+            }
+
             select.innerHTML = `<option value="ALL">כל הגיליונות/הטאבים (${activeData.length})</option>` +
                 uniqueTabs.map(tab => `<option value="${tab}">${tab}</option>`).join('');
             select.value = currentVal;
         }
 
-        window.openModal = function(id) { document.getElementById(id).classList.remove('hidden'); };
-        window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); };
+        window.openModal = function(id) { 
+            const el = document.getElementById(id);
+            if (el) el.classList.remove('hidden'); 
+        };
+        
+        window.closeModal = function(id) { 
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden'); 
+        };
 
         window.copyAppsScriptCode = function() {
             const code = document.getElementById('scriptCodeBlock').innerText;
             navigator.clipboard.writeText(code).then(() => {
-                alert('קוד ה-Apps Script המעודכן הועתק בהצלחה!');
+                showNotification("קוד ה-Apps Script הועתק ללוח!", "emerald");
             }).catch(() => {
                 document.execCommand('copy');
+                showNotification("קוד ה-Apps Script הועתק ללוח!", "emerald");
             });
         };
     </script>
