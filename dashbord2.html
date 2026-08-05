@@ -444,8 +444,8 @@ function syncAllExistingLeads() {
       
       if (lastRow > 1) {
         for (var r = 2; r <= lastRow; r++) {
-          sendRowToFirebase(ss, sheet, r);
-          totalCount++;
+          var sent = sendRowToFirebase(ss, sheet, r);
+          if (sent) totalCount++;
         }
       }
     }
@@ -500,10 +500,20 @@ function sendRowToFirebase(ss, sheet, row) {
   var sheetName = sheet.getName() || "גיליון 1";
 
   var lastCol = sheet.getLastColumn();
-  if (lastCol < 1) return;
+  if (lastCol < 1) return false;
 
   var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
   var values = sheet.getRange(row, 1, 1, lastCol).getValues()[0];
+
+  // דילוג על שורות ריקות לגמרי
+  var hasContent = false;
+  for (var k = 0; k < values.length; k++) {
+    if (values[k] !== "" && values[k] !== null && values[k] !== undefined) {
+      hasContent = true;
+      break;
+    }
+  }
+  if (!hasContent) return false;
 
   var name = "", phone = "", email = "";
   var maritalStatus = "", gamblingStatus = "", lgbtq = "";
@@ -582,6 +592,7 @@ function sendRowToFirebase(ss, sheet, row) {
   
   var response = UrlFetchApp.fetch(url, options);
   Logger.log("DocID: " + docId + " - Response Code: " + response.getResponseCode());
+  return true;
 }
                     </pre>
                 </div>
@@ -641,7 +652,7 @@ function sendRowToFirebase(ss, sheet, row) {
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // Gemini API Key
         const apiKey = "";
@@ -696,7 +707,7 @@ function sendRowToFirebase(ss, sheet, row) {
             }
         });
 
-        // האזנה בזמן אמת לנתיב ב-Firestore
+        // האזנה בזמן אמת לנתיב ב-Firestore (ללא שום ייצור נתוני דמו מדומים!)
         function listenToFirestoreLeads() {
             if (!db || !currentUser) return;
 
@@ -768,26 +779,47 @@ function sendRowToFirebase(ss, sheet, row) {
             return leadsData.filter(l => l.source === selectedFile);
         }
 
-        // מחיקת כל הלידים שנשמרו בעבר ב-Firebase לצורך סנכרון מחדש נקי
+        // מחיקה אטומית של כל הלידים ב-Firebase (בביטחון מלא ללא שחזור אוטומטי)
         window.clearAllLeadsFromFirestore = async function() {
-            if (!confirm("האם אתה בטוח שברצונך למחוק את כל הלידים ב-Firebase? פעולה זו תנקה את כל הרשומות בענן כדי שתוכל להריץ סנכרון מחדש נקי מהשיטס.")) return;
+            if (!confirm("האם אתה בטוח שברצונך למחוק לחלוטין את כל הלידים ב-Firebase? המערכת תתאפס ל-0 נקי מוחלט ולא תייצר שום לידים דמו!")) return;
             
             if (db && currentUser) {
                 try {
                     const leadsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'leads');
                     const snapshot = await getDocs(leadsRef);
-                    const deletePromises = [];
-                    snapshot.forEach(docSnap => {
-                        deletePromises.push(deleteDoc(doc(db, 'artifacts', currentAppId, 'public', 'data', 'leads', docSnap.id)));
-                    });
-                    await Promise.all(deletePromises);
-                    alert("כל הלידים נמחקו בהצלחה! כעת תוכל להריץ את הפונקציה syncAllExistingLeads ב-Apps Script לסנכרון מחדש של כלל הגיליונות.");
+                    
+                    if (snapshot.empty) {
+                        alert("מסד הנתונים ב-Firebase כבר ריק לחלוטין (0 לידים).");
+                        leadsData = [];
+                        populateGlobalFileFilter();
+                        updateDashboard();
+                        return;
+                    }
+
+                    // מחיקה אטומית בבאת'צ (writeBatch) בתוך חלונות של 400 מסמכים
+                    const docs = snapshot.docs;
+                    const chunkSize = 400;
+                    for (let i = 0; i < docs.length; i += chunkSize) {
+                        const batch = writeBatch(db);
+                        const chunk = docs.slice(i, i + chunkSize);
+                        chunk.forEach(docSnap => {
+                            batch.delete(docSnap.ref);
+                        });
+                        await batch.commit();
+                    }
+
+                    leadsData = [];
+                    populateGlobalFileFilter();
+                    updateDashboard();
+
+                    alert("כל הנתונים ב-Firebase נמחקו בהצלחה! הדאשבורד כעת נקי לחלוטין (0 לידים).");
                 } catch (e) {
                     console.error("Error clearing leads:", e);
                     alert("שגיאה במחיקת הלידים: " + e.message);
                 }
             } else {
                 leadsData = [];
+                populateGlobalFileFilter();
                 updateDashboard();
             }
         };
@@ -1116,7 +1148,7 @@ function sendRowToFirebase(ss, sheet, row) {
             if (activeData.length === 0) {
                 container.innerHTML = `
                     <div class="p-4 rounded-xl bg-slate-900/60 border border-slate-700/60 text-xs text-slate-400 text-center">
-                        טרם נתקבלו לידים עבור הקובץ הנבחר. מומלץ להריץ סנכרון ב-Apps Script.
+                        טרם נתקבלו לידים במערכת. מומלץ להריץ סנכרון ב-Apps Script בגוגל שיטס שלך.
                     </div>
                 `;
                 return;
@@ -1260,7 +1292,7 @@ function sendRowToFirebase(ss, sheet, row) {
 
             const tbody = document.getElementById('leadsTableBody');
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">לא נמצאו לידים התואמים את הסינון בקובץ הנבחר.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">לא נמצאו לידים במערכת. הרץ סנכרון ב-Google Sheets או המתן לפניות חדשות.</td></tr>`;
                 return;
             }
 
