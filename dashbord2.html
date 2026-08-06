@@ -535,66 +535,52 @@ function syncAllExistingLeads() {
   } catch (err) {
     SpreadsheetApp.getUi().alert("שגיאה בסנכרון: " + err.toString());
   }
-}
-
-// 3. פונקציית איפוס וניקוי ישירה מתוך Apps Script
-function clearFirebaseDatabase() {
-  try {
-    var apiKey = "AIzaSyCotYARE-PfM2vPdr3UtRzVu5M_1FieYKk";
-    var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads?key=" + apiKey;
-    var res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
-    if (res.getResponseCode() !== 200) {
-      SpreadsheetApp.getUi().alert("מסד הנתונים ב-Firebase כבר ריק (0 לידים).");
-      return;
-    }
-    var data = JSON.parse(res.getContentText());
-    if (!data.documents || data.documents.length === 0) {
-      SpreadsheetApp.getUi().alert("מסד הנתונים ב-Firebase כבר ריק (0 לידים).");
-      return;
-    }
-    var count = 0;
-    for (var i = 0; i < data.documents.length; i++) {
-      var docPath = data.documents[i].name;
-      var delUrl = "https://firestore.googleapis.com/v1/" + docPath + "?key=" + apiKey;
-      UrlFetchApp.fetch(delUrl, { method: "delete", muteHttpExceptions: true });
-      count++;
-    }
-    SpreadsheetApp.getUi().alert("בוצע ניקוי מלא ב-Firebase! נמחקו " + count + " לידים בענן.");
-  } catch (err) {
-    SpreadsheetApp.getUi().alert("שגיאה בניקוי: " + err.toString());
+// פונקציה מורחבת לפענוח תאריכים מקוריים מתוך הגיליון (תמיכה מלאה ב-ISO 8601, תאריכים עבריים ו-Timestamp)
+function parseSheetDate(rawVal, displayVal) {
+  if (rawVal && typeof rawVal.getTime === 'function') {
+    var t = rawVal.getTime();
+    if (!isNaN(t)) return new Date(t);
   }
-}
-
-// פונקציה לפענוח תאריכים מתוך הגוגל שיטס
-function parseSheetDate(val) {
-  if (!val) return null;
-  if (val instanceof Date) return isNaN(val.getTime()) ? null : val;
   
-  var d = new Date(val);
-  if (!isNaN(d.getTime())) return d;
+  var str = String(displayVal || rawVal || "").trim();
+  if (!str) return null;
 
-  var str = String(val).trim();
-  var parts = str.split(/[\s,T]+/);
-  if (parts.length >= 1) {
-    var dateParts = parts[0].split(/[\/\.-]/);
-    if (dateParts.length === 3) {
-      var day = parseInt(dateParts[0], 10);
-      var month = parseInt(dateParts[1], 10) - 1;
-      var year = parseInt(dateParts[2], 10);
-      if (year < 100) year += 2000;
-      var hours = 0, minutes = 0, seconds = 0;
-      if (parts.length >= 2) {
-        var timeParts = parts[1].split(":");
-        if (timeParts.length >= 2) {
-          hours = parseInt(timeParts[0], 10);
-          minutes = parseInt(timeParts[1], 10);
-          if (timeParts.length >= 3) seconds = parseInt(timeParts[2], 10);
-        }
-      }
-      var parsed = new Date(year, month, day, hours, minutes, seconds);
-      if (!isNaN(parsed.getTime())) return parsed;
+  // 1. ניסיון פענוח ישיר (תומך בפורמטים כגון 2026-08-04T11:59:07-05:00)
+  var directD = new Date(str);
+  if (!isNaN(directD.getTime()) && str.length >= 8 && (str.indexOf("-") !== -1 || str.indexOf("/") !== -1 || str.indexOf(":") !== -1 || str.indexOf("T") !== -1)) {
+    if (/\d/.test(str)) {
+      return directD;
     }
   }
+
+  // 2. תמיכה בפורמט ISO: YYYY-MM-DD / YYYY/MM/DD
+  var isoMatch = str.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:[T\s](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+  if (isoMatch) {
+    var yr = parseInt(isoMatch[1], 10);
+    var mo = parseInt(isoMatch[2], 10) - 1;
+    var dy = parseInt(isoMatch[3], 10);
+    var hr = isoMatch[4] ? parseInt(isoMatch[4], 10) : 0;
+    var mn = isoMatch[5] ? parseInt(isoMatch[5], 10) : 0;
+    var sc = isoMatch[6] ? parseInt(isoMatch[6], 10) : 0;
+    var parsedISO = new Date(yr, mo, dy, hr, mn, sc);
+    if (!isNaN(parsedISO.getTime())) return parsedISO;
+  }
+
+  // 3. תמיכה בפורמט ישראלי / אירופאי: DD/MM/YYYY או DD.MM.YYYY
+  var match = str.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+  if (match) {
+    var day = parseInt(match[1], 10);
+    var month = parseInt(match[2], 10) - 1;
+    var year = parseInt(match[3], 10);
+    if (year < 100) year += 2000;
+    var hours = match[4] ? parseInt(match[4], 10) : 0;
+    var mins = match[5] ? parseInt(match[5], 10) : 0;
+    var secs = match[6] ? parseInt(match[6], 10) : 0;
+    
+    var parsed = new Date(year, month, day, hours, mins, secs);
+    if (!isNaN(parsed.getTime())) return parsed;
+  }
+
   return null;
 }
 
@@ -608,62 +594,93 @@ function sendRowToFirebase(ss, sheet, row) {
   if (lastCol < 1) return false;
 
   var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
-  var values = sheet.getRange(row, 1, 1, lastCol).getValues()[0];
+  var rawValues = sheet.getRange(row, 1, 1, lastCol).getValues()[0];
+  var displayValues = sheet.getRange(row, 1, 1, lastCol).getDisplayValues()[0];
 
-  var name = "", phone = "", email = "", notes = "", sheetStatus = "";
+  var firstName = "", lastName = "", fullName = "";
+  var phone = "", email = "", notes = "", sheetStatus = "";
   var maritalStatus = "", gamblingStatus = "", lgbtq = "";
   var extraDetails = {};
   var rowDate = null;
 
   for (var i = 0; i < headers.length; i++) {
     var headerRaw = String(headers[i] || "").trim();
-    var headerClean = headerRaw.toLowerCase().replace(/_/g, " ");
-    var val = (values[i] !== undefined && values[i] !== null) ? String(values[i]).trim() : "";
+    var headerClean = headerRaw.toLowerCase().replace(/_/g, " ").replace(/-/g, " ");
+    var val = (displayValues[i] !== undefined && displayValues[i] !== null && String(displayValues[i]).trim() !== "") 
+              ? String(displayValues[i]).trim() 
+              : ((rawValues[i] !== undefined && rawValues[i] !== null) ? String(rawValues[i]).trim() : "");
 
     if (!val) continue;
 
-    // 1. זיהוי תאריך/חותמת זמן
-    if (headerClean.indexOf("חותמת") !== -1 || headerClean.indexOf("תאריך") !== -1 || headerClean.indexOf("timestamp") !== -1 || headerClean.indexOf("date") !== -1) {
-      if (!rowDate) rowDate = parseSheetDate(values[i]);
+    // 1. זיהוי תאריך/חותמת זמן (מורחב)
+    if (headerClean.indexOf("חותמת") !== -1 || headerClean.indexOf("תאריך") !== -1 || headerClean.indexOf("timestamp") !== -1 || headerClean.indexOf("date") !== -1 || headerClean.indexOf("time") !== -1 || headerClean.indexOf("created") !== -1 || headerClean.indexOf("submitted") !== -1 || headerClean.indexOf("שעה") !== -1 || headerClean.indexOf("זמן") !== -1) {
+      if (!rowDate) rowDate = parseSheetDate(rawValues[i], displayValues[i]);
     }
-    // 2. זיהוי שם (first_name / שם פרטי / שם מלא)
-    else if (headerClean === "first name" || headerClean === "first_name" || headerClean === "שם פרטי" || headerClean === "שם מלא") {
-      name = val;
-    } else if (!name && (headerClean === "שם" || headerClean === "name") && headerClean.indexOf("משפחה") === -1 && headerClean.indexOf("קמפיין") === -1 && headerClean.indexOf("גיליון") === -1) {
-      name = val;
+    // 2. זיהוי שם פרטי ושם משפחה ושם מלא
+    else if (headerClean.indexOf("first name") !== -1 || headerClean.indexOf("firstname") !== -1 || headerClean.indexOf("שם פרטי") !== -1) {
+      firstName = val;
+    } else if (headerClean.indexOf("last name") !== -1 || headerClean.indexOf("lastname") !== -1 || headerClean.indexOf("שם משפחה") !== -1) {
+      lastName = val;
+    } else if (!fullName && (
+      headerClean.indexOf("full name") !== -1 || headerClean.indexOf("fullname") !== -1 || headerClean.indexOf("שם מלא") !== -1 || 
+      headerClean.indexOf("שם הפונה") !== -1 || headerClean.indexOf("שם מועמד") !== -1 || headerClean.indexOf("שם המועמד") !== -1 || 
+      headerClean.indexOf("שם לקוח") !== -1 || headerClean.indexOf("שם הלקוח") !== -1 || headerClean.indexOf("שם הליד") !== -1 || 
+      headerClean === "שם" || headerClean === "name"
+    ) && headerClean.indexOf("משפחה") === -1 && headerClean.indexOf("קמפיין") === -1 && headerClean.indexOf("גיליון") === -1 && headerClean.indexOf("מוסד") === -1) {
+      fullName = val;
     }
-    // 3. זיהוי טלפון (phone_number / טלפון / נייד)
-    else if (headerClean === "phone number" || headerClean === "phone_number" || headerClean.indexOf("טלפון") !== -1 || headerClean.indexOf("phone") !== -1 || headerClean.indexOf("נייד") !== -1) {
+    // 3. זיהוי טלפון
+    else if (headerClean.indexOf("phone") !== -1 || headerClean.indexOf("mobile") !== -1 || headerClean.indexOf("cell") !== -1 || headerClean.indexOf("טלפון") !== -1 || headerClean.indexOf("נייד") !== -1 || headerClean.indexOf("סלולרי") !== -1) {
       if (!phone) phone = val;
     }
     // 4. זיהוי מייל
-    else if (headerClean.indexOf("מייל") !== -1 || headerClean.indexOf("email") !== -1) {
+    else if (headerClean.indexOf("email") !== -1 || headerClean.indexOf("mail") !== -1 || headerClean.indexOf("מייל") !== -1 || headerClean.indexOf("אימייל") !== -1) {
       if (!email) email = val;
     }
-    // 5. זיהוי הערות / הערה / comments
-    else if (headerClean.indexOf("הערות") !== -1 || headerClean.indexOf("הערה") !== -1 || headerClean.indexOf("note") !== -1 || headerClean.indexOf("comment") !== -1 || headerClean.indexOf("remark") !== -1) {
+    // 5. זיהוי הערות
+    else if (headerClean.indexOf("הערות") !== -1 || headerClean.indexOf("הערה") !== -1 || headerClean.indexOf("note") !== -1 || headerClean.indexOf("comment") !== -1 || headerClean.indexOf("remark") !== -1 || headerClean.indexOf("פירוט") !== -1) {
       notes = val;
     }
-    // 6. זיהוי סטטוס מעודכן בשיטס
-    else if (headerClean === "סטטוס" || headerClean === "מצב טיפול" || headerClean === "status") {
+    // 6. זיהוי סטטוס
+    else if (headerClean === "סטטוס" || headerClean === "מצב טיפול" || headerClean === "סטטוס טיפול" || headerClean === "status" || headerClean.indexOf("סטטוס") !== -1) {
       sheetStatus = val;
     }
     // 7. שאלות עומק
-    else if (headerClean.indexOf("זוגי") !== -1 || headerClean.indexOf("סטטוס_הזוגי") !== -1) {
+    else if (headerClean.indexOf("זוגי") !== -1) {
       if (!maritalStatus) maritalStatus = val;
-    } else if (headerClean.indexOf("הימורים") !== -1 || headerClean.indexOf("מצב_ההימורים") !== -1) {
+    } else if (headerClean.indexOf("הימורים") !== -1) {
       if (!gamblingStatus) gamblingStatus = val;
     } else if (headerClean.indexOf("להט") !== -1 || headerClean.indexOf("lgbt") !== -1) {
       if (!lgbtq) lgbtq = val;
     } else {
-      // 👈 כל שדה מיוחד אחר בכל טופס מנזיל אוטומטית ל"שדות נוספים"!
       extraDetails[headerRaw] = val;
     }
   }
 
-  if (!rowDate && values.length > 0 && values[0]) {
-    rowDate = parseSheetDate(values[0]);
+  // שילוב שם
+  var name = "";
+  if (firstName || lastName) {
+    name = (firstName + " " + lastName).trim();
+  } else if (fullName) {
+    name = fullName;
   }
+
+  // בדיקת תאריך בעמודה 0 במידה ולא נלכד לפי כותרת
+  if (!rowDate && rawValues.length > 0 && rawValues[0]) {
+    rowDate = parseSheetDate(rawValues[0], displayValues[0]);
+  }
+
+  // אם עדיין לא נמצא תאריך, נסרוק אקטיבית את כל ערכי השורה
+  if (!rowDate) {
+    for (var k = 0; k < rawValues.length; k++) {
+      var possibleDate = parseSheetDate(rawValues[k], displayValues[k]);
+      if (possibleDate) {
+        rowDate = possibleDate;
+        break;
+      }
+    }
+  }
+
   if (!rowDate) rowDate = new Date();
 
   // סינון שמות שפוענחו בטעות כתאריכים
@@ -671,7 +688,22 @@ function sendRowToFirebase(ss, sheet, row) {
     name = "";
   }
 
-  // סינון שורות ריקות/לא תקינות
+  // אם לא נמצא שם, נחפש עמודה לא-מספרית שאינה מייל/טלפון/תאריך
+  if (!name) {
+    for (var j = 0; j < headers.length; j++) {
+      var hLower = String(headers[j] || "").toLowerCase();
+      var dispV = String(displayValues[j] || rawValues[j] || "").trim();
+      if (!dispV) continue;
+      if (!/^\+?\d{7,15}$/.test(dispV) && dispV.indexOf("@") === -1 && !parseSheetDate(rawValues[j], displayValues[j]) && hLower.indexOf("הערות") === -1 && hLower.indexOf("סטטוס") === -1 && hLower.indexOf("תאריך") === -1 && hLower.indexOf("חותמת") === -1) {
+        if (dispV.length < 60) {
+          name = dispV;
+          break;
+        }
+      }
+    }
+  }
+
+  // סינון שורות ריקות/לא תקינות (חייב לפחות טלפון, שם או מייל)
   if (!phone && !name && !email) {
     return false;
   }
@@ -794,6 +826,16 @@ function sendRowToFirebase(ss, sheet, row) {
         let sourceChartObj = null;
         let hourlyChartObj = null;
 
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#039;');
+        }
+
         function showNotification(msg, color = "emerald") {
             const toast = document.getElementById('notificationToast');
             const msgEl = document.getElementById('toastMessage');
@@ -876,7 +918,7 @@ function sendRowToFirebase(ss, sheet, row) {
             });
         }
 
-        // עדכון תפריט הבחירה העליון של קובצי השיטס / הקמפיינים
+        // עדכון תפריט הבחירה העליון באופן בטוח ללא חיתוך גרשיים במחרוזות
         function populateGlobalFileFilter() {
             const select = document.getElementById('globalFileFilter');
             if (!select) return;
@@ -884,14 +926,32 @@ function sendRowToFirebase(ss, sheet, row) {
             const currentVal = select.value;
             const uniqueFiles = Array.from(new Set(leadsData.map(l => l.source).filter(Boolean)));
 
+            select.innerHTML = '';
+
             if (uniqueFiles.length === 0) {
-                select.innerHTML = `<option value="ALL" class="bg-slate-900 text-white">אין קבצים מחוברים (0 לידים)</option>`;
+                const opt = document.createElement('option');
+                opt.value = 'ALL';
+                opt.className = 'bg-slate-900 text-white';
+                opt.textContent = 'אין קבצים מחוברים (0 לידים)';
+                select.appendChild(opt);
                 select.value = 'ALL';
                 return;
             }
 
-            select.innerHTML = `<option value="ALL" class="bg-slate-900 text-white">כל הקבצים והקמפיינים (${leadsData.length})</option>` +
-                uniqueFiles.map(file => `<option value="${file}" class="bg-slate-900 text-white">${file}</option>`).join('');
+            const allOpt = document.createElement('option');
+            allOpt.value = 'ALL';
+            allOpt.className = 'bg-slate-900 text-white';
+            allOpt.textContent = `כל הקבצים והקמפיינים (${leadsData.length})`;
+            select.appendChild(allOpt);
+
+            uniqueFiles.forEach(file => {
+                const fileCount = leadsData.filter(l => l.source === file).length;
+                const opt = document.createElement('option');
+                opt.value = file; // שומר על המחרוזת המלאה כולל גרשיים ומקפים!
+                opt.className = 'bg-slate-900 text-white';
+                opt.textContent = `${file} (${fileCount})`;
+                select.appendChild(opt);
+            });
 
             if (uniqueFiles.includes(currentVal) || currentVal === 'ALL') {
                 select.value = currentVal;
@@ -910,7 +970,7 @@ function sendRowToFirebase(ss, sheet, row) {
             const select = document.getElementById('globalFileFilter');
             const selectedFile = select ? select.value : 'ALL';
             
-            if (selectedFile === 'ALL') {
+            if (!selectedFile || selectedFile === 'ALL') {
                 return leadsData;
             }
             return leadsData.filter(l => l.source === selectedFile);
@@ -1089,8 +1149,8 @@ function sendRowToFirebase(ss, sheet, row) {
                         <div class="grid grid-cols-1 gap-2">
                             ${Object.entries(lead.extraDetails).map(([key, val]) => `
                                 <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/60 text-xs">
-                                    <span class="text-slate-400 block mb-0.5">${key}:</span>
-                                    <span class="text-white font-medium">${val}</span>
+                                    <span class="text-slate-400 block mb-0.5">${escapeHtml(key)}:</span>
+                                    <span class="text-white font-medium">${escapeHtml(val)}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -1104,12 +1164,12 @@ function sendRowToFirebase(ss, sheet, row) {
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
                         <span class="text-slate-400 block mb-1">שם מלא (first_name):</span>
-                        <strong class="text-white text-sm">${lead.name}</strong>
+                        <strong class="text-white text-sm">${escapeHtml(lead.name)}</strong>
                     </div>
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70 flex items-center justify-between">
                         <div>
                             <span class="text-slate-400 block mb-1">מספר טלפון (phone_number):</span>
-                            <strong class="text-white text-sm dir-ltr inline-block">${lead.phone}</strong>
+                            <strong class="text-white text-sm dir-ltr inline-block">${escapeHtml(lead.phone)}</strong>
                         </div>
                         ${lead.phone ? `
                             <a href="${waUrl}" target="_blank" class="p-2 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded-lg transition" title="פתח שיחה בוואטסאפ">
@@ -1122,11 +1182,11 @@ function sendRowToFirebase(ss, sheet, row) {
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
                         <span class="text-slate-400 block mb-1">קמפיין מקור:</span>
-                        <span class="text-emerald-400 font-semibold">${lead.source}</span>
+                        <span class="text-emerald-400 font-semibold">${escapeHtml(lead.source)}</span>
                     </div>
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
                         <span class="text-slate-400 block mb-1">שם הגיליון (Tab Name):</span>
-                        <span class="text-indigo-400 font-semibold">${lead.sheetName}</span>
+                        <span class="text-indigo-400 font-semibold">${escapeHtml(lead.sheetName)}</span>
                     </div>
                 </div>
 
@@ -1135,7 +1195,7 @@ function sendRowToFirebase(ss, sheet, row) {
                     <span class="text-amber-400 font-bold flex items-center gap-1.5 mb-1">
                         <i data-lucide="file-text" class="w-4 h-4"></i> הערות מתוך ה-Google Sheet:
                     </span>
-                    <p class="text-slate-200 text-sm leading-relaxed">${lead.notes || 'אין הערות מתועדות עבור פנייה זו.'}</p>
+                    <p class="text-slate-200 text-sm leading-relaxed">${escapeHtml(lead.notes) || 'אין הערות מתועדות עבור פנייה זו.'}</p>
                 </div>
 
                 <!-- תשובות השאלון -->
@@ -1146,17 +1206,17 @@ function sendRowToFirebase(ss, sheet, row) {
 
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70 text-xs space-y-1">
                         <span class="text-slate-400 block">מהו הסטטוס הזוגי שלך מול האדם שמתמודד עם ההימורים?</span>
-                        <p class="text-white font-semibold text-sm">${lead.maritalStatus || 'לא מולא'}</p>
+                        <p class="text-white font-semibold text-sm">${escapeHtml(lead.maritalStatus) || 'לא מולא'}</p>
                     </div>
 
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70 text-xs space-y-1">
                         <span class="text-slate-400 block">מהו מצב ההימורים של בן/בת הזוג כיום?</span>
-                        <p class="text-white font-semibold text-sm">${lead.gamblingStatus || 'לא מולא'}</p>
+                        <p class="text-white font-semibold text-sm">${escapeHtml(lead.gamblingStatus) || 'לא מולא'}</p>
                     </div>
 
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70 text-xs space-y-1">
                         <span class="text-slate-400 block">האם אתם משתייכים לקהילה הלהט״בית?</span>
-                        <p class="text-white font-semibold text-sm">${lead.lgbtq || 'לא מולא'}</p>
+                        <p class="text-white font-semibold text-sm">${escapeHtml(lead.lgbtq) || 'לא מולא'}</p>
                     </div>
                 </div>
 
@@ -1351,13 +1411,13 @@ function sendRowToFirebase(ss, sheet, row) {
             }
 
             const counts = {};
-            if (selectedFile === 'ALL') {
+            if (!selectedFile || selectedFile === 'ALL') {
                 document.getElementById('sourceChartTitle').innerHTML = `<i data-lucide="pie-chart" class="w-5 h-5 text-indigo-400"></i> התפלגות לפי קמפיינים`;
                 document.getElementById('sourceChartSubtitle').innerText = "חלוקת הלידים מכלל הקבצים והקמפיינים";
                 activeData.forEach(l => counts[l.source] = (counts[l.source] || 0) + 1);
             } else {
                 document.getElementById('sourceChartTitle').innerHTML = `<i data-lucide="layers" class="w-5 h-5 text-indigo-400"></i> פילוח גיליונות בתוך הקובץ`;
-                document.getElementById('sourceChartSubtitle').innerText = `חלוקת הלידים לפי טאבים בתוך "${selectedFile}"`;
+                document.getElementById('sourceChartSubtitle').innerText = `חלוקת הלידים לפי טאבים בתוך "${escapeHtml(selectedFile)}"`;
                 activeData.forEach(l => counts[l.sheetName] = (counts[l.sheetName] || 0) + 1);
             }
 
@@ -1372,7 +1432,7 @@ function sendRowToFirebase(ss, sheet, row) {
             document.getElementById('sourceLegend').innerHTML = labels.map((lbl, idx) => `
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: ${colors[idx % colors.length]}"></span>
-                    <span class="truncate font-medium" title="${lbl}">${lbl}: <strong class="text-white">${counts[lbl]}</strong></span>
+                    <span class="truncate font-medium" title="${escapeHtml(lbl)}">${escapeHtml(lbl)}: <strong class="text-white">${counts[lbl]}</strong></span>
                 </div>
             `).join('');
 
@@ -1421,7 +1481,7 @@ function sendRowToFirebase(ss, sheet, row) {
                 icon: 'trophy',
                 color: 'emerald',
                 title: 'סה"כ פניות במערכת',
-                desc: `נאספו סה"כ <strong>${metrics.total} לידים</strong>. הקמפיין המוביל כרגע הוא <strong>"${topSource}"</strong>.`
+                desc: `נאספו סה"כ <strong>${metrics.total} לידים</strong>. הקמפיין המוביל כרגע הוא <strong>"${escapeHtml(topSource)}"</strong>.`
             });
 
             if (metrics.thisWeek >= metrics.lastWeek) {
@@ -1491,7 +1551,7 @@ function sendRowToFirebase(ss, sheet, row) {
                 aiOutputBox.innerHTML = `
                     <div class="space-y-1">
                         <strong class="text-emerald-400 flex items-center gap-1 mb-1">
-                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> ניתוח Gemini AI (${selectedFile}):
+                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> ניתוח Gemini AI (${escapeHtml(selectedFile)}):
                         </strong>
                         <p class="whitespace-pre-line text-slate-200">${responseText}</p>
                     </div>
@@ -1533,20 +1593,25 @@ function sendRowToFirebase(ss, sheet, row) {
         }
 
         window.filterLeadsTable = function() {
-            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-            const tabFilterVal = document.getElementById('sourceFilter').value;
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            
+            const sourceSelect = document.getElementById('sourceFilter');
+            const tabFilterVal = sourceSelect ? sourceSelect.value : 'ALL';
+            
             const activeData = getActiveLeadsData();
 
             const filtered = activeData.filter(lead => {
-                const matchesSearch = 
-                    lead.name.toLowerCase().includes(searchTerm) || 
-                    lead.phone.includes(searchTerm) || 
-                    lead.source.toLowerCase().includes(searchTerm) ||
-                    lead.sheetName.toLowerCase().includes(searchTerm) ||
-                    lead.notes.toLowerCase().includes(searchTerm) ||
-                    lead.maritalStatus.toLowerCase().includes(searchTerm) ||
-                    lead.gamblingStatus.toLowerCase().includes(searchTerm) ||
-                    lead.lgbtq.toLowerCase().includes(searchTerm);
+                const matchesSearch = !searchTerm || (
+                    (lead.name && lead.name.toLowerCase().includes(searchTerm)) || 
+                    (lead.phone && lead.phone.includes(searchTerm)) || 
+                    (lead.source && lead.source.toLowerCase().includes(searchTerm)) ||
+                    (lead.sheetName && lead.sheetName.toLowerCase().includes(searchTerm)) ||
+                    (lead.notes && lead.notes.toLowerCase().includes(searchTerm)) ||
+                    (lead.maritalStatus && lead.maritalStatus.toLowerCase().includes(searchTerm)) ||
+                    (lead.gamblingStatus && lead.gamblingStatus.toLowerCase().includes(searchTerm)) ||
+                    (lead.lgbtq && lead.lgbtq.toLowerCase().includes(searchTerm))
+                );
 
                 const matchesTab = (tabFilterVal === 'ALL') || (lead.sheetName === tabFilterVal);
                 const matchesStatus = (activeStatusTabFilter === 'ALL') || (lead.status === activeStatusTabFilter);
@@ -1555,6 +1620,8 @@ function sendRowToFirebase(ss, sheet, row) {
             });
 
             const tbody = document.getElementById('leadsTableBody');
+            if (!tbody) return;
+
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">אין כרגע לידים התואמים את הסטטוס או הסינון הנבחר.</td></tr>`;
                 return;
@@ -1562,15 +1629,20 @@ function sendRowToFirebase(ss, sheet, row) {
 
             tbody.innerHTML = filtered.slice(0, 50).map(lead => {
                 const waUrl = getWhatsAppUrl(lead.phone);
+                const displayNotes = lead.notes ? lead.notes : '';
+                
+                const standardStatuses = ['חדש', 'בטיפול', 'הפך לקוח', 'לא רלוונטי'];
+                const isCustomStatus = lead.status && !standardStatuses.includes(lead.status);
+
                 return `
                 <tr class="hover:bg-slate-800/40 transition">
                     <td class="py-3 px-4 text-slate-400">
                         ${lead.date.toLocaleDateString('he-IL')} <span class="text-slate-500 mr-1">${lead.date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</span>
                     </td>
-                    <td class="py-3 px-4 font-semibold text-white">${lead.name}</td>
+                    <td class="py-3 px-4 font-semibold text-white">${escapeHtml(lead.name)}</td>
                     <td class="py-3 px-4 text-slate-300">
                         <div class="flex items-center gap-2 dir-ltr justify-end">
-                            <span class="font-mono">${lead.phone}</span>
+                            <span class="font-mono">${escapeHtml(lead.phone)}</span>
                             ${lead.phone ? `
                                 <a href="${waUrl}" target="_blank" class="p-1 bg-emerald-500/10 hover:bg-emerald-500 hover:text-white text-emerald-400 rounded transition" title="שלח הודעת WhatsApp">
                                     <i data-lucide="message-square" class="w-3.5 h-3.5"></i>
@@ -1580,28 +1652,29 @@ function sendRowToFirebase(ss, sheet, row) {
                     </td>
                     <td class="py-3 px-4">
                         <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
-                            ${lead.source}
+                            ${escapeHtml(lead.source)}
                         </span>
                     </td>
                     <td class="py-3 px-4">
                         <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs">
-                            ${lead.sheetName}
+                            ${escapeHtml(lead.sheetName)}
                         </span>
                     </td>
                     <td class="py-3 px-4 text-slate-300 max-w-xs">
-                        ${lead.notes ? `
-                            <div class="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] truncate" title="${lead.notes}">
-                                📝 ${lead.notes}
+                        ${displayNotes ? `
+                            <div class="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] truncate" title="${escapeHtml(displayNotes)}">
+                                📝 ${escapeHtml(displayNotes)}
                             </div>
                         ` : `
                             <div class="flex items-center gap-1">
-                                ${lead.maritalStatus ? `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">${lead.maritalStatus}</span>` : ''}
-                                ${lead.gamblingStatus ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 text-[10px]">${lead.gamblingStatus}</span>` : ''}
+                                ${lead.maritalStatus ? `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">${escapeHtml(lead.maritalStatus)}</span>` : ''}
+                                ${lead.gamblingStatus ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 text-[10px]">${escapeHtml(lead.gamblingStatus)}</span>` : ''}
                             </div>
                         `}
                     </td>
                     <td class="py-3 px-4">
                         <select onchange="updateLeadStatusInFirestore('${lead.id}', this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                            ${isCustomStatus ? `<option value="${escapeHtml(lead.status)}" selected>📌 ${escapeHtml(lead.status)}</option>` : ''}
                             <option value="חדש" ${lead.status === 'חדש' ? 'selected' : ''}>🔵 חדש</option>
                             <option value="בטיפול" ${lead.status === 'בטיפול' ? 'selected' : ''}>🟡 בטיפול</option>
                             <option value="הפך לקוח" ${lead.status === 'הפך לקוח' ? 'selected' : ''}>🟢 הפך לקוח</option>
@@ -1656,12 +1729,13 @@ function sendRowToFirebase(ss, sheet, row) {
 
             const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
             const url = URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.setAttribute("href", url);
-            link.setAttribute("download", `leads_export_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            const link = document.getElementById("a");
+            const a = document.createElement("a");
+            a.setAttribute("href", url);
+            a.setAttribute("download", `leads_export_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
 
             showNotification("קובץ ה-CSV יוצא בהצלחה!", "emerald");
         };
@@ -1672,15 +1746,35 @@ function sendRowToFirebase(ss, sheet, row) {
             const currentVal = select.value;
             const uniqueTabs = Array.from(new Set(activeData.map(l => l.sheetName).filter(Boolean)));
 
+            select.innerHTML = '';
+
             if (uniqueTabs.length === 0) {
-                select.innerHTML = `<option value="ALL">כל הגיליונות/הטאבים (0)</option>`;
+                const opt = document.createElement('option');
+                opt.value = 'ALL';
+                opt.textContent = 'כל הגיליונות/הטאבים (0)';
+                select.appendChild(opt);
                 select.value = 'ALL';
                 return;
             }
 
-            select.innerHTML = `<option value="ALL">כל הגיליונות/הטאבים (${activeData.length})</option>` +
-                uniqueTabs.map(tab => `<option value="${tab}">${tab}</option>`).join('');
-            select.value = currentVal;
+            const allOpt = document.createElement('option');
+            allOpt.value = 'ALL';
+            allOpt.textContent = `כל הגיליונות/הטאבים (${activeData.length})`;
+            select.appendChild(allOpt);
+
+            uniqueTabs.forEach(tab => {
+                const tabCount = activeData.filter(l => l.sheetName === tab).length;
+                const opt = document.createElement('option');
+                opt.value = tab;
+                opt.textContent = `${tab} (${tabCount})`;
+                select.appendChild(opt);
+            });
+
+            if (uniqueTabs.includes(currentVal) || currentVal === 'ALL') {
+                select.value = currentVal;
+            } else {
+                select.value = 'ALL';
+            }
         }
 
         window.openModal = function(id) { 
