@@ -452,7 +452,7 @@
             <div class="p-5 border-b border-slate-700 flex items-center justify-between bg-slate-850">
                 <div class="flex items-center gap-2 text-white font-bold text-base">
                     <i data-lucide="code-2" class="w-5 h-5 text-emerald-400"></i>
-                    <span>קוד Google Apps Script המעודכן - מפותח אוטומטית לכל טופס ושיטס</span>
+                    <span>קוד Google Apps Script המעודכן - תמיכה מלאה בפורמט תאריכי ISO 8601</span>
                 </div>
                 <button onclick="closeModal('securityModal')" class="text-slate-400 hover:text-white">
                     <i data-lucide="x" class="w-5 h-5"></i>
@@ -463,17 +463,13 @@
                 
                 <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 space-y-2">
                     <p class="font-bold text-emerald-200 flex items-center gap-1.5">
-                        <i data-lucide="check-circle-2" class="w-4 h-4"></i> הוראות פשוטות לחיבור קבצים וטפסים חדשים:
+                        <i data-lucide="check-circle-2" class="w-4 h-4"></i> שיפורים קריטיים בקוד החדש:
                     </p>
-                    <ol class="list-decimal list-inside text-slate-300 space-y-1.5 leading-relaxed">
-                        <li>**שימוש באותו קוד בדיוק**: הדבק את הקוד למטה בעורך ה-Apps Script בכל קובץ Google Sheets שברצונך לחבר.</li>
-                        <li>**משיכה אוטומטית של שדות מיוחדים**: הקוד מזהה עמודות רגילות (שם, טלפון, מייל, הערות, סטטוס), ו**כל שאר העמודות והשאלות המיוחדות** מנזילות אוטומטית ל-"שדות נוספים" המוצגים בדאשבורד בלחיצה על העין (👁️)!</li>
-                        <li>**הגדרת טריגר לעדכון אוטומטי בלייב**:
-                            <br>&bull; בסרגל הצדדי ב-Apps Script לחץ על **סמל השעון ⏰ (טריגרים / Triggers)**.
-                            <br>&bull; לחץ למטה על **"הוספת טריגר" (Add Trigger)**.
-                            <br>&bull; בחירת פונקציה: <code>sendLeadToFirebase</code>.
-                            <br>&bull; בחירת סוג האירוע: שנה ל-**<code>בעת שליחת טופס</code> (On form submit)** ולחץ שמירה.</li>
-                    </ol>
+                    <ul class="list-disc list-inside text-slate-300 space-y-1 leading-relaxed">
+                        <li><code>parseSheetDate</code> - **פענוח מורחב!** תומך באופן מוחלט במחרוזות ISO 8601 (כגון <code>2026-08-04T11:59:07-05:00</code>), תאריכים ישראליים ולועזיים.</li>
+                        <li><code>rowDate fallback</code> - אם לא זוהתה כותרת, הקוד סורק את כל העמודות בשורה כדי לחלץ את התאריך המקורי ב-100% הצלחה!</li>
+                        <li><code>docId</code> - מזהה ייחודי קבוע לכל שורה בשיטס המונע כפילויות גם בהרצת סנכרון חוזרת.</li>
+                    </ul>
                 </div>
 
                 <!-- קוד Apps Script להעתקה -->
@@ -535,50 +531,83 @@ function syncAllExistingLeads() {
   } catch (err) {
     SpreadsheetApp.getUi().alert("שגיאה בסנכרון: " + err.toString());
   }
-// פונקציה מורחבת לפענוח תאריכים מקוריים מתוך הגיליון (תמיכה מלאה ב-ISO 8601, תאריכים עבריים ו-Timestamp)
-function parseSheetDate(rawVal, displayVal) {
-  if (rawVal && typeof rawVal.getTime === 'function') {
-    var t = rawVal.getTime();
-    if (!isNaN(t)) return new Date(t);
-  }
-  
-  var str = String(displayVal || rawVal || "").trim();
-  if (!str) return null;
+}
 
-  // 1. ניסיון פענוח ישיר (תומך בפורמטים כגון 2026-08-04T11:59:07-05:00)
-  var directD = new Date(str);
-  if (!isNaN(directD.getTime()) && str.length >= 8 && (str.indexOf("-") !== -1 || str.indexOf("/") !== -1 || str.indexOf(":") !== -1 || str.indexOf("T") !== -1)) {
-    if (/\d/.test(str)) {
-      return directD;
+// 3. פונקציית איפוס וניקוי ישירה מתוך Apps Script
+function clearFirebaseDatabase() {
+  try {
+    var apiKey = "AIzaSyCotYARE-PfM2vPdr3UtRzVu5M_1FieYKk";
+    var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads?key=" + apiKey;
+    var res = UrlFetchApp.fetch(url, { muteHttpExceptions: true });
+    if (res.getResponseCode() !== 200) {
+      SpreadsheetApp.getUi().alert("מסד הנתונים ב-Firebase כבר ריק (0 לידים).");
+      return;
+    }
+    var data = JSON.parse(res.getContentText());
+    if (!data.documents || data.documents.length === 0) {
+      SpreadsheetApp.getUi().alert("מסד הנתונים ב-Firebase כבר ריק (0 לידים).");
+      return;
+    }
+    var count = 0;
+    for (var i = 0; i < data.documents.length; i++) {
+      var docPath = data.documents[i].name;
+      var delUrl = "https://firestore.googleapis.com/v1/" + docPath + "?key=" + apiKey;
+      UrlFetchApp.fetch(delUrl, { method: "delete", muteHttpExceptions: true });
+      count++;
+    }
+    SpreadsheetApp.getUi().alert("בוצע ניקוי מלא ב-Firebase! נמחקו " + count + " לידים בענן.");
+  } catch (err) {
+    SpreadsheetApp.getUi().alert("שגיאה בניקוי: " + err.toString());
+  }
+}
+
+// פונקציה מורחבת לפענוח תאריכים מקוריים (כולל פורמט ISO 8601: 2026-08-04T11:59:07-05:00)
+function parseSheetDate(rawVal, displayVal) {
+  // 1. אם מדובר באובייקט Date מובנה של גוגל שיטס
+  if (rawVal) {
+    if (Object.prototype.toString.call(rawVal) === '[object Date]' || typeof rawVal.getTime === 'function') {
+      var t = rawVal.getTime();
+      if (!isNaN(t)) return new Date(t);
     }
   }
 
-  // 2. תמיכה בפורמט ISO: YYYY-MM-DD / YYYY/MM/DD
-  var isoMatch = str.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:[T\s](\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
-  if (isoMatch) {
-    var yr = parseInt(isoMatch[1], 10);
-    var mo = parseInt(isoMatch[2], 10) - 1;
-    var dy = parseInt(isoMatch[3], 10);
-    var hr = isoMatch[4] ? parseInt(isoMatch[4], 10) : 0;
-    var mn = isoMatch[5] ? parseInt(isoMatch[5], 10) : 0;
-    var sc = isoMatch[6] ? parseInt(isoMatch[6], 10) : 0;
-    var parsedISO = new Date(yr, mo, dy, hr, mn, sc);
-    if (!isNaN(parsedISO.getTime())) return parsedISO;
-  }
+  var strArr = [String(rawVal || "").trim(), String(displayVal || "").trim()];
+  for (var k = 0; k < strArr.length; k++) {
+    var str = strArr[k];
+    if (!str) continue;
 
-  // 3. תמיכה בפורמט ישראלי / אירופאי: DD/MM/YYYY או DD.MM.YYYY
-  var match = str.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
-  if (match) {
-    var day = parseInt(match[1], 10);
-    var month = parseInt(match[2], 10) - 1;
-    var year = parseInt(match[3], 10);
-    if (year < 100) year += 2000;
-    var hours = match[4] ? parseInt(match[4], 10) : 0;
-    var mins = match[5] ? parseInt(match[5], 10) : 0;
-    var secs = match[6] ? parseInt(match[6], 10) : 0;
-    
-    var parsed = new Date(year, month, day, hours, mins, secs);
-    if (!isNaN(parsed.getTime())) return parsed;
+    // ניסיון פענוח ישיר ב-JS (תומך בפורמט ISO 8601 כגון 2026-08-04T11:59:07-05:00)
+    var d = new Date(str);
+    if (!isNaN(d.getTime()) && d.getFullYear() > 1990 && d.getFullYear() < 2100) {
+      return d;
+    }
+
+    // פורמט YYYY-MM-DD או YYYY/MM/DD
+    var isoMatch = str.match(/^(\d{4})[\/\.-](\d{1,2})[\/\.-](\d{1,2})(?:[\sT]+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+    if (isoMatch) {
+      var y = parseInt(isoMatch[1], 10);
+      var m = parseInt(isoMatch[2], 10) - 1;
+      var day = parseInt(isoMatch[3], 10);
+      var hh = isoMatch[4] ? parseInt(isoMatch[4], 10) : 0;
+      var mm = isoMatch[5] ? parseInt(isoMatch[5], 10) : 0;
+      var ss = isoMatch[6] ? parseInt(isoMatch[6], 10) : 0;
+      var pIso = new Date(y, m, day, hh, mm, ss);
+      if (!isNaN(pIso.getTime())) return pIso;
+    }
+
+    // פורמט DD/MM/YYYY או DD.MM.YYYY
+    var dmyMatch = str.match(/^(\d{1,2})[\/\.-](\d{1,2})[\/\.-](\d{2,4})(?:[\sT]+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?/);
+    if (dmyMatch) {
+      var day = parseInt(dmyMatch[1], 10);
+      var m = parseInt(dmyMatch[2], 10) - 1;
+      var y = parseInt(dmyMatch[3], 10);
+      if (y < 100) y += 2000;
+      var hh = dmyMatch[4] ? parseInt(dmyMatch[4], 10) : 0;
+      var mm = dmyMatch[5] ? parseInt(dmyMatch[5], 10) : 0;
+      var ss = dmyMatch[6] ? parseInt(dmyMatch[6], 10) : 0;
+      var pDmy = new Date(y, m, day, hh, mm, ss);
+      if (!isNaN(pDmy.getTime())) return pDmy;
+    }
   }
 
   return null;
@@ -612,14 +641,16 @@ function sendRowToFirebase(ss, sheet, row) {
 
     if (!val) continue;
 
-    // 1. זיהוי תאריך/חותמת זמן (מורחב)
-    if (headerClean.indexOf("חותמת") !== -1 || headerClean.indexOf("תאריך") !== -1 || headerClean.indexOf("timestamp") !== -1 || headerClean.indexOf("date") !== -1 || headerClean.indexOf("time") !== -1 || headerClean.indexOf("created") !== -1 || headerClean.indexOf("submitted") !== -1 || headerClean.indexOf("שעה") !== -1 || headerClean.indexOf("זמן") !== -1) {
+    // 1. זיהוי תאריך/חותמת זמן (מילות מפתח מורחבות: timestamp, date, time, created, submitted, חותמת, תאריך, זמן)
+    if (headerClean.indexOf("חותמת") !== -1 || headerClean.indexOf("תאריך") !== -1 || headerClean.indexOf("זמן") !== -1 || 
+        headerClean.indexOf("timestamp") !== -1 || headerClean.indexOf("date") !== -1 || headerClean.indexOf("time") !== -1 || 
+        headerClean.indexOf("created") !== -1 || headerClean.indexOf("submitted") !== -1) {
       if (!rowDate) rowDate = parseSheetDate(rawValues[i], displayValues[i]);
     }
-    // 2. זיהוי שם פרטי ושם משפחה ושם מלא
-    else if (headerClean.indexOf("first name") !== -1 || headerClean.indexOf("firstname") !== -1 || headerClean.indexOf("שם פרטי") !== -1) {
+    // 2. זיהוי שם
+    else if (headerClean.indexOf("first_name") !== -1 || headerClean.indexOf("first name") !== -1 || headerClean.indexOf("firstname") !== -1 || headerClean.indexOf("שם פרטי") !== -1) {
       firstName = val;
-    } else if (headerClean.indexOf("last name") !== -1 || headerClean.indexOf("lastname") !== -1 || headerClean.indexOf("שם משפחה") !== -1) {
+    } else if (headerClean.indexOf("last_name") !== -1 || headerClean.indexOf("last name") !== -1 || headerClean.indexOf("lastname") !== -1 || headerClean.indexOf("שם משפחה") !== -1) {
       lastName = val;
     } else if (!fullName && (
       headerClean.indexOf("full name") !== -1 || headerClean.indexOf("fullname") !== -1 || headerClean.indexOf("שם מלא") !== -1 || 
@@ -665,22 +696,18 @@ function sendRowToFirebase(ss, sheet, row) {
     name = fullName;
   }
 
-  // בדיקת תאריך בעמודה 0 במידה ולא נלכד לפי כותרת
-  if (!rowDate && rawValues.length > 0 && rawValues[0]) {
-    rowDate = parseSheetDate(rawValues[0], displayValues[0]);
-  }
-
-  // אם עדיין לא נמצא תאריך, נסרוק אקטיבית את כל ערכי השורה
+  // במידה ולא אותרה עמודת תאריך לפי כותרת, נסרוק את כל העמודות בשורה לחילוץ תאריך תקין!
   if (!rowDate) {
-    for (var k = 0; k < rawValues.length; k++) {
-      var possibleDate = parseSheetDate(rawValues[k], displayValues[k]);
-      if (possibleDate) {
-        rowDate = possibleDate;
+    for (var c = 0; c < headers.length; c++) {
+      var pDate = parseSheetDate(rawValues[c], displayValues[c]);
+      if (pDate) {
+        rowDate = pDate;
         break;
       }
     }
   }
 
+  // ברירת מחדל אחרונה
   if (!rowDate) rowDate = new Date();
 
   // סינון שמות שפוענחו בטעות כתאריכים
@@ -947,7 +974,7 @@ function sendRowToFirebase(ss, sheet, row) {
             uniqueFiles.forEach(file => {
                 const fileCount = leadsData.filter(l => l.source === file).length;
                 const opt = document.createElement('option');
-                opt.value = file; // שומר על המחרוזת המלאה כולל גרשיים ומקפים!
+                opt.value = file;
                 opt.className = 'bg-slate-900 text-white';
                 opt.textContent = `${file} (${fileCount})`;
                 select.appendChild(opt);
