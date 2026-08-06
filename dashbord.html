@@ -57,41 +57,58 @@
 </head>
 <body class="min-h-screen bg-slate-900 text-slate-100 pb-12">
 
+    <!-- הודעות התראה צפות -->
+    <div id="notificationToast" class="fixed bottom-5 left-5 z-50 hidden px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold flex items-center gap-2 transition-all duration-300">
+        <i data-lucide="info" class="w-4 h-4"></i>
+        <span id="toastMessage">הודעה</span>
+    </div>
+
     <!-- סרגל כלים עליון -->
     <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-40">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
             <div class="flex items-center gap-3">
                 <div class="p-2 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20">
                     <i data-lucide="shield-check" class="w-6 h-6"></i>
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
-                        <h1 class="text-lg font-bold text-white tracking-wide">דאשבורד לידים וקמפיינים</h1>
+                        <h1 class="text-lg font-bold text-white tracking-wide">דאשבורד לידים מרוכז</h1>
                         <span class="px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px] font-semibold flex items-center gap-1">
-                            <i data-lucide="lock" class="w-3 h-3"></i> eliran-apps (Firebase)
+                            <i data-lucide="lock" class="w-3 h-3"></i> eliran-apps
                         </span>
                     </div>
-                    <p class="text-xs text-slate-400">מעקב, ניתוח ושאיבת שדות מותאמים אישית בזמן אמת</p>
+                    <p class="text-xs text-slate-400">מעקב, סנכרון וניהול קמפיינים בזמן אמת</p>
                 </div>
             </div>
 
+            <!-- בחירת קובץ/קמפיין -->
+            <div class="flex items-center gap-2 bg-slate-900/90 border border-emerald-500/30 rounded-xl px-3 py-1.5 shadow-inner">
+                <i data-lucide="file-spreadsheet" class="w-4 h-4 text-emerald-400"></i>
+                <label for="globalFileFilter" class="text-xs font-semibold text-slate-300 hidden sm:inline">קובץ / קמפיין מוצג:</label>
+                <select id="globalFileFilter" onchange="onGlobalFilterChange()" class="bg-transparent text-xs font-bold text-emerald-300 focus:outline-none cursor-pointer">
+                    <option value="ALL" class="bg-slate-900 text-white">כל הקבצים והקמפיינים (מרוכז)</option>
+                </select>
+            </div>
+
             <div class="flex items-center gap-3">
-                <!-- סטטוס חיבור Firebase -->
-                <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300">
+                <div class="hidden lg:flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-800/80 border border-slate-700 text-xs text-slate-300">
                     <span class="relative flex h-2 w-2">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
                       <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
                     </span>
-                    <span id="syncStatusText">מחובר ומסונכרן ל-Firebase</span>
+                    <span id="syncStatusText">מסונכרן ל-Firebase</span>
                 </div>
 
-                <!-- כפתור הוספת ליד ידני -->
+                <button onclick="openModal('confirmClearModal')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-300 text-xs font-medium border border-rose-500/20 transition" title="איפוס וניקוי כל הלידים">
+                    <i data-lucide="trash-2" class="w-4 h-4 text-rose-400"></i>
+                    <span class="hidden md:inline">איפוס ב-Firebase</span>
+                </button>
+
                 <button onclick="openModal('addLeadModal')" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium border border-slate-700 transition">
                     <i data-lucide="user-plus" class="w-4 h-4 text-emerald-400"></i>
                     <span class="hidden md:inline">הוסף ליד</span>
                 </button>
 
-                <!-- כפתור הגדרות אבטחה וטפסים -->
                 <button onclick="openModal('securityModal')" class="flex items-center gap-2 px-4 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-sm transition shadow-lg shadow-emerald-950/40">
                     <i data-lucide="code-2" class="w-4 h-4"></i>
                     <span>קוד מותקן ל-Sheets</span>
@@ -102,10 +119,23 @@
 
     <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 space-y-6">
 
-        <!-- שורת כרטיסיות KPI -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            <!-- היום -->
+        <!-- כרטיסיות KPI -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/60 backdrop-blur relative overflow-hidden group hover:border-emerald-500/40 transition">
+                <div class="flex items-center justify-between text-slate-400 mb-2">
+                    <span class="text-xs font-semibold uppercase tracking-wider">סה"כ לידים</span>
+                    <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                    </div>
+                </div>
+                <div class="flex items-baseline justify-between">
+                    <span class="text-3xl font-extrabold text-white" id="kpiTotal">0</span>
+                    <span class="text-xs text-emerald-400 font-semibold bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">מצטבר</span>
+                </div>
+                <p class="text-xs text-slate-400 mt-2">סה"כ פניות בקובץ הנבחר</p>
+                <div class="absolute bottom-0 right-0 left-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-60"></div>
+            </div>
+
             <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/60 backdrop-blur relative overflow-hidden group hover:border-emerald-500/40 transition">
                 <div class="flex items-center justify-between text-slate-400 mb-2">
                     <span class="text-xs font-semibold uppercase tracking-wider">לידים היום</span>
@@ -115,9 +145,7 @@
                 </div>
                 <div class="flex items-baseline justify-between">
                     <span class="text-3xl font-extrabold text-white" id="kpiToday">0</span>
-                    <span id="kpiTodayDiff" class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        --
-                    </span>
+                    <span id="kpiTodayDiff" class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">--</span>
                 </div>
                 <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">
                     <span>בהשוואה לאתמול</span>
@@ -126,7 +154,6 @@
                 <div class="absolute bottom-0 right-0 left-0 h-1 bg-gradient-to-r from-blue-500 to-indigo-500 opacity-60"></div>
             </div>
 
-            <!-- אתמול -->
             <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/60 backdrop-blur relative overflow-hidden group hover:border-emerald-500/40 transition">
                 <div class="flex items-center justify-between text-slate-400 mb-2">
                     <span class="text-xs font-semibold uppercase tracking-wider">לידים אתמול</span>
@@ -142,28 +169,24 @@
                 <div class="absolute bottom-0 right-0 left-0 h-1 bg-gradient-to-r from-indigo-500 to-purple-500 opacity-60"></div>
             </div>
 
-            <!-- השבוע -->
             <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/60 backdrop-blur relative overflow-hidden group hover:border-emerald-500/40 transition">
                 <div class="flex items-center justify-between text-slate-400 mb-2">
                     <span class="text-xs font-semibold uppercase tracking-wider">לידים השבוע</span>
-                    <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400">
+                    <div class="p-2 rounded-lg bg-teal-500/10 text-teal-400">
                         <i data-lucide="trending-up" class="w-5 h-5"></i>
                     </div>
                 </div>
                 <div class="flex items-baseline justify-between">
                     <span class="text-3xl font-extrabold text-white" id="kpiThisWeek">0</span>
-                    <span id="kpiWeekDiff" class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        --
-                    </span>
+                    <span id="kpiWeekDiff" class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">--</span>
                 </div>
                 <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">
                     <span>בהשוואה לשבוע שעבר</span>
                     <span class="font-medium text-slate-300" id="kpiLastWeekSub">(0)</span>
                 </p>
-                <div class="absolute bottom-0 right-0 left-0 h-1 bg-gradient-to-r from-emerald-500 to-teal-500 opacity-60"></div>
+                <div class="absolute bottom-0 right-0 left-0 h-1 bg-gradient-to-r from-teal-500 to-cyan-500 opacity-60"></div>
             </div>
 
-            <!-- החודש -->
             <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/60 backdrop-blur relative overflow-hidden group hover:border-emerald-500/40 transition">
                 <div class="flex items-center justify-between text-slate-400 mb-2">
                     <span class="text-xs font-semibold uppercase tracking-wider">לידים החודש</span>
@@ -173,9 +196,7 @@
                 </div>
                 <div class="flex items-baseline justify-between">
                     <span class="text-3xl font-extrabold text-white" id="kpiThisMonth">0</span>
-                    <span id="kpiMonthDiff" class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
-                        --
-                    </span>
+                    <span id="kpiMonthDiff" class="inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">--</span>
                 </div>
                 <p class="text-xs text-slate-400 mt-2 flex items-center gap-1">
                     <span>בהשוואה לחודש שעבר</span>
@@ -183,13 +204,10 @@
                 </p>
                 <div class="absolute bottom-0 right-0 left-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500 opacity-60"></div>
             </div>
-
         </div>
 
-        <!-- אזור הגרפים הראשי -->
+        <!-- אזור הגרפים -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-
-            <!-- גרף מגמה יומי -->
             <div class="lg:col-span-2 bg-slate-800/60 rounded-2xl p-5 border border-slate-700/60 backdrop-blur flex flex-col justify-between">
                 <div class="flex items-center justify-between mb-4">
                     <div>
@@ -197,7 +215,7 @@
                             <i data-lucide="activity" class="w-5 h-5 text-emerald-400"></i>
                             מגמת לידים יומית (14 ימים אחרונים)
                         </h2>
-                        <p class="text-xs text-slate-400">מעקב יומי מכלל הקמפיינים והגיליונות המסונכרנים</p>
+                        <p class="text-xs text-slate-400" id="trendSubtitle">מעקב יומי מסונכרן לפי תאריכים מקוריים מהקובץ הנבחר</p>
                     </div>
                     <div class="flex items-center gap-2">
                         <span class="inline-block w-3 h-3 rounded-full bg-emerald-500"></span>
@@ -209,30 +227,25 @@
                 </div>
             </div>
 
-            <!-- התפלגות לפי קמפיין / מקור -->
             <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/60 backdrop-blur flex flex-col justify-between">
                 <div class="flex items-center justify-between mb-4">
                     <div>
-                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                        <h2 class="text-base font-bold text-white flex items-center gap-2" id="sourceChartTitle">
                             <i data-lucide="pie-chart" class="w-5 h-5 text-indigo-400"></i>
-                            התפלגות לפי קמפיינים
+                            התפלגות מקורות
                         </h2>
-                        <p class="text-xs text-slate-400">חלוקת הלידים שנמשכו מהגוגל שיטס</p>
+                        <p class="text-xs text-slate-400" id="sourceChartSubtitle">חלוקת הלידים שנמשכו מהגוגל שיטס</p>
                     </div>
                 </div>
                 <div class="relative w-full h-64 flex items-center justify-center">
                     <canvas id="sourceChart"></canvas>
                 </div>
-                <div id="sourceLegend" class="grid grid-cols-2 gap-2 mt-2 text-xs text-slate-300 border-t border-slate-700/50 pt-3">
-                </div>
+                <div id="sourceLegend" class="grid grid-cols-2 gap-2 mt-2 text-xs text-slate-300 border-t border-slate-700/50 pt-3"></div>
             </div>
-
         </div>
 
-        <!-- אזור שעות שיא ובינה מלאכותית -->
+        <!-- שעות שיא ובינה מלאכותית -->
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <!-- פילוח לפי שעות -->
             <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/60 backdrop-blur">
                 <div class="flex items-center justify-between mb-4">
                     <div>
@@ -240,7 +253,7 @@
                             <i data-lucide="clock-3" class="w-5 h-5 text-amber-400"></i>
                             שעות שיא של פניות
                         </h2>
-                        <p class="text-xs text-slate-400">התפלגות שעות ההגעה של הפניות</p>
+                        <p class="text-xs text-slate-400">התפלגות שעות ההגעה של הפניות לקובץ המסונכרן</p>
                     </div>
                 </div>
                 <div class="relative w-full h-64">
@@ -248,7 +261,6 @@
                 </div>
             </div>
 
-            <!-- תובנות ובינה מלאכותית Gemini AI -->
             <div class="bg-slate-800/60 rounded-2xl p-5 border border-slate-700/60 backdrop-blur flex flex-col justify-between">
                 <div>
                     <div class="flex items-center justify-between mb-4">
@@ -257,7 +269,7 @@
                                 <i data-lucide="sparkles" class="w-5 h-5 text-emerald-400 animate-pulse"></i>
                                 תובנות קמפיינים וניתוח AI
                             </h2>
-                            <p class="text-xs text-slate-400">ניתוח ביצועי הקמפיינים מבוסס Gemini AI</p>
+                            <p class="text-xs text-slate-400">ניתוח ביצועי הקמפיין הנבחר מבוסס Gemini AI</p>
                         </div>
                         <button onclick="generateAIInsights()" id="aiBtn" class="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white text-xs font-semibold shadow transition">
                             <i data-lucide="bot" class="w-4 h-4"></i>
@@ -265,35 +277,49 @@
                         </button>
                     </div>
 
-                    <div id="insightsContainer" class="space-y-3">
-                    </div>
+                    <div id="insightsContainer" class="space-y-3"></div>
                 </div>
 
-                <div id="aiOutputBox" class="hidden mt-4 p-3.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-xs text-slate-200 leading-relaxed max-h-40 overflow-y-auto">
-                </div>
+                <div id="aiOutputBox" class="hidden mt-4 p-3.5 rounded-xl bg-slate-900/90 border border-emerald-500/30 text-xs text-slate-200 leading-relaxed max-h-40 overflow-y-auto"></div>
             </div>
-
         </div>
 
-        <!-- טבלת לידים בזמן אמת עם שדות מורחבים -->
+        <!-- טבלת לידים -->
         <div class="bg-slate-800/60 rounded-2xl border border-slate-700/60 backdrop-blur overflow-hidden">
-            <div class="p-5 border-b border-slate-700/60 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                    <h2 class="text-base font-bold text-white flex items-center gap-2">
-                        <i data-lucide="list-checks" class="w-5 h-5 text-blue-400"></i>
-                        ניהול לידים ושאלות מפתח בזמן אמת
-                    </h2>
-                    <p class="text-xs text-slate-400">שאיבה אוטומטית של first_name, phone_number, שם הגיליון ושאלות העומק</p>
-                </div>
-                <div class="flex items-center gap-3">
-                    <div class="relative">
-                        <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3 top-2.5"></i>
-                        <input type="text" id="searchInput" oninput="filterLeadsTable()" placeholder="חפש לפי שם, טלפון, קמפיין, גיליון..." class="bg-slate-900 border border-slate-700 rounded-lg pr-9 pl-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 w-48 sm:w-64">
+            <div class="p-5 border-b border-slate-700/60 space-y-4">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-base font-bold text-white flex items-center gap-2">
+                            <i data-lucide="list-checks" class="w-5 h-5 text-blue-400"></i>
+                            ניהול מעקב לידים והערות בזמן אמת
+                        </h2>
+                        <p class="text-xs text-slate-400">שאיבה אוטומטית, הערות שיטס וסטטוס מעודכן</p>
                     </div>
-                    <!-- תפריט סינון לפי קמפיין -->
-                    <select id="sourceFilter" onchange="filterLeadsTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
-                        <option value="ALL">כל הקמפיינים והטפסים</option>
-                    </select>
+
+                    <button onclick="exportLeadsToCSV()" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-medium border border-slate-700 transition">
+                        <i data-lucide="download" class="w-4 h-4 text-indigo-400"></i>
+                        <span>ייצוא CSV</span>
+                    </button>
+                </div>
+
+                <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3 pt-2">
+                    <div class="flex flex-wrap items-center gap-1.5 bg-slate-900/80 p-1 rounded-xl border border-slate-700/60 text-xs font-semibold" id="statusTabsContainer">
+                        <button onclick="setTabStatusFilter('ALL')" id="tabStatus-ALL" class="px-3 py-1.5 rounded-lg transition bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">הכל (<span id="cnt-ALL">0</span>)</button>
+                        <button onclick="setTabStatusFilter('חדש')" id="tabStatus-חדש" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white">🔵 חדש (<span id="cnt-חדש">0</span>)</button>
+                        <button onclick="setTabStatusFilter('בטיפול')" id="tabStatus-בטיפול" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white">🟡 בטיפול (<span id="cnt-בטיפול">0</span>)</button>
+                        <button onclick="setTabStatusFilter('הפך לקוח')" id="tabStatus-הפך לקוח" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white">🟢 הפך לקוח (<span id="cnt-הפך לקוח">0</span>)</button>
+                        <button onclick="setTabStatusFilter('לא רלוונטי')" id="tabStatus-לא רלוונטי" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white">⚪ לא רלוונטי (<span id="cnt-לא רלוונטי">0</span>)</button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <div class="relative flex-1 sm:flex-initial">
+                            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute right-3 top-2.5"></i>
+                            <input type="text" id="searchInput" oninput="filterLeadsTable()" placeholder="חפש לפי שם, טלפון, הערות..." class="bg-slate-900 border border-slate-700 rounded-lg pr-9 pl-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 w-full sm:w-60">
+                        </div>
+                        <select id="sourceFilter" onchange="filterLeadsTable()" class="bg-slate-900 border border-slate-700 rounded-lg px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
+                            <option value="ALL">כל הגיליונות/הטאבים</option>
+                        </select>
+                    </div>
                 </div>
             </div>
 
@@ -302,24 +328,46 @@
                     <thead class="bg-slate-900/80 text-slate-400 uppercase font-semibold border-b border-slate-700/60">
                         <tr>
                             <th class="py-3.5 px-4">תאריך ושעה</th>
-                            <th class="py-3.5 px-4">שם מלא (first_name)</th>
-                            <th class="py-3.5 px-4">טלפון (phone_number)</th>
-                            <th class="py-3.5 px-4 text-emerald-400 font-bold">שם קמפיין / קובץ</th>
-                            <th class="py-3.5 px-4 text-indigo-400 font-bold">שם הגיליון (Tab)</th>
-                            <th class="py-3.5 px-4">תשובות מפתח</th>
+                            <th class="py-3.5 px-4">שם מלא</th>
+                            <th class="py-3.5 px-4">טלפון & וואטסאפ</th>
+                            <th class="py-3.5 px-4 text-emerald-400 font-bold">שם קמפיין</th>
+                            <th class="py-3.5 px-4 text-indigo-400 font-bold">שם הגיליון</th>
+                            <th class="py-3.5 px-4 text-amber-400 font-bold">הערות השיטס</th>
                             <th class="py-3.5 px-4">סטטוס טיפול</th>
                             <th class="py-3.5 px-4 text-center">פעולות</th>
                         </tr>
                     </thead>
-                    <tbody id="leadsTableBody" class="divide-y divide-slate-700/40">
-                    </tbody>
+                    <tbody id="leadsTableBody" class="divide-y divide-slate-700/40"></tbody>
                 </table>
             </div>
         </div>
-
     </main>
 
-    <!-- מודאל צפייה בפרטי ליד מורחבים -->
+    <!-- מודאל אישור איפוס -->
+    <div id="confirmClearModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl">
+            <div class="p-5 border-b border-slate-700 flex items-center justify-between bg-slate-850">
+                <div class="flex items-center gap-2 text-rose-400 font-bold text-base">
+                    <i data-lucide="alert-triangle" class="w-5 h-5"></i>
+                    <span>אישור איפוס בסיס הנתונים</span>
+                </div>
+                <button onclick="closeModal('confirmClearModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="p-6 space-y-4">
+                <p class="text-xs text-slate-300 leading-relaxed">פעולה זו תמחק לחלוטין את **כל הלידים** משרתי Firebase.</p>
+                <div class="p-3 bg-rose-500/10 border border-rose-500/20 rounded-xl text-xs text-rose-300 font-medium">⚠️ לאחר המחיקה המערכת תתאפס ל-0.</div>
+                <div class="pt-2 flex justify-end gap-2">
+                    <button type="button" onclick="closeModal('confirmClearModal')" class="px-4 py-2 bg-slate-800 text-slate-300 text-xs rounded-lg hover:bg-slate-700 transition">ביטול</button>
+                    <button type="button" onclick="executeClearAllLeads()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-medium text-xs rounded-lg transition flex items-center gap-1.5">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                        <span>מחק הכל עכשיו</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- מודאל צפייה בפרטי ליד -->
     <div id="viewLeadModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-xl overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-slate-700 flex items-center justify-between bg-slate-850">
@@ -327,150 +375,161 @@
                     <i data-lucide="file-text" class="w-5 h-5 text-emerald-400"></i>
                     <span id="leadModalTitle">פרטי פנייה מלאים</span>
                 </div>
-                <button onclick="closeModal('viewLeadModal')" class="text-slate-400 hover:text-white">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                <button onclick="closeModal('viewLeadModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-
-            <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto" id="leadModalContent">
-            </div>
-
+            <div class="p-6 space-y-5 max-h-[75vh] overflow-y-auto" id="leadModalContent"></div>
             <div class="p-4 border-t border-slate-700 bg-slate-900 flex justify-end">
-                <button onclick="closeModal('viewLeadModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg">
-                    סגור
-                </button>
+                <button onclick="closeModal('viewLeadModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg">סגור</button>
             </div>
         </div>
     </div>
 
-    <!-- מודאל הגדרות אבטחה וחיבור Google Apps Script -->
+    <!-- מודאל קוד Apps Script -->
     <div id="securityModal" class="fixed inset-0 z-50 hidden bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
         <div class="bg-slate-800 border border-slate-700 rounded-2xl w-full max-w-3xl overflow-hidden shadow-2xl">
             <div class="p-5 border-b border-slate-700 flex items-center justify-between bg-slate-850">
                 <div class="flex items-center gap-2 text-white font-bold text-base">
                     <i data-lucide="code-2" class="w-5 h-5 text-emerald-400"></i>
-                    <span>קוד Google Apps Script המעודכן (100% נקי משגיאות)</span>
+                    <span>קוד Google Apps Script המעודכן</span>
                 </div>
-                <button onclick="closeModal('securityModal')" class="text-slate-400 hover:text-white">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                <button onclick="closeModal('securityModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-
-            <div class="p-6 space-y-6 max-h-[75vh] overflow-y-auto">
-                
-                <div class="p-4 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-xs text-emerald-300 space-y-2">
-                    <p class="font-bold text-emerald-200 flex items-center gap-1.5">
-                        <i data-lucide="check-circle-2" class="w-4 h-4"></i> איך להגדיר את שם הקמפיין?
-                    </p>
-                    <p class="text-slate-300 leading-relaxed">
-                        בשורה 8 בקוד למטה תוכל לרשום את שם הקמפיין הרצוי, למשל: <code>var MANUAL_CAMPAIGN_NAME = "קמפיין תמיכה 2026";</code>.<br>
-                        אם תשאיר אותה ריקה (<code>""</code>), הקוד ייקח אוטומטית את שם קובץ ה-Google Sheet!
-                    </p>
+            <div class="p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+                <div class="flex items-center justify-between">
+                    <label class="text-xs font-bold text-slate-300">העתק את הקוד המתוקן והדבק ב-Apps Script במקום הקוד הישן:</label>
+                    <button onclick="copyAppsScriptCode()" class="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
+                        <i data-lucide="copy" class="w-3.5 h-3.5"></i> העתק קוד
+                    </button>
                 </div>
+                <pre class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-[11px] text-emerald-400 font-mono overflow-x-auto text-left dir-ltr max-h-80" id="scriptCodeBlock">
+var MANUAL_CAMPAIGN_NAME = ""; 
 
-                <!-- קוד Apps Script להעתקה -->
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs font-bold text-slate-300">העתק את הקוד המתוקן והדבק ב-Apps Script:</label>
-                        <button onclick="copyAppsScriptCode()" class="text-xs text-emerald-400 hover:text-emerald-300 flex items-center gap-1">
-                            <i data-lucide="copy" class="w-3.5 h-3.5"></i> העתק קוד
-                        </button>
-                    </div>
-                    <pre class="bg-slate-950 p-3.5 rounded-xl border border-slate-800 text-[11px] text-emerald-400 font-mono overflow-x-auto text-left dir-ltr max-h-80" id="scriptCodeBlock">
 function sendLeadToFirebase(e) {
   try {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getActiveSheet();
-    
-    // 👈 רשום כאן את שם הקמפיין הרצוי. אם תשאיר ריק (""), הקוד ייקח את שם הקובץ אוטומטית!
-    var MANUAL_CAMPAIGN_NAME = ""; 
-
-    var autoCampaign = ss.getName().replace(/\s*\(תגובות\)\s*/i, "").replace(/\s*\(Responses\)\s*/i, "").trim();
-    var campaignName = MANUAL_CAMPAIGN_NAME.trim() || autoCampaign || sheet.getName() || "קמפיין גוגל שיטס";
-    var sheetName = sheet.getName() || "גיליון 1";
-
+    var sheet = (e && e.range) ? e.range.getSheet() : ss.getActiveSheet();
     var row = (e && e.range) ? e.range.getRow() : sheet.getLastRow();
     if (row <= 1) return;
-
-    var lastCol = sheet.getLastColumn();
-    if (lastCol < 1) return;
-
-    var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
-    var values = sheet.getRange(row, 1, 1, lastCol).getValues()[0];
-
-    var name = "", phone = "", email = "";
-    var maritalStatus = "", gamblingStatus = "", lgbtq = "";
-    var extraDetails = {};
-
-    for (var i = 0; i < headers.length; i++) {
-      var headerRaw = String(headers[i] || "").trim();
-      var headerClean = headerRaw.toLowerCase().replace(/_/g, " ");
-      var val = (values[i] !== undefined && values[i] !== null) ? String(values[i]).trim() : "";
-
-      if (!val) continue;
-
-      if (headerClean === "first name" || headerClean.indexOf("first_name") !== -1 || headerClean.indexOf("שם") !== -1 || headerClean.indexOf("name") !== -1) {
-        if (!name) name = val;
-      } else if (headerClean === "phone number" || headerClean.indexOf("phone_number") !== -1 || headerClean.indexOf("טלפון") !== -1 || headerClean.indexOf("phone") !== -1 || headerClean.indexOf("נייד") !== -1) {
-        if (!phone) phone = val;
-      } else if (headerClean.indexOf("מייל") !== -1 || headerClean.indexOf("email") !== -1) {
-        if (!email) email = val;
-      } else if (headerClean.indexOf("זוגי") !== -1 || headerClean.indexOf("סטטוס") !== -1) {
-        if (!maritalStatus) maritalStatus = val;
-      } else if (headerClean.indexOf("הימורים") !== -1 || headerClean.indexOf("מצב") !== -1) {
-        if (!gamblingStatus) gamblingStatus = val;
-      } else if (headerClean.indexOf("להט") !== -1 || headerClean.indexOf("lgbt") !== -1) {
-        if (!lgbtq) lgbtq = val;
-      } else {
-        extraDetails[headerRaw] = val;
-      }
-    }
-
-    if (!name && values.length > 0) name = String(values[0] || values[1] || "");
-    if (!phone && values.length > 1) phone = String(values[1] || values[2] || "");
-
-    // בניית ה-JSON בפורמט מאובטח שמבטיח שכל השדות מחזירים מחרוזת תקינה
-    var payload = {
-      fields: {
-        name: { stringValue: String(name || "פנייה משיטס") },
-        phone: { stringValue: String(phone || "") },
-        email: { stringValue: String(email || "") },
-        source: { stringValue: String(campaignName || "קמפיין שיטס") },
-        sheetName: { stringValue: String(sheetName || "גיליון 1") },
-        maritalStatus: { stringValue: String(maritalStatus || "") },
-        gamblingStatus: { stringValue: String(gamblingStatus || "") },
-        lgbtq: { stringValue: String(lgbtq || "") },
-        extraDetailsJson: { stringValue: String(JSON.stringify(extraDetails) || "{}") },
-        status: { stringValue: "חדש" },
-        timestamp: { stringValue: new Date().toISOString() }
-      }
-    };
-    
-    var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads";
-    
-    var options = {
-      method: "post",
-      contentType: "application/json",
-      payload: JSON.stringify(payload),
-      muteHttpExceptions: true
-    };
-    
-    var response = UrlFetchApp.fetch(url, options);
-    Logger.log("Response Code: " + response.getResponseCode());
-    Logger.log("Response Body: " + response.getContentText());
+    sendRowToFirebase(ss, sheet, row);
   } catch (err) {
-    Logger.log("Error in sendLeadToFirebase: " + err.toString());
+    Logger.log("Error: " + err.toString());
   }
 }
-                    </pre>
-                </div>
 
+function syncAllExistingLeads() {
+  try {
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheets = ss.getSheets();
+    var totalCount = 0;
+    for (var s = 0; s < sheets.length; s++) {
+      var sheet = sheets[s];
+      if (sheet.isSheetHidden()) continue;
+      var lastRow = sheet.getLastRow();
+      if (lastRow > 1) {
+        for (var r = 2; r <= lastRow; r++) {
+          if (sendRowToFirebase(ss, sheet, r)) totalCount++;
+        }
+      }
+    }
+    SpreadsheetApp.getUi().alert("הסנכרון הושלם! סונכרנו " + totalCount + " לידים לדאשבורד.");
+  } catch (err) {
+    SpreadsheetApp.getUi().alert("שגיאה בסנכרון: " + err.toString());
+  }
+}
+
+function sendRowToFirebase(ss, sheet, row) {
+  var autoCampaign = ss.getName().replace(/\s*\(תגובות\)\s*/i, "").replace(/\s*\(Responses\)\s*/i, "").trim();
+  var campaignName = MANUAL_CAMPAIGN_NAME.trim() || autoCampaign || sheet.getName() || "קמפיין שיטס";
+  var sheetName = sheet.getName() || "גיליון 1";
+  var lastCol = sheet.getLastColumn();
+  if (lastCol < 1) return false;
+
+  var headers = sheet.getRange(1, 1, 1, lastCol).getValues()[0];
+  var rawValues = sheet.getRange(row, 1, 1, lastCol).getValues()[0];
+  var displayValues = sheet.getRange(row, 1, 1, lastCol).getDisplayValues()[0];
+
+  var firstName = "", lastName = "", fullName = "", phone = "", email = "", notes = "", sheetStatus = "";
+  var maritalStatus = "", gamblingStatus = "", lgbtq = "", extraDetails = {}, rowDate = null;
+
+  for (var i = 0; i < headers.length; i++) {
+    var headerRaw = String(headers[i] || "").trim();
+    var headerClean = headerRaw.toLowerCase().replace(/_/g, " ").replace(/-/g, " ");
+    var val = (displayValues[i] !== undefined && String(displayValues[i]).trim() !== "") ? String(displayValues[i]).trim() : ((rawValues[i] !== undefined) ? String(rawValues[i]).trim() : "");
+
+    if (!val) continue;
+
+    if (headerClean.indexOf("חותמת") !== -1 || headerClean.indexOf("תאריך") !== -1 || headerClean.indexOf("זמן") !== -1 || headerClean.indexOf("timestamp") !== -1 || headerClean.indexOf("date") !== -1) {
+      if (!rowDate) rowDate = parseSheetDate(rawValues[i], displayValues[i]);
+    } else if (headerClean.indexOf("שם פרטי") !== -1 || headerClean.indexOf("first_name") !== -1) {
+      firstName = val;
+    } else if (headerClean.indexOf("שם משפחה") !== -1 || headerClean.indexOf("last_name") !== -1) {
+      lastName = val;
+    } else if (!fullName && (headerClean.indexOf("שם") !== -1 || headerClean.indexOf("name") !== -1)) {
+      fullName = val;
+    } else if (headerClean.indexOf("טלפון") !== -1 || headerClean.indexOf("נייד") !== -1 || headerClean.indexOf("סלולרי") !== -1 || headerClean.indexOf("phone") !== -1) {
+      if (!phone) phone = val;
+    } else if (headerClean.indexOf("מייל") !== -1 || headerClean.indexOf("אימייל") !== -1 || headerClean.indexOf("דוא\"ל") !== -1 || headerClean.indexOf("email") !== -1) {
+      if (!email) email = val;
+    } else if (headerClean.indexOf("הערות") !== -1 || headerClean.indexOf("הערה") !== -1 || headerClean.indexOf("note") !== -1) {
+      notes = val;
+    } else if (headerClean.indexOf("סטטוס") !== -1 || headerClean.indexOf("status") !== -1) {
+      sheetStatus = val;
+    } else {
+      extraDetails[headerRaw] = val;
+    }
+  }
+
+  var name = (firstName || lastName) ? (firstName + " " + lastName).trim() : fullName;
+  if (!rowDate) rowDate = new Date();
+  var safeIsoDate = (rowDate && typeof rowDate.toISOString === 'function') ? rowDate.toISOString() : new Date().toISOString();
+
+  if (!phone && !name && !email) return false;
+
+  var docId = (ss.getId() + "_" + sheet.getSheetId() + "_row_" + row).replace(/[^a-zA-Z0-9_-]/g, "_");
+
+  var payload = {
+    fields: {
+      name: { stringValue: String(name || "פנייה משיטס") },
+      phone: { stringValue: String(phone || "") },
+      email: { stringValue: String(email || "") },
+      source: { stringValue: String(campaignName) },
+      sheetName: { stringValue: String(sheetName) },
+      maritalStatus: { stringValue: String(maritalStatus) },
+      gamblingStatus: { stringValue: String(gamblingStatus) },
+      lgbtq: { stringValue: String(lgbtq) },
+      notes: { stringValue: String(notes) },
+      extraDetailsJson: { stringValue: JSON.stringify(extraDetails) },
+      status: { stringValue: String(sheetStatus || "חדש") },
+      timestamp: { stringValue: safeIsoDate }
+    }
+  };
+
+  var apiKey = "AIzaSyCotYARE-PfM2vPdr3UtRzVu5M_1FieYKk";
+  var url = "https://firestore.googleapis.com/v1/projects/eliran-apps/databases/(default)/documents/artifacts/eliran-apps/public/data/leads/" + docId + "?key=" + apiKey;
+
+  var options = {
+    method: "patch",
+    contentType: "application/json",
+    payload: JSON.stringify(payload),
+    muteHttpExceptions: true
+  };
+
+  var res = UrlFetchApp.fetch(url, options);
+  return (res.getResponseCode() >= 200 && res.getResponseCode() < 300);
+}
+
+function parseSheetDate(rawVal, displayVal) {
+  if (rawVal && (Object.prototype.toString.call(rawVal) === '[object Date]' || typeof rawVal.getTime === 'function')) {
+    return new Date(rawVal.getTime());
+  }
+  var str = String(displayVal || rawVal || "").trim();
+  var d = new Date(str);
+  return !isNaN(d.getTime()) ? d : null;
+}
+                </pre>
             </div>
-
             <div class="p-4 border-t border-slate-700 bg-slate-900 flex justify-end">
-                <button onclick="closeModal('securityModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg">
-                    סגור
-                </button>
+                <button onclick="closeModal('securityModal')" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold rounded-lg">סגור</button>
             </div>
         </div>
     </div>
@@ -483,18 +542,15 @@ function sendLeadToFirebase(e) {
                     <i data-lucide="user-plus" class="w-5 h-5 text-emerald-400"></i>
                     <span>הוספת ליד ידני למערכת</span>
                 </div>
-                <button onclick="closeModal('addLeadModal')" class="text-slate-400 hover:text-white">
-                    <i data-lucide="x" class="w-5 h-5"></i>
-                </button>
+                <button onclick="closeModal('addLeadModal')" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
-
             <form onsubmit="handleManualAddLead(event)" class="p-6 space-y-4">
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">שם מלא (first_name)</label>
+                    <label class="block text-xs text-slate-400 mb-1">שם מלא</label>
                     <input type="text" id="manualName" required placeholder="למשל: דניאל מזרחי" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">מספר טלפון (phone_number)</label>
+                    <label class="block text-xs text-slate-400 mb-1">מספר טלפון</label>
                     <input type="tel" id="manualPhone" required placeholder="050-0000000" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
@@ -502,7 +558,7 @@ function sendLeadToFirebase(e) {
                     <input type="text" id="manualSource" required placeholder="למשל: קמפיין תמיכה" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
                 <div>
-                    <label class="block text-xs text-slate-400 mb-1">שם הגיליון (Tab Name)</label>
+                    <label class="block text-xs text-slate-400 mb-1">שם הגיליון</label>
                     <input type="text" id="manualSheetName" placeholder="למשל: טופס זוגות" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500">
                 </div>
                 <div class="pt-2 flex justify-end gap-2">
@@ -516,16 +572,14 @@ function sendLeadToFirebase(e) {
         </div>
     </div>
 
-    <!-- Firebase SDK & Javascript App Logic -->
+    <!-- Firebase SDK Logic -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // Gemini API Key
-        const apiKey = "";
+        const apiKey = ""; // הכנס מפתח Gemini API במידת הצורך
 
-        // Firebase Configuration - eliran-apps
         const firebaseConfig = {
             apiKey: "AIzaSyCotYARE-PfM2vPdr3UtRzVu5M_1FieYKk",
             authDomain: "eliran-apps.firebaseapp.com",
@@ -536,28 +590,39 @@ function sendLeadToFirebase(e) {
             measurementId: "G-F862TNM65X"
         };
 
-        const currentAppId = typeof __app_id !== 'undefined' ? __app_id : 'eliran-apps';
+        const currentAppId = 'eliran-apps';
         let db = null;
         let auth = null;
-        let currentUser = null;
 
-        // מודל נתונים מקומי
         let leadsData = [];
+        let activeStatusTabFilter = 'ALL';
         let trendChartObj = null;
         let sourceChartObj = null;
         let hourlyChartObj = null;
 
-        // טעינה ראשונית וחיבור ל-Firebase
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#039;');
+        }
+
+        function showNotification(msg, color = "emerald") {
+            const toast = document.getElementById('notificationToast');
+            const msgEl = document.getElementById('toastMessage');
+            if (!toast || !msgEl) return;
+            msgEl.innerText = msg;
+            toast.className = `fixed bottom-5 left-5 z-50 px-4 py-3 rounded-xl shadow-2xl border text-xs font-semibold flex items-center gap-2 transition-all duration-300 bg-slate-900 border-${color}-500/50 text-${color}-400`;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 4000);
+        }
+
         window.addEventListener('DOMContentLoaded', async () => {
             lucide.createIcons();
             initCharts();
-            
             try {
                 const app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
 
-                // אימות זהות בענן
                 if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
                     await signInWithCustomToken(auth, __initial_auth_token);
                 } else {
@@ -565,22 +630,17 @@ function sendLeadToFirebase(e) {
                 }
 
                 onAuthStateChanged(auth, (user) => {
-                    currentUser = user;
-                    if (user) {
-                        listenToFirestoreLeads();
-                    }
+                    if (user) listenToFirestoreLeads();
                 });
 
+                listenToFirestoreLeads();
             } catch (err) {
-                console.warn("Firebase Fallback", err);
-                loadLocalDemoData();
+                console.warn("Firebase Auth Error", err);
             }
         });
 
-        // האזנה בזמן אמת לנתיב ב-Firestore
         function listenToFirestoreLeads() {
-            if (!db || !currentUser) return;
-
+            if (!db) return;
             const leadsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'leads');
 
             onSnapshot(leadsRef, (snapshot) => {
@@ -593,133 +653,149 @@ function sendLeadToFirebase(e) {
                     }
                     loaded.push({
                         id: docSnap.id,
-                        name: data.name || 'ללא שם',
+                        name: data.name || 'פנייה ללא שם',
                         phone: data.phone || '',
                         email: data.email || '',
-                        source: data.source || 'קמפיין כללי',
+                        source: data.source || 'ללא מקור',
                         sheetName: data.sheetName || 'גיליון 1',
                         maritalStatus: data.maritalStatus || '',
                         gamblingStatus: data.gamblingStatus || '',
                         lgbtq: data.lgbtq || '',
+                        notes: data.notes || '',
                         extraDetails: extraObj,
                         status: data.status || 'חדש',
                         date: data.timestamp ? new Date(data.timestamp) : new Date()
                     });
                 });
 
-                if (loaded.length === 0) {
-                    seedDemoDataToFirestore();
-                } else {
-                    leadsData = loaded.sort((a, b) => b.date - a.date);
-                    updateDashboard();
-                }
+                leadsData = loaded.sort((a, b) => b.date - a.date);
+                populateGlobalFileFilter();
+                updateDashboard();
             }, (error) => {
                 console.error("Firestore Error:", error);
-                loadLocalDemoData();
             });
         }
 
-        // זריעת נתוני הדגמה ל-Firestore במידה והקולקשן ריק
-        async function seedDemoDataToFirestore() {
-            if (!db || !currentUser) return;
-            const leadsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'leads');
-            const sampleSources = ['קמפיין תמיכה - פייסבוק', 'טופס ייעוץ דיסקרטי', 'קמפיין גוגל אדס'];
-            const sampleSheets = ['טופס זוגות הימורים', 'פניות אישיות', 'גיליון 1'];
-            const sampleNames = ['ישראל ישראלי', 'מיכל אברהם', 'דוד לוי', 'שרה כהן', 'רועי מזרחי', 'ענת שפירא'];
-            const maritalStatuses = ['נשוי/ה', 'בזוגיות', 'גרוש/ה', 'פרוד/ה'];
-            const gamblingStatuses = ['פעיל כיום', 'בתהליך גמילה', 'הפסיק/ה לאחרונה', 'משבר נוכחי'];
-            const lgbtqOptions = ['כן', 'לא', 'מעדיף/ה לא לציין'];
-            const statuses = ['חדש', 'בטיפול', 'הפך לקוח', 'לא רלוונטי'];
+        function populateGlobalFileFilter() {
+            const select = document.getElementById('globalFileFilter');
+            if (!select) return;
 
-            const now = new Date();
-            for (let i = 0; i < 20; i++) {
-                const daysAgo = Math.floor(Math.random() * 20);
-                const leadDate = new Date(now);
-                leadDate.setDate(now.getDate() - daysAgo);
+            const currentVal = select.value;
+            const uniqueFiles = Array.from(new Set(leadsData.map(l => l.source).filter(Boolean)));
 
-                await addDoc(leadsRef, {
-                    name: sampleNames[i % sampleNames.length],
-                    phone: '05' + Math.floor(10000000 + Math.random() * 90000000),
-                    email: 'lead' + i + '@domain.com',
-                    source: sampleSources[i % sampleSources.length],
-                    sheetName: sampleSheets[i % sampleSheets.length],
-                    maritalStatus: maritalStatuses[i % maritalStatuses.length],
-                    gamblingStatus: gamblingStatuses[i % gamblingStatuses.length],
-                    lgbtq: lgbtqOptions[i % lgbtqOptions.length],
-                    status: statuses[i % statuses.length],
-                    timestamp: leadDate.toISOString()
-                });
+            select.innerHTML = '';
+
+            if (uniqueFiles.length === 0) {
+                const opt = document.createElement('option');
+                opt.value = 'ALL';
+                opt.className = 'bg-slate-900 text-white';
+                opt.textContent = 'אין קבצים מחוברים (0 לידים)';
+                select.appendChild(opt);
+                select.value = 'ALL';
+                return;
+            }
+
+            const allOpt = document.createElement('option');
+            allOpt.value = 'ALL';
+            allOpt.className = 'bg-slate-900 text-white';
+            allOpt.textContent = `כל הקבצים והקמפיינים (${leadsData.length})`;
+            select.appendChild(allOpt);
+
+            uniqueFiles.forEach(file => {
+                const fileCount = leadsData.filter(l => l.source === file).length;
+                const opt = document.createElement('option');
+                opt.value = file;
+                opt.className = 'bg-slate-900 text-white';
+                opt.textContent = `${file} (${fileCount})`;
+                select.appendChild(opt);
+            });
+
+            if (uniqueFiles.includes(currentVal) || currentVal === 'ALL') {
+                select.value = currentVal;
+            } else {
+                select.value = 'ALL';
             }
         }
 
-        // טעינת נתונים מקומיים במידה ואין תקשורת
-        function loadLocalDemoData() {
-            const sources = ['קמפיין תמיכה - פייסבוק', 'טופס ייעוץ דיסקרטי', 'קמפיין גוגל אדס'];
-            const sheets = ['טופס זוגות הימורים', 'פניות אישיות', 'גיליון 1'];
-            const sampleNames = ['ישראל ישראלי', 'מיכל אברהם', 'דוד לוי', 'שרה כהן', 'רועי מזרחי'];
-            const maritalStatuses = ['נשוי/ה', 'בזוגיות', 'גרוש/ה'];
-            const gamblingStatuses = ['פעיל כיום', 'בתהליך גמילה', 'הפסיק/ה לאחרונה'];
-            const lgbtqOptions = ['כן', 'לא'];
-            const statuses = ['חדש', 'בטיפול', 'הפך לקוח', 'לא רלוונטי'];
-            const now = new Date();
+        window.onGlobalFilterChange = function() { updateDashboard(); };
+
+        function getActiveLeadsData() {
+            const select = document.getElementById('globalFileFilter');
+            const selectedFile = select ? select.value : 'ALL';
+            if (!selectedFile || selectedFile === 'ALL') return leadsData;
+            return leadsData.filter(l => l.source === selectedFile);
+        }
+
+        window.setTabStatusFilter = function(status) {
+            activeStatusTabFilter = status;
+            const statuses = ['ALL', 'חדש', 'בטיפול', 'הפך לקוח', 'לא רלוונטי'];
+            statuses.forEach(s => {
+                const btn = document.getElementById(`tabStatus-${s}`);
+                if (btn) {
+                    btn.className = (s === status) 
+                        ? "px-3 py-1.5 rounded-lg transition bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-bold"
+                        : "px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-white";
+                }
+            });
+            filterLeadsTable();
+        };
+
+        window.executeClearAllLeads = async function() {
+            closeModal('confirmClearModal');
+            showNotification("מבצע איפוס מוחלט ב-Firebase...", "amber");
 
             leadsData = [];
-            for (let i = 0; i < 25; i++) {
-                const daysAgo = Math.floor(Math.random() * 30);
-                const d = new Date(now);
-                d.setDate(now.getDate() - daysAgo);
-
-                leadsData.push({
-                    id: 'local_' + i,
-                    date: d,
-                    name: sampleNames[i % sampleNames.length],
-                    phone: '05' + Math.floor(10000000 + Math.random() * 90000000),
-                    email: 'demo@domain.com',
-                    source: sources[i % sources.length],
-                    sheetName: sheets[i % sheets.length],
-                    maritalStatus: maritalStatuses[i % maritalStatuses.length],
-                    gamblingStatus: gamblingStatuses[i % gamblingStatuses.length],
-                    lgbtq: lgbtqOptions[i % lgbtqOptions.length],
-                    extraDetails: {},
-                    status: statuses[i % statuses.length]
-                });
-            }
-            leadsData.sort((a, b) => b.date - a.date);
+            populateGlobalFileFilter();
             updateDashboard();
-        }
 
-        // עדכון סטטוס טיפול ב-Firestore
+            try {
+                if (db) {
+                    const leadsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'leads');
+                    const snapshot = await getDocs(leadsRef);
+                    const deletePromises = snapshot.docs.map(docSnap => deleteDoc(docSnap.ref));
+                    await Promise.all(deletePromises);
+                }
+            } catch (sdkErr) {
+                console.warn("SDK Clear error:", sdkErr);
+            }
+
+            showNotification("איפוס הושלם בהצלחה!", "emerald");
+        };
+
         window.updateLeadStatusInFirestore = async function(leadId, newStatus) {
-            if (db && currentUser) {
+            if (db) {
                 try {
                     const docRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'leads', leadId);
                     await updateDoc(docRef, { status: newStatus });
+                    showNotification("הסטטוס עודכן ל: " + newStatus, "emerald");
                 } catch (e) {
                     console.error("Failed to update status", e);
                 }
-            } else {
-                const item = leadsData.find(l => l.id === leadId);
-                if (item) item.status = newStatus;
-                updateDashboard();
             }
         };
 
-        // מחיקת ליד ב-Firestore
         window.deleteLeadFromFirestore = async function(leadId) {
-            if (db && currentUser) {
+            leadsData = leadsData.filter(l => l.id !== leadId);
+            updateDashboard();
+
+            if (db) {
                 try {
                     const docRef = doc(db, 'artifacts', currentAppId, 'public', 'data', 'leads', leadId);
                     await deleteDoc(docRef);
+                    showNotification("הליד נמחק בהצלחה", "emerald");
                 } catch (e) {
                     console.error("Failed to delete lead", e);
                 }
-            } else {
-                leadsData = leadsData.filter(l => l.id !== leadId);
-                updateDashboard();
             }
         };
 
-        // הצגת מודאל עם כל פרטי הליד
+        function getWhatsAppUrl(phone) {
+            if (!phone) return '#';
+            let cleaned = phone.replace(/\D/g, '');
+            if (cleaned.startsWith('0')) cleaned = '972' + cleaned.substring(1);
+            return `https://wa.me/${cleaned}`;
+        }
+
         window.viewLeadDetails = function(leadId) {
             const lead = leadsData.find(l => l.id === leadId);
             if (!lead) return;
@@ -734,8 +810,8 @@ function sendLeadToFirebase(e) {
                         <div class="grid grid-cols-1 gap-2">
                             ${Object.entries(lead.extraDetails).map(([key, val]) => `
                                 <div class="bg-slate-900/60 p-2.5 rounded-lg border border-slate-700/60 text-xs">
-                                    <span class="text-slate-400 block mb-0.5">${key}:</span>
-                                    <span class="text-white font-medium">${val}</span>
+                                    <span class="text-slate-400 block mb-0.5">${escapeHtml(key)}:</span>
+                                    <span class="text-white font-medium">${escapeHtml(val)}</span>
                                 </div>
                             `).join('')}
                         </div>
@@ -743,51 +819,27 @@ function sendLeadToFirebase(e) {
                 `;
             }
 
+            const waUrl = getWhatsAppUrl(lead.phone);
+
             document.getElementById('leadModalContent').innerHTML = `
                 <div class="grid grid-cols-2 gap-3 text-xs">
                     <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
-                        <span class="text-slate-400 block mb-1">שם מלא (first_name):</span>
-                        <strong class="text-white text-sm">${lead.name}</strong>
+                        <span class="text-slate-400 block mb-1">שם מלא:</span>
+                        <strong class="text-white text-sm">${escapeHtml(lead.name)}</strong>
                     </div>
-                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
-                        <span class="text-slate-400 block mb-1">מספר טלפון (phone_number):</span>
-                        <strong class="text-white text-sm dir-ltr inline-block">${lead.phone}</strong>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-2 gap-3 text-xs">
-                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
-                        <span class="text-slate-400 block mb-1">קמפיין מקור:</span>
-                        <span class="text-emerald-400 font-semibold">${lead.source}</span>
-                    </div>
-                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70">
-                        <span class="text-slate-400 block mb-1">שם הגיליון (Tab Name):</span>
-                        <span class="text-indigo-400 font-semibold">${lead.sheetName}</span>
+                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70 flex items-center justify-between">
+                        <div>
+                            <span class="text-slate-400 block mb-1">טלפון:</span>
+                            <strong class="text-white text-sm dir-ltr inline-block">${escapeHtml(lead.phone)}</strong>
+                        </div>
+                        ${lead.phone ? `<a href="${waUrl}" target="_blank" class="p-2 bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded-lg transition"><i data-lucide="message-square" class="w-4 h-4"></i></a>` : ''}
                     </div>
                 </div>
 
-                <!-- תשובות השאלון -->
-                <div class="space-y-3 border-t border-slate-700/80 pt-3">
-                    <h4 class="text-xs font-bold text-emerald-400 flex items-center gap-1">
-                        <i data-lucide="help-circle" class="w-4 h-4"></i> תשובות שאלון העומק:
-                    </h4>
-
-                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70 text-xs space-y-1">
-                        <span class="text-slate-400 block">מהו הסטטוס הזוגי שלך מול האדם שמתמודד עם ההימורים?</span>
-                        <p class="text-white font-semibold text-sm">${lead.maritalStatus || 'לא מולא'}</p>
-                    </div>
-
-                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70 text-xs space-y-1">
-                        <span class="text-slate-400 block">מהו מצב ההימורים של בן/בת הזוג כיום?</span>
-                        <p class="text-white font-semibold text-sm">${lead.gamblingStatus || 'לא מולא'}</p>
-                    </div>
-
-                    <div class="bg-slate-900/80 p-3 rounded-xl border border-slate-700/70 text-xs space-y-1">
-                        <span class="text-slate-400 block">האם אתם משתייכים לקהילה הלהט״בית?</span>
-                        <p class="text-white font-semibold text-sm">${lead.lgbtq || 'לא מולא'}</p>
-                    </div>
+                <div class="bg-amber-500/10 border border-amber-500/30 p-3.5 rounded-xl text-xs space-y-1 mt-3">
+                    <span class="text-amber-400 font-bold flex items-center gap-1.5 mb-1"><i data-lucide="file-text" class="w-4 h-4"></i> הערות מתוך ה-Google Sheet:</span>
+                    <p class="text-slate-200 text-sm leading-relaxed">${escapeHtml(lead.notes) || 'אין הערות מתועדות.'}</p>
                 </div>
-
                 ${extraHtml}
             `;
 
@@ -795,7 +847,6 @@ function sendLeadToFirebase(e) {
             openModal('viewLeadModal');
         };
 
-        // הוספת ליד ידני
         window.handleManualAddLead = async function(event) {
             event.preventDefault();
             const name = document.getElementById('manualName').value.trim();
@@ -803,33 +854,12 @@ function sendLeadToFirebase(e) {
             const source = document.getElementById('manualSource').value.trim();
             const sheetName = document.getElementById('manualSheetName').value.trim() || 'גיליון ידני';
 
-            if (db && currentUser) {
+            if (db) {
                 const leadsRef = collection(db, 'artifacts', currentAppId, 'public', 'data', 'leads');
                 await addDoc(leadsRef, {
-                    name: name,
-                    phone: phone,
-                    source: source,
-                    sheetName: sheetName,
-                    maritalStatus: 'ידני',
-                    gamblingStatus: 'ידני',
-                    lgbtq: 'ללא',
-                    status: 'חדש',
-                    timestamp: new Date().toISOString()
+                    name, phone, source, sheetName,
+                    notes: '', status: 'חדש', timestamp: new Date().toISOString()
                 });
-            } else {
-                leadsData.unshift({
-                    id: 'local_' + Date.now(),
-                    date: new Date(),
-                    name: name,
-                    phone: phone,
-                    source: source,
-                    sheetName: sheetName,
-                    maritalStatus: 'ידני',
-                    gamblingStatus: 'ידני',
-                    lgbtq: 'ללא',
-                    status: 'חדש'
-                });
-                updateDashboard();
             }
 
             closeModal('addLeadModal');
@@ -839,40 +869,39 @@ function sendLeadToFirebase(e) {
             document.getElementById('manualSheetName').value = '';
         };
 
-        // חישוב KPI ועדכון UI
-        function calculateMetrics() {
+        function calculateMetrics(activeData) {
             const now = new Date();
             const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-            
-            const startOfYesterday = new Date(startOfToday);
-            startOfYesterday.setDate(startOfYesterday.getDate() - 1);
-            const endOfYesterday = new Date(startOfToday);
-
-            const currentDayOfWeek = now.getDay();
-            const startOfThisWeek = new Date(startOfToday);
-            startOfThisWeek.setDate(startOfToday.getDate() - currentDayOfWeek);
-
-            const startOfLastWeek = new Date(startOfThisWeek);
-            startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
-            const endOfLastWeek = new Date(startOfThisWeek);
-
+            const startOfYesterday = new Date(startOfToday); startOfYesterday.setDate(startOfYesterday.getDate() - 1);
+            const startOfThisWeek = new Date(startOfToday); startOfThisWeek.setDate(startOfToday.getDate() - now.getDay());
+            const startOfLastWeek = new Date(startOfThisWeek); startOfLastWeek.setDate(startOfLastWeek.getDate() - 7);
             const startOfThisMonth = new Date(now.getFullYear(), now.getMonth(), 1);
             const startOfLastMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-            const endOfLastMonth = new Date(startOfThisMonth);
 
-            const today = leadsData.filter(l => l.date >= startOfToday).length;
-            const yesterday = leadsData.filter(l => l.date >= startOfYesterday && l.date < endOfYesterday).length;
-            const thisWeek = leadsData.filter(l => l.date >= startOfThisWeek).length;
-            const lastWeek = leadsData.filter(l => l.date >= startOfLastWeek && l.date < endOfLastWeek).length;
-            const thisMonth = leadsData.filter(l => l.date >= startOfThisMonth).length;
-            const lastMonth = leadsData.filter(l => l.date >= startOfLastMonth && l.date < endOfLastMonth).length;
+            return {
+                total: activeData.length,
+                today: activeData.filter(l => l.date >= startOfToday).length,
+                yesterday: activeData.filter(l => l.date >= startOfYesterday && l.date < startOfToday).length,
+                thisWeek: activeData.filter(l => l.date >= startOfThisWeek).length,
+                lastWeek: activeData.filter(l => l.date >= startOfLastWeek && l.date < startOfThisWeek).length,
+                thisMonth: activeData.filter(l => l.date >= startOfThisMonth).length,
+                lastMonth: activeData.filter(l => l.date >= startOfLastMonth && l.date < startOfThisMonth).length
+            };
+        }
 
-            return { today, yesterday, thisWeek, lastWeek, thisMonth, lastMonth };
+        function updateStatusTabCounts(activeData) {
+            document.getElementById('cnt-ALL').innerText = activeData.length;
+            document.getElementById('cnt-חדש').innerText = activeData.filter(l => l.status === 'חדש').length;
+            document.getElementById('cnt-בטיפול').innerText = activeData.filter(l => l.status === 'בטיפול').length;
+            document.getElementById('cnt-הפך לקוח').innerText = activeData.filter(l => l.status === 'הפך לקוח').length;
+            document.getElementById('cnt-לא רלוונטי').innerText = activeData.filter(l => l.status === 'לא רלוונטי').length;
         }
 
         function updateDashboard() {
-            const metrics = calculateMetrics();
+            const activeData = getActiveLeadsData();
+            const metrics = calculateMetrics(activeData);
 
+            document.getElementById('kpiTotal').innerText = metrics.total;
             document.getElementById('kpiToday').innerText = metrics.today;
             document.getElementById('kpiYesterday').innerText = metrics.yesterday;
             document.getElementById('kpiYesterdaySub').innerText = `(${metrics.yesterday})`;
@@ -885,17 +914,17 @@ function sendLeadToFirebase(e) {
             renderDiffBadge('kpiWeekDiff', metrics.thisWeek, metrics.lastWeek);
             renderDiffBadge('kpiMonthDiff', metrics.thisMonth, metrics.lastMonth);
 
-            updateTrendChart();
-            updateSourceChart();
-            updateHourlyChart();
-            renderRuleBasedInsights(metrics);
-            renderSourceOptions();
+            updateStatusTabCounts(activeData);
+            updateTrendChart(activeData);
+            updateSourceChart(activeData);
+            updateHourlyChart(activeData);
+            renderSourceOptions(activeData);
             filterLeadsTable();
         }
 
         function renderDiffBadge(elementId, current, previous) {
             const el = document.getElementById(elementId);
-            if (!previous || previous === 0) {
+            if (!previous) {
                 el.className = 'inline-flex items-center text-xs font-semibold px-2 py-0.5 rounded-full bg-slate-700 text-slate-300';
                 el.innerText = 'חדש';
                 return;
@@ -914,29 +943,26 @@ function sendLeadToFirebase(e) {
             Chart.defaults.font.family = 'Rubik';
             Chart.defaults.color = '#94a3b8';
 
-            const ctxTrend = document.getElementById('trendChart').getContext('2d');
-            trendChartObj = new Chart(ctxTrend, {
+            trendChartObj = new Chart(document.getElementById('trendChart').getContext('2d'), {
                 type: 'line',
                 data: { labels: [], datasets: [{ label: 'לידים', data: [], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 3, fill: true, tension: 0.35 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { color: '#1e293b' } }, y: { grid: { color: '#1e293b' }, beginAtZero: true } } }
             });
 
-            const ctxSource = document.getElementById('sourceChart').getContext('2d');
-            sourceChartObj = new Chart(ctxSource, {
+            sourceChartObj = new Chart(document.getElementById('sourceChart').getContext('2d'), {
                 type: 'doughnut',
-                data: { labels: [], datasets: [{ data: [], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#8b5cf6'], borderWidth: 0 }] },
+                data: { labels: [], datasets: [{ data: [], backgroundColor: ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6', '#14b8a6'], borderWidth: 0 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, cutout: '70%' }
             });
 
-            const ctxHourly = document.getElementById('hourlyChart').getContext('2d');
-            hourlyChartObj = new Chart(ctxHourly, {
+            hourlyChartObj = new Chart(document.getElementById('hourlyChart').getContext('2d'), {
                 type: 'bar',
                 data: { labels: ['08:00', '10:00', '12:00', '14:00', '16:00', '18:00', '20:00', '22:00'], datasets: [{ label: 'פניות', data: [], backgroundColor: 'rgba(99, 102, 241, 0.7)', borderRadius: 6 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: '#1e293b' }, beginAtZero: true } } }
             });
         }
 
-        function updateTrendChart() {
+        function updateTrendChart(activeData) {
             const labels = [];
             const counts = [];
             const now = new Date();
@@ -944,36 +970,24 @@ function sendLeadToFirebase(e) {
                 const d = new Date(now);
                 d.setDate(now.getDate() - i);
                 labels.push(d.toLocaleDateString('he-IL', { month: 'numeric', day: 'numeric' }));
-                const cnt = leadsData.filter(l => l.date.getDate() === d.getDate() && l.date.getMonth() === d.getMonth()).length;
-                counts.push(cnt);
+                counts.push(activeData.filter(l => l.date.getDate() === d.getDate() && l.date.getMonth() === d.getMonth() && l.date.getFullYear() === d.getFullYear()).length);
             }
             trendChartObj.data.labels = labels;
             trendChartObj.data.datasets[0].data = counts;
             trendChartObj.update();
         }
 
-        function updateSourceChart() {
+        function updateSourceChart(activeData) {
             const counts = {};
-            leadsData.forEach(l => counts[l.source] = (counts[l.source] || 0) + 1);
-            const labels = Object.keys(counts);
-            const data = Object.values(counts);
-            const colors = ['#10b981', '#6366f1', '#f59e0b', '#ec4899', '#8b5cf6'];
-
-            sourceChartObj.data.labels = labels;
-            sourceChartObj.data.datasets[0].data = data;
+            activeData.forEach(l => counts[l.source] = (counts[l.source] || 0) + 1);
+            sourceChartObj.data.labels = Object.keys(counts);
+            sourceChartObj.data.datasets[0].data = Object.values(counts);
             sourceChartObj.update();
-
-            document.getElementById('sourceLegend').innerHTML = labels.map((lbl, idx) => `
-                <div class="flex items-center gap-2">
-                    <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: ${colors[idx % colors.length]}"></span>
-                    <span class="truncate font-medium" title="${lbl}">${lbl}: <strong class="text-white">${counts[lbl]}</strong></span>
-                </div>
-            `).join('');
         }
 
-        function updateHourlyChart() {
+        function updateHourlyChart(activeData) {
             const bins = [0, 0, 0, 0, 0, 0, 0, 0];
-            leadsData.forEach(l => {
+            activeData.forEach(l => {
                 const h = l.date.getHours();
                 if (h >= 8 && h < 10) bins[0]++;
                 else if (h >= 10 && h < 12) bins[1]++;
@@ -988,169 +1002,45 @@ function sendLeadToFirebase(e) {
             hourlyChartObj.update();
         }
 
-        function renderRuleBasedInsights(metrics) {
-            const container = document.getElementById('insightsContainer');
-            const insights = [];
-
-            const sourceCounts = {};
-            leadsData.forEach(l => sourceCounts[l.source] = (sourceCounts[l.source] || 0) + 1);
-            let topSource = 'טרם נקבע';
-            let maxCount = 0;
-            for (const [src, cnt] of Object.entries(sourceCounts)) {
-                if (cnt > maxCount) { maxCount = cnt; topSource = src; }
-            }
-
-            insights.push({
-                icon: 'trophy',
-                color: 'emerald',
-                title: 'הקמפיין המוביל כרגע',
-                desc: `הקמפיין <strong>"${topSource}"</strong> מביא את הכמות הגבוהה ביותר של פניות למערכת.`
-            });
-
-            if (metrics.thisWeek >= metrics.lastWeek) {
-                insights.push({
-                    icon: 'trending-up',
-                    color: 'blue',
-                    title: 'מגמת צמיחה שבועית',
-                    desc: `נרשמה יציבות/עלייה בפניות השבוע בהשוואה לשבוע שעבר.`
-                });
-            } else {
-                insights.push({
-                    icon: 'alert-circle',
-                    color: 'amber',
-                    title: 'ירידה בפניות השבוע',
-                    desc: `השבוע התקבלו פחות לידים משבוע שעבר. מומלץ לבדוק תקינות טפסים.`
-                });
-            }
-
-            container.innerHTML = insights.map(item => `
-                <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-700/60 flex items-start gap-3">
-                    <div class="p-2 rounded-lg bg-${item.color}-500/10 text-${item.color}-400 shrink-0 mt-0.5">
-                        <i data-lucide="${item.icon}" class="w-4 h-4"></i>
-                    </div>
-                    <div>
-                        <h4 class="text-xs font-bold text-white">${item.title}</h4>
-                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">${item.desc}</p>
-                    </div>
-                </div>
-            `).join('');
-            lucide.createIcons();
-        }
-
-        // ניתוח AI עם Gemini API
-        window.generateAIInsights = async function() {
-            const aiBtn = document.getElementById('aiBtn');
-            const aiOutputBox = document.getElementById('aiOutputBox');
-            
-            aiBtn.disabled = true;
-            aiBtn.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>מנתח קמפיינים ושאלונים...</span>`;
-            lucide.createIcons();
-
-            aiOutputBox.classList.remove('hidden');
-            aiOutputBox.innerHTML = `<span class="text-slate-400 italic">מייצר תובנות קמפיין ושאלונים באמצעות Gemini AI...</span>`;
-
-            const metrics = calculateMetrics();
-            const promptText = `
-נתח את נתוני הלידים והשאלונים המוצפנים הבאים והפק 3 תובנות אסטרטגיות קצרות בעברית:
-- לידים היום: ${metrics.today} (אתמול: ${metrics.yesterday})
-- לידים השבוע: ${metrics.thisWeek} (שבוע שעבר: ${metrics.lastWeek})
-- לידים החודש: ${metrics.thisMonth} (חודש שעבר: ${metrics.lastMonth})
-- סה"כ לידים במערכת: ${leadsData.length}
-`;
-
-            try {
-                const responseText = await fetchGeminiWithRetry(promptText, "אתה עוזר אנליטי שיווקי. ענה בעברית תמציתית וממוקדת קמפיינים ושאלונים.");
-                aiOutputBox.innerHTML = `
-                    <div class="space-y-1">
-                        <strong class="text-emerald-400 flex items-center gap-1 mb-1">
-                            <i data-lucide="sparkles" class="w-3.5 h-3.5"></i> ניתוח Gemini AI:
-                        </strong>
-                        <p class="whitespace-pre-line text-slate-200">${responseText}</p>
-                    </div>
-                `;
-            } catch (err) {
-                aiOutputBox.innerHTML = `
-                    <strong class="text-emerald-400">סיכום מערכת:</strong> זרם הלידים מהקמפיינים והשאלונים תקין ומסונכרן בזמן אמת.
-                `;
-            } finally {
-                aiBtn.disabled = false;
-                aiBtn.innerHTML = `<i data-lucide="bot" class="w-4 h-4"></i><span>חולל ניתוח AI</span>`;
-                lucide.createIcons();
-            }
-        };
-
-        async function fetchGeminiWithRetry(prompt, systemPrompt) {
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: systemPrompt }] }
-            };
-
-            const delays = [1000, 2000, 4000, 8000, 16000];
-            for (let i = 0; i <= delays.length; i++) {
-                try {
-                    const res = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    if (res.ok) {
-                        const data = await res.json();
-                        return data.candidates?.[0]?.content?.parts?.[0]?.text || 'אין מענה מעובד';
-                    }
-                } catch (e) {}
-                if (i < delays.length) await new Promise(r => setTimeout(r, delays[i]));
-            }
-            throw new Error('API failed');
-        }
-
         window.filterLeadsTable = function() {
-            const searchTerm = document.getElementById('searchInput').value.trim().toLowerCase();
-            const sourceVal = document.getElementById('sourceFilter').value;
+            const searchInput = document.getElementById('searchInput');
+            const searchTerm = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            const sourceSelect = document.getElementById('sourceFilter');
+            const tabFilterVal = sourceSelect ? sourceSelect.value : 'ALL';
+            const activeData = getActiveLeadsData();
 
-            const filtered = leadsData.filter(lead => {
-                const matchesSearch = 
-                    lead.name.toLowerCase().includes(searchTerm) || 
-                    lead.phone.includes(searchTerm) || 
-                    lead.source.toLowerCase().includes(searchTerm) ||
-                    lead.sheetName.toLowerCase().includes(searchTerm) ||
-                    lead.maritalStatus.toLowerCase().includes(searchTerm) ||
-                    lead.gamblingStatus.toLowerCase().includes(searchTerm) ||
-                    lead.lgbtq.toLowerCase().includes(searchTerm);
-
-                const matchesSource = (sourceVal === 'ALL') || (lead.source === sourceVal);
-                return matchesSearch && matchesSource;
+            const filtered = activeData.filter(lead => {
+                const matchesSearch = !searchTerm || (
+                    (lead.name && lead.name.toLowerCase().includes(searchTerm)) || 
+                    (lead.phone && lead.phone.includes(searchTerm)) || 
+                    (lead.notes && lead.notes.toLowerCase().includes(searchTerm))
+                );
+                const matchesTab = (tabFilterVal === 'ALL') || (lead.sheetName === tabFilterVal);
+                const matchesStatus = (activeStatusTabFilter === 'ALL') || (lead.status === activeStatusTabFilter);
+                return matchesSearch && matchesTab && matchesStatus;
             });
 
             const tbody = document.getElementById('leadsTableBody');
+            if (!tbody) return;
+
             if (filtered.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">לא נמצאו לידים התואמים את הסינון.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" class="py-8 text-center text-slate-500">אין כרגע לידים התואמים את הסינון.</td></tr>`;
                 return;
             }
 
-            tbody.innerHTML = filtered.slice(0, 25).map(lead => `
+            tbody.innerHTML = filtered.slice(0, 50).map(lead => `
                 <tr class="hover:bg-slate-800/40 transition">
-                    <td class="py-3 px-4 text-slate-400">
-                        ${lead.date.toLocaleDateString('he-IL')} <span class="text-slate-500 mr-1">${lead.date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</span>
-                    </td>
-                    <td class="py-3 px-4 font-semibold text-white">${lead.name}</td>
-                    <td class="py-3 px-4 text-slate-300 dir-ltr text-right">${lead.phone}</td>
-                    <td class="py-3 px-4">
-                        <span class="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">
-                            ${lead.source}
-                        </span>
-                    </td>
-                    <td class="py-3 px-4">
-                        <span class="inline-flex items-center px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs">
-                            ${lead.sheetName}
-                        </span>
-                    </td>
+                    <td class="py-3 px-4 text-slate-400">${lead.date.toLocaleDateString('he-IL')} <span class="text-slate-500 mr-1">${lead.date.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</span></td>
+                    <td class="py-3 px-4 font-semibold text-white">${escapeHtml(lead.name)}</td>
                     <td class="py-3 px-4 text-slate-300">
-                        <div class="flex items-center gap-1.5">
-                            ${lead.maritalStatus ? `<span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-slate-300">${lead.maritalStatus}</span>` : ''}
-                            ${lead.gamblingStatus ? `<span class="px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-300 text-[10px]">${lead.gamblingStatus}</span>` : ''}
+                        <div class="flex items-center gap-2 dir-ltr justify-end">
+                            <span class="font-mono">${escapeHtml(lead.phone)}</span>
+                            ${lead.phone ? `<a href="${getWhatsAppUrl(lead.phone)}" target="_blank" class="p-1 bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500 hover:text-white rounded transition"><i data-lucide="message-square" class="w-3.5 h-3.5"></i></a>` : ''}
                         </div>
                     </td>
+                    <td class="py-3 px-4"><span class="inline-flex items-center px-2.5 py-1 rounded-md bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs font-semibold">${escapeHtml(lead.source)}</span></td>
+                    <td class="py-3 px-4"><span class="inline-flex items-center px-2 py-0.5 rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 text-xs">${escapeHtml(lead.sheetName)}</span></td>
+                    <td class="py-3 px-4 text-slate-300 max-w-xs">${lead.notes ? `<div class="px-2 py-1 rounded bg-amber-500/10 border border-amber-500/20 text-amber-300 text-[11px] truncate">📝 ${escapeHtml(lead.notes)}</div>` : '-'}</td>
                     <td class="py-3 px-4">
                         <select onchange="updateLeadStatusInFirestore('${lead.id}', this.value)" class="bg-slate-900 border border-slate-700 rounded-lg px-2 py-1 text-xs text-slate-200 focus:outline-none focus:border-emerald-500">
                             <option value="חדש" ${lead.status === 'חדש' ? 'selected' : ''}>🔵 חדש</option>
@@ -1161,12 +1051,8 @@ function sendLeadToFirebase(e) {
                     </td>
                     <td class="py-3 px-4 text-center">
                         <div class="flex items-center justify-center gap-1">
-                            <button onclick="viewLeadDetails('${lead.id}')" class="text-blue-400 hover:text-blue-300 transition p-1" title="צפה בפרטים מלאים">
-                                <i data-lucide="eye" class="w-4 h-4"></i>
-                            </button>
-                            <button onclick="deleteLeadFromFirestore('${lead.id}')" class="text-slate-500 hover:text-rose-400 transition p-1" title="מחק ליד">
-                                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            </button>
+                            <button onclick="viewLeadDetails('${lead.id}')" class="text-blue-400 hover:text-blue-300 p-1"><i data-lucide="eye" class="w-4 h-4"></i></button>
+                            <button onclick="deleteLeadFromFirestore('${lead.id}')" class="text-slate-500 hover:text-rose-400 p-1"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
                         </div>
                     </td>
                 </tr>
@@ -1175,25 +1061,63 @@ function sendLeadToFirebase(e) {
             lucide.createIcons();
         };
 
-        function renderSourceOptions() {
+        window.exportLeadsToCSV = function() {
+            const activeData = getActiveLeadsData();
+            if (activeData.length === 0) return;
+
+            let csvContent = "\uFEFFתאריך ושעה,שם מלא,טלפון,אימייל,קמפיין,גיליון,סטטוס,הערות\n";
+            activeData.forEach(lead => {
+                const row = [
+                    `"${lead.date ? lead.date.toLocaleString('he-IL') : ''}"`,
+                    `"${lead.name || ''}"`,
+                    `"${lead.phone || ''}"`,
+                    `"${lead.email || ''}"`,
+                    `"${lead.source || ''}"`,
+                    `"${lead.sheetName || ''}"`,
+                    `"${lead.status || ''}"`,
+                    `"${(lead.notes || '').replace(/"/g, '""')}"`
+                ].join(",");
+                csvContent += row + "\n";
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.setAttribute("href", url);
+            a.setAttribute("download", `leads_export_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+        };
+
+        function renderSourceOptions(activeData) {
             const select = document.getElementById('sourceFilter');
+            if (!select) return;
             const currentVal = select.value;
-            const sources = Array.from(new Set(leadsData.map(l => l.source)));
-            select.innerHTML = `<option value="ALL">כל הקמפיינים והטפסים (${leadsData.length})</option>` +
-                sources.map(src => `<option value="${src}">${src}</option>`).join('');
-            select.value = currentVal;
+            const uniqueTabs = Array.from(new Set(activeData.map(l => l.sheetName).filter(Boolean)));
+            select.innerHTML = '';
+
+            const allOpt = document.createElement('option');
+            allOpt.value = 'ALL';
+            allOpt.textContent = `כל הגיליונות (${activeData.length})`;
+            select.appendChild(allOpt);
+
+            uniqueTabs.forEach(tab => {
+                const opt = document.createElement('option');
+                opt.value = tab;
+                opt.textContent = `${tab} (${activeData.filter(l => l.sheetName === tab).length})`;
+                select.appendChild(opt);
+            });
+
+            select.value = (uniqueTabs.includes(currentVal) || currentVal === 'ALL') ? currentVal : 'ALL';
         }
 
-        window.openModal = function(id) { document.getElementById(id).classList.remove('hidden'); };
-        window.closeModal = function(id) { document.getElementById(id).classList.add('hidden'); };
+        window.openModal = function(id) { document.getElementById(id)?.classList.remove('hidden'); };
+        window.closeModal = function(id) { document.getElementById(id)?.classList.add('hidden'); };
 
         window.copyAppsScriptCode = function() {
             const code = document.getElementById('scriptCodeBlock').innerText;
-            navigator.clipboard.writeText(code).then(() => {
-                alert('קוד ה-Apps Script המעודכן הועתק בהצלחה!');
-            }).catch(() => {
-                document.execCommand('copy');
-            });
+            navigator.clipboard.writeText(code).then(() => showNotification("הקוד הועתק ללוח!", "emerald"));
         };
     </script>
 </body>
