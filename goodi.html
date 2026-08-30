@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Witchy | העוזרת האישית שלך לניהול חווית העובד</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Custom Tailwind Config for Brand Identity -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            pink: '#ff1493',     // Main brand pink
+                            pinkHover: '#d90f7a', // Darker pink for hovers
+                            dark: '#0a0a0a',     // Deepest background
+                            panel: '#121214',    // Card backgrounds
+                            border: '#27272a',   // Subtle borders
+                            textMuted: '#a1a1aa' // Readable gray text
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Heebo', 'sans-serif'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-8px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background-color: #0a0a0a;
+            color: #ffffff;
+            font-family: 'Heebo', sans-serif;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Ambient Glows */
+        .ambient-glow-pink {
+            position: absolute;
+            top: -10%;
+            left: -15%;
+            width: 70vw;
+            height: 70vw;
+            background: radial-gradient(circle, rgba(255,20,147,0.08) 0%, rgba(10,10,10,0) 60%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .ambient-glow-purple {
+            position: absolute;
+            bottom: 10%;
+            right: -10%;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(128,0,128,0.06) 0%, rgba(10,10,10,0) 60%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Form Inputs UX */
+        .form-input {
+            background-color: rgba(24, 24, 27, 0.5);
+            border: 1px solid rgba(63, 63, 70, 0.5);
+            color: #fff;
+            transition: all 0.2s ease;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #ff1493;
+            background-color: rgba(24, 24, 27, 0.9);
+            box-shadow: 0 0 0 3px rgba(255, 20, 147, 0.1);
+        }
+
+        /* Primary Button Style */
+        .btn-primary {
+            background: linear-gradient(135deg, #e60073 0%, #ff1493 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn-primary:hover {
+            box-shadow: 0 10px 20px -8px rgba(255, 20, 147, 0.6);
+            transform: translateY(-2px);
+            background: linear-gradient(135deg, #ff1493 0%, #ff4db8 100%);
+        }
+
+        /* Highlight box for main manifesto quote */
+        .quote-highlight {
+            position: relative;
+            background: linear-gradient(270deg, rgba(255,20,147,0.08) 0%, transparent 100%);
+            border-right: 3px solid #ff1493;
+        }
+
+        /* Select background icon fix for RTL */
+        .custom-select {
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a1a1aa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: left 1rem center;
+            background-size: 1em;
+        }
+
+        /* Loader Animation */
+        .loader {
+            border: 3px solid rgba(255,255,255,0.2);
+            border-radius: 50%;
+            border-top: 3px solid #fff;
+            width: 20px;
+            height: 20px;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="relative selection:bg-brand-pink selection:text-white">
+
+    <!-- Ambient Lights -->
+    <div class="ambient-glow-pink"></div>
+    <div class="ambient-glow-purple"></div>
+
+    <!-- Top Navigation -->
+    <nav class="container mx-auto px-4 md:px-6 py-4 md:py-5 flex justify-between items-center relative z-20 border-b border-white/5 backdrop-blur-md sticky top-0 bg-[#0a0a0a]/90">
+        <div class="flex items-center gap-3">
+            <div class="w-9 h-9 md:w-10 md:h-10 bg-gradient-to-br from-brand-pink to-purple-700 rounded-lg md:rounded-xl flex items-center justify-center text-white font-black text-lg md:text-xl shadow-lg shadow-brand-pink/20">W</div>
+            <div class="flex flex-col justify-center">
+                <span class="text-lg md:text-xl font-extrabold tracking-tight leading-none text-white">Witchy</span>
+                <span class="text-[9px] md:text-[10px] font-bold text-brand-pink uppercase tracking-widest mt-0.5">By Goodi Group</span>
+            </div>
+        </div>
+        <div>
+            <a href="#demo-form" class="text-xs md:text-sm font-semibold text-white border border-brand-pink/30 px-4 md:px-6 py-2 md:py-2.5 rounded-full transition-all hover:bg-brand-pink hover:border-brand-pink">
+                בואו נעשה סדר
+            </a>
+        </div>
+    </nav>
+
+    <!-- Main Hero Section -->
+    <main class="container mx-auto px-4 md:px-6 pt-8 pb-16 md:pt-16 md:pb-24 relative z-10">
+        <div class="flex flex-col lg:flex-row gap-12 lg:gap-20 xl:gap-24 items-start">
+            
+            <!-- Left Column: The Manifesto & Value Prop -->
+            <div class="w-full lg:w-7/12 pt-2 md:pt-4">
+                
+                <!-- Trust / Category badge -->
+                <div class="inline-flex items-center px-3.5 py-1.5 rounded-full bg-brand-pink/10 border border-brand-pink/20 text-brand-pink font-medium text-xs md:text-sm mb-5 animate-float">
+                    <svg class="w-3.5 h-3.5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>
+                    פלטפורמת ה-All-in-One למנהלות HR
+                </div>
+                
+                <h1 class="text-5xl md:text-6xl lg:text-7xl font-black leading-[1.1] mb-6 md:mb-8 tracking-tight" dir="ltr" style="text-align: right;">
+                    It’s not magic,<br>it’s <span class="text-transparent bg-clip-text bg-gradient-to-r from-brand-pink to-purple-400">Witchy.</span>
+                </h1>
+                
+                <!-- Marketing Copy -->
+                <div class="text-base md:text-lg text-brand-textMuted leading-relaxed space-y-5 md:space-y-6">
+                    <p>
+                        בעידן שבו טכנולוגיה משנה כמעט כל תעשייה, היתרון התחרותי האמיתי של ארגונים הוא לא רק הכלים שעובדים איתם - 
+                        <strong class="text-white font-bold">אלא האנשים שמפעילים אותם, והמנהלים שיודעים להוביל אותם קדימה.</strong>
+                    </p>
+                    
+                    <p>אני מאמינה שארגונים שמשקיעים בעובדים שלהם לא רק מתמודדים טוב יותר עם שינויים - הם מובילים אותם.</p>
+                    
+                    <p>
+                        כעוזרת אישית אולטימטיבית, אני כאן בדיוק בשביל זה: 
+                        <strong class="text-white font-medium">לרכז את כל עולם חוויית העובד תחת ממשק אחד, ולהפוך רווחה, צמיחה אישית וחוסן לחלק מובנה מהתרבות הארגונית.</strong>
+                    </p>
+                    
+                    <!-- The Hook / Pull Quote -->
+                    <div class="quote-highlight p-5 md:p-6 my-6 md:my-8 rounded-l-xl">
+                        <p class="text-white font-black text-xl md:text-2xl lg:text-3xl leading-tight mb-2 md:mb-3">
+                            אני באה לעשות לך סדר בבלגן.
+                        </p>
+                        <p class="text-brand-pink/90 font-medium text-base md:text-lg leading-snug">
+                            אני מחברת בין טכנולוגיה חכמה לרגש, ונותנת לך את הכלים לתרגם את האינטליגנציה הארגונית שלך לחוויות שהעובדים זוכרים.
+                        </p>
+                    </div>
+                    
+                    <p>
+                        המשימה שלי היא לוודא שתקבלי בדיוק את מה שאת צריכה, 
+                        <strong class="text-white font-semibold">בלי לבזבז זמן על לוגיסטיקה, תיאומים, תקציבים וספקים מפוזרים.</strong>
+                    </p>
+                    
+                    <div class="pt-2">
+                        <p class="text-white font-bold text-lg md:text-xl border-t border-white/10 pt-4 inline-block">
+                            אני מנהלת את כל מה שמסביב — כדי להשאיר לך זמן למה שבאמת חשוב: העובדים והעובדות שלך.
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: The Conversion Form -->
+            <div class="w-full lg:w-5/12 max-w-md mx-auto lg:ml-0 lg:sticky lg:top-28 mt-4 lg:mt-0" id="demo-form">
+                
+                <div class="bg-brand-panel/95 backdrop-blur-md border border-white/10 rounded-[1.5rem] p-6 md:p-8 lg:p-10 shadow-2xl relative group">
+                    
+                    <!-- Animated attention line -->
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-brand-pink via-purple-500 to-brand-pink animate-pulse-slow rounded-t-[1.5rem]"></div>
+                    
+                    <div id="form-content">
+                        <div class="mb-6 md:mb-8 text-center">
+                            <h3 class="text-2xl md:text-3xl font-black mb-1.5 text-white tracking-tight">מוכנה לשדרג?</h3>
+                            <p class="text-brand-textMuted text-xs md:text-sm">השאירי פרטים ונציג יחזור אלייך עם פתרון מותאם אישית (וחשבונית אחת).</p>
+                        </div>
+                        
+                        <form id="leadForm" class="flex flex-col gap-4 md:gap-5">
+                            <input type="hidden" id="utm_source" value="b2b_demo_page">
+                            
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-brand-textMuted uppercase tracking-wider pr-1">שם מלא</label>
+                                <input type="text" id="fullName" required class="form-input w-full rounded-lg px-4 py-3 text-sm md:text-base" placeholder="ישראל ישראלי">
+                            </div>
+                            
+                            <div class="space-y-1.5">
+                                <label class="text-[11px] font-bold text-brand-textMuted uppercase tracking-wider pr-1">אימייל ארגוני</label>
+                                <input type="email" id="workEmail" required dir="ltr" class="form-input w-full rounded-lg px-4 py-3 text-sm md:text-base text-left placeholder:text-right" placeholder="name@company.com">
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-1.5">
+                                    <label class="text-[11px] font-bold text-brand-textMuted uppercase tracking-wider pr-1">שם החברה</label>
+                                    <input type="text" id="companyName" required class="form-input w-full rounded-lg px-4 py-3 text-sm md:text-base" placeholder="חברה בע״מ">
+                                </div>
+                                <div class="space-y-1.5">
+                                    <label class="text-[11px] font-bold text-brand-textMuted uppercase tracking-wider pr-1">מספר עובדים</label>
+                                    <select id="companySize" required class="form-input custom-select w-full rounded-lg px-4 py-3 text-sm md:text-base text-gray-200">
+                                        <option value="" disabled selected>בחרו...</option>
+                                        <option value="1-50">1-50 עובדים</option>
+                                        <option value="51-200">51-200 עובדים</option>
+                                        <option value="201-500">201-500 עובדים</option>
+                                        <option value="500+">500+ עובדים</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <button type="submit" id="submitBtn" class="mt-2 w-full btn-primary text-white font-bold py-3.5 md:py-4 rounded-lg flex items-center justify-center text-base md:text-lg">
+                                <span id="btnText">תאמו לי פגישת היכרות</span>
+                                <span id="btnLoader" class="loader hidden"></span>
+                            </button>
+                            
+                            <!-- Trust badges -->
+                            <div class="flex items-center justify-center gap-4 mt-1 text-[11px] text-brand-textMuted font-medium">
+                                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-brand-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg> ללא התחייבות</span>
+                                <span class="flex items-center gap-1"><svg class="w-3.5 h-3.5 text-brand-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg> מידע מאובטח</span>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Success State -->
+                    <div id="success-state" class="hidden flex-col items-center justify-center text-center py-8 animation-fadeIn">
+                        <div class="w-16 h-16 md:w-20 md:h-20 bg-brand-pink/10 rounded-full flex items-center justify-center mb-5 border border-brand-pink/30">
+                            <svg class="w-8 h-8 md:w-10 md:h-10 text-brand-pink" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-black mb-2">איזה כיף, <span id="successName" class="text-brand-pink"></span>!</h3>
+                        <p class="text-brand-textMuted text-sm md:text-base leading-snug">הפרטים שלך נקלטו בהצלחה. הצוות שלנו כבר עובר עליהם וניצור קשר בהקדם.</p>
+                        
+                        <!-- Automation Demo visual for interview -->
+                        <div class="mt-6 md:mt-8 p-3 md:p-4 bg-black/60 rounded-lg border border-white/5 text-right w-full text-[11px] md:text-xs font-mono relative overflow-hidden">
+                            <div class="absolute right-0 top-0 h-full w-1 bg-green-500"></div>
+                            <p class="text-green-400 mb-2 font-bold uppercase tracking-wider">// Workflow Triggered</p>
+                            <p class="text-gray-400 flex items-center gap-2"><svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Lead created in CRM</p>
+                            <p class="text-gray-400 flex items-center gap-2 mt-1"><svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Slack notification sent</p>
+                            <p class="text-gray-400 flex items-center gap-2 mt-1"><svg class="w-3 h-3 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg> Welcome email queued</p>
+                        </div>
+                        
+                        <button onclick="location.reload()" class="mt-6 text-xs md:text-sm text-brand-textMuted hover:text-white underline underline-offset-4 transition-colors">שלח/י פנייה נוספת</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Social Proof Logo Strip -->
+    <div class="border-y border-white/5 bg-[#080808] py-6 md:py-8 mt-4 md:mt-10">
+        <div class="container mx-auto px-4 md:px-6">
+            <p class="text-center text-[10px] md:text-xs font-bold text-gray-500 tracking-widest mb-4 md:mb-6 uppercase">הצטרפי למאות חברות שכבר עברו ל-Witchy</p>
+            <div class="flex flex-wrap justify-center items-center gap-6 md:gap-16 lg:gap-24 opacity-40 grayscale hover:grayscale-0 transition-all duration-500">
+                <div class="text-lg md:text-2xl font-black font-sans tracking-tight">Microsoft</div>
+                <div class="text-lg md:text-2xl font-black font-serif italic">monday.com</div>
+                <div class="text-lg md:text-2xl font-black tracking-widest">Wix</div>
+                <div class="text-lg md:text-2xl font-black font-sans">Fiverr</div>
+                <div class="text-lg md:text-2xl font-black tracking-tight">Payoneer</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Features Section -->
+    <section class="py-16 md:py-24 relative z-10">
+        <div class="container mx-auto px-4 md:px-6">
+            <div class="text-center mb-10 md:mb-16">
+                <h2 class="text-3xl md:text-4xl lg:text-5xl font-black mb-3 md:mb-5 tracking-tight">הכל במקום אחד.<br class="md:hidden"> חשבונית אחת.</h2>
+                <p class="text-brand-textMuted text-base md:text-xl max-w-2xl mx-auto leading-relaxed px-2">מודל ה-Reseller שלנו מאפשר לכם לרכז את כל ספקי הרווחה וההסעדה במערכת אחת קלה לשימוש.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 lg:gap-8">
+                
+                <!-- Card 1 -->
+                <div class="bg-brand-panel/40 p-8 md:p-8 lg:p-10 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 hover:border-brand-pink/30 hover:bg-brand-panel transition-all duration-300 group">
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-[#1a1a1c] border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-brand-pink mb-6 md:mb-8 group-hover:bg-brand-pink group-hover:text-white group-hover:border-brand-pink transition-all duration-300">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 21a9.004 9.004 0 008.716-6.747M12 21a9.004 9.004 0 01-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 017.843 4.582M12 3a8.997 8.997 0 00-7.843 4.582m15.686 0A11.953 11.953 0 0112 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0121 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0112 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 013 12c0-1.605.42-3.113 1.157-4.418"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M10 3v4a2 2 0 002 2h0a2 2 0 002-2V3m-4 0h4"></path></svg>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2 md:mb-3 tracking-tight">Eat & Drink</h3>
+                    <p class="text-brand-textMuted text-sm md:text-base leading-relaxed">ניהול חכם של פתרונות הסעדה, תקציבי ארוחות יומיים וכיבוד למשרד, בשקיפות מלאה.</p>
+                </div>
+
+                <!-- Card 2 -->
+                <div class="bg-brand-panel/40 p-8 md:p-8 lg:p-10 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 hover:border-brand-pink/30 hover:bg-brand-panel transition-all duration-300 group">
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-[#1a1a1c] border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-brand-pink mb-6 md:mb-8 group-hover:bg-brand-pink group-hover:text-white group-hover:border-brand-pink transition-all duration-300">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 22V12m0 0L4 7m8 5l8-5"></path></svg>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2 md:mb-3 tracking-tight">Gifts & Swag</h3>
+                    <p class="text-brand-textMuted text-sm md:text-base leading-relaxed">מארזי חג מפנקים, מתנות יום הולדת אוטומטיות, ו-Swag ממותג שנשלח ישירות לבתי העובדים.</p>
+                </div>
+
+                <!-- Card 3 -->
+                <div class="bg-brand-panel/40 p-8 md:p-8 lg:p-10 rounded-[1.5rem] md:rounded-[2rem] border border-white/5 hover:border-brand-pink/30 hover:bg-brand-panel transition-all duration-300 group">
+                    <div class="w-12 h-12 md:w-14 md:h-14 bg-[#1a1a1c] border border-white/10 rounded-xl md:rounded-2xl flex items-center justify-center text-brand-pink mb-6 md:mb-8 group-hover:bg-brand-pink group-hover:text-white group-hover:border-brand-pink transition-all duration-300">
+                        <svg class="w-6 h-6 md:w-7 md:h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 14.5v.01M12 17.5v.01M15.5 14.5v.01M8.5 14.5v.01"></path></svg>
+                    </div>
+                    <h3 class="text-xl md:text-2xl font-bold mb-2 md:mb-3 tracking-tight">Together</h3>
+                    <p class="text-brand-textMuted text-sm md:text-base leading-relaxed">הפקת ימי גיבוש, אירועי חברה, סדנאות והאפי-האוור - אנחנו דואגים לכל הלוגיסטיקה.</p>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- Minimalist Footer -->
+    <footer class="border-t border-white/5 bg-[#050505] py-6 md:py-8">
+        <div class="container mx-auto px-4 md:px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-7 h-7 md:w-8 md:h-8 bg-brand-pink rounded-md md:rounded-lg flex items-center justify-center text-white font-black text-xs md:text-sm">W</div>
+                <p class="text-brand-textMuted text-xs md:text-sm">© 2024 Witchy By Goodi Group. כל הזכויות שמורות.</p>
+            </div>
+            
+            <div class="flex items-center gap-2 bg-brand-pink/10 border border-brand-pink/20 px-3 py-1.5 md:px-4 md:py-2 rounded-full">
+                <div class="w-1.5 h-1.5 md:w-2 md:h-2 rounded-full bg-brand-pink animate-pulse"></div>
+                <p class="text-brand-pink text-[10px] md:text-xs font-bold tracking-wide uppercase">
+                    Growth, Automation & B2B Demo
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Form Handling Script -->
+    <script>
+        document.getElementById('leadForm').addEventListener('submit', function(e) {
+            e.preventDefault(); 
+            
+            const btnText = document.getElementById('btnText');
+            const btnLoader = document.getElementById('btnLoader');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            btnText.textContent = 'מעבד נתונים...';
+            btnLoader.classList.remove('hidden');
+            submitBtn.classList.add('opacity-80', 'cursor-not-allowed');
+
+            setTimeout(() => {
+                document.getElementById('form-content').style.display = 'none';
+                
+                const fullName = document.getElementById('fullName').value;
+                const firstName = fullName ? fullName.split(' ')[0] : 'מנהלת';
+                document.getElementById('successName').textContent = firstName;
+                
+                const successState = document.getElementById('success-state');
+                successState.classList.remove('hidden');
+                successState.classList.add('flex');
+                successState.style.opacity = 0;
+                
+                setTimeout(() => {
+                    successState.style.transition = 'opacity 0.4s ease';
+                    successState.style.opacity = 1;
+                }, 50);
+                
+            }, 1200); 
+        });
+    </script>
+</body>
+</html>
