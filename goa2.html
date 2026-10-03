@@ -1,0 +1,1810 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>מעיין & אלירן | גואה 2026 • חופשה חלומית ויומן מסע</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            sand: {
+              50: '#FDFBF7',
+              100: '#F7F3E9',
+              200: '#EFE7D3',
+              300: '#E4D5B7',
+              400: '#D5BD92',
+              500: '#C2A16E',
+            },
+            terracotta: {
+              50: '#FDF7F4',
+              100: '#FCEEE9',
+              200: '#F7D9CE',
+              400: '#E4896F',
+              500: '#D86A4C',
+              600: '#C14E32',
+              700: '#9E3B23',
+            },
+            ocean: {
+              50: '#F0F9FB',
+              100: '#DEF1F5',
+              400: '#4DAAC1',
+              500: '#2A8EA7',
+              600: '#1D7287',
+              800: '#134E5D',
+              900: '#0E3944',
+            },
+            sunset: {
+              400: '#F59E0B',
+              500: '#E06B22',
+              600: '#C2410C',
+            },
+            palm: {
+              50: '#F4F7F4',
+              100: '#E3EBE4',
+              500: '#527958',
+              600: '#3D5E43',
+              800: '#233727',
+            }
+          },
+          fontFamily: {
+            serif: ['"Playfair Display"', 'Georgia', 'serif'],
+            sans: ['"Assistant"', 'system-ui', 'sans-serif'],
+            display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
+          },
+          boxShadow: {
+            'warm': '0 10px 30px -10px rgba(216, 106, 76, 0.15)',
+            'float': '0 20px 40px -15px rgba(29, 114, 135, 0.18)',
+            'card': '0 4px 20px -2px rgba(19, 78, 93, 0.06)',
+          },
+          backgroundImage: {
+            'sunset-gradient': 'linear-gradient(135deg, #FFEDD5 0%, #FED7AA 35%, #FDBA74 70%, #FCA5A5 100%)',
+            'tropical-gradient': 'linear-gradient(135deg, #DEF1F5 0%, #FEF3C7 50%, #FEE2E2 100%)',
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- Google Fonts: Assistant & Playfair Display -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,400;1,600&family=Plus+Jakarta+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Leaflet CSS & JS for Interactive Goa Vacation Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+  <style>
+    body {
+      font-family: 'Assistant', sans-serif;
+      background-color: #FDFBF7;
+      color: #2D3748;
+    }
+    
+    .font-serif-title {
+      font-family: 'Playfair Display', Georgia, serif;
+    }
+
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #F7F3E9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #D5BD92;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #C2A16E;
+    }
+
+    /* Leaflet popup styling override */
+    .leaflet-popup-content-wrapper {
+      border-radius: 16px;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.12);
+      direction: rtl;
+      font-family: 'Assistant', sans-serif;
+      padding: 4px;
+      border: 1px solid #EFE7D3;
+    }
+    .leaflet-popup-tip {
+      background: white;
+    }
+
+    /* Glassmorphism helpers */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+    
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.5);
+    }
+
+    /* Wave effect animation */
+    @keyframes gentlePulse {
+      0%, 100% { transform: scale(1); opacity: 0.9; }
+      50% { transform: scale(1.05); opacity: 1; }
+    }
+    .animate-gentle-pulse {
+      animation: gentlePulse 3s infinite ease-in-out;
+    }
+
+    /* Polaroid photo styling */
+    .polaroid {
+      background: white;
+      padding: 10px 10px 24px 10px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+      border-radius: 4px;
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
+    }
+    .polaroid:hover {
+      transform: translateY(-5px) rotate(1deg);
+      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
+    }
+  </style>
+</head>
+
+<body class="min-h-screen bg-sand-50 selection:bg-terracotta-200 selection:text-terracotta-700 antialiased overflow-x-hidden">
+
+  <!-- Top Navigation & Mood Ribbon -->
+  <header class="sticky top-0 z-50 glass-card border-b border-sand-200 shadow-sm transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16 sm:h-20">
+        
+        <!-- Logo & Couple Tag -->
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-terracotta-500 to-sunset-400 flex items-center justify-center text-white shadow-warm flex-shrink-0 transform hover:rotate-6 transition-transform">
+            <i data-lucide="palmtree" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="text-xl sm:text-2xl font-bold font-serif-title tracking-wide text-neutral-800">מעיין &amp; אלירן</h1>
+              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta-100 text-terracotta-700">
+                גואה 2026 🌴
+              </span>
+            </div>
+            <p class="text-xs text-neutral-500 hidden sm:block">05.10.2026 – 18.10.2026 • 14 ימי חופשה, שקיעות ושקט מוחלט</p>
+          </div>
+        </div>
+
+        <!-- Vacation Quick Controls & Ambient Sound -->
+        <div class="flex items-center gap-2 sm:gap-4">
+          <!-- Ambient Tropical Sound Toggle -->
+          <button id="ambientBtn" onclick="toggleAmbience()" title="הפעל צלילי גלי ים טרופיים לחופשה" class="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium bg-ocean-50 text-ocean-800 border border-ocean-100 hover:bg-ocean-100 transition-colors shadow-sm">
+            <i data-lucide="waves" class="w-4 h-4 text-ocean-500"></i>
+            <span id="ambientBtnText" class="hidden md:inline">צלילי ים ושלווה</span>
+            <span id="ambientStatus" class="w-2 h-2 rounded-full bg-neutral-300"></span>
+          </button>
+
+          <!-- Quick Flight Countdown Modal / Pill -->
+          <button onclick="switchTab('flights')" class="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-semibold bg-terracotta-500 text-white hover:bg-terracotta-600 transition-all shadow-warm transform active:scale-95">
+            <i data-lucide="plane-takeoff" class="w-4 h-4"></i>
+            <span class="hidden sm:inline">חזרה 18.10</span>
+            <span class="sm:hidden">טיסות</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sub-Navbar Navigation Tabs -->
+    <div class="bg-sand-100/80 border-t border-sand-200 overflow-x-auto no-scrollbar">
+      <div class="max-w-7xl mx-auto px-4 flex space-x-reverse space-x-2 py-2">
+        <button onclick="switchTab('vacation')" id="tab-btn-vacation" class="tab-button active-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all text-terracotta-700 bg-white shadow-sm border border-sand-200">
+          <i data-lucide="sun" class="w-4 h-4 text-sunset-500"></i>
+          <span>חופשה &amp; מצב רוח</span>
+        </button>
+        <button onclick="switchTab('itinerary')" id="tab-btn-itinerary" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+          <i data-lucide="calendar" class="w-4 h-4 text-palm-500"></i>
+          <span>יומן מסלול יומי</span>
+        </button>
+        <button onclick="switchTab('map')" id="tab-btn-map" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+          <i data-lucide="map-pin" class="w-4 h-4 text-ocean-600"></i>
+          <span>מפת החופים והפינוקים</span>
+        </button>
+        <button onclick="switchTab('bucketlist')" id="tab-btn-bucketlist" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+          <i data-lucide="sparkles" class="w-4 h-4 text-sunset-400"></i>
+          <span>באקט ליסט זוגי</span>
+        </button>
+        <button onclick="switchTab('guide')" id="tab-btn-guide" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+          <i data-lucide="compass" class="w-4 h-4 text-terracotta-600"></i>
+          <span>צפון מול דרום &amp; המלצות</span>
+        </button>
+        <button onclick="switchTab('tools')" id="tab-btn-tools" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+          <i data-lucide="pocket" class="w-4 h-4 text-neutral-600"></i>
+          <span>ארנק, ציוד וטיפים</span>
+        </button>
+        <button onclick="switchTab('flights')" id="tab-btn-flights" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+          <i data-lucide="plane" class="w-4 h-4 text-blue-600"></i>
+          <span>טיסות חזור (18.10)</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
+
+    <!-- Hero Vacation Banner -->
+    <section class="relative rounded-3xl overflow-hidden shadow-float border border-sand-200 bg-gradient-to-br from-terracotta-500 via-sunset-500 to-ocean-800 text-white">
+      <!-- Decorative tropical backdrop pattern -->
+      <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+      <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-white/10 blur-2xl"></div>
+      <div class="absolute -left-20 -top-20 w-80 h-80 rounded-full bg-terracotta-400/20 blur-3xl"></div>
+
+      <div class="relative z-10 p-6 sm:p-10 lg:p-12 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
+        
+        <div class="space-y-4 max-w-2xl">
+          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs sm:text-sm font-medium">
+            <span>✨</span>
+            <span>גואה קוראת לנו: קוקוס על החוף, רוח ים וזמן רק של שנינו</span>
+          </div>
+
+          <h2 class="text-3xl sm:text-5xl font-serif-title font-bold tracking-tight leading-tight">
+            החופשה הרומנטית בגואה
+            <span class="block text-sunset-200 text-2xl sm:text-3xl font-light mt-1">צפון שיקי ובוהמייני • דרום בתולי ושליו</span>
+          </h2>
+
+          <p class="text-white/90 text-sm sm:text-base leading-relaxed">
+            מריזורט הבוטיק על החוף במנדרם (Riva Beach) וקפה בוהו באסאגו, ועד לשקט המוחלט של הבקתות הלבנות באגונדה (The White Resort) ומי הטורקיז של לגונת קולה.
+          </p>
+
+          <!-- Vacation Mood Highlights Tags -->
+          <div class="flex flex-wrap gap-2 pt-2">
+            <span class="px-3 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5">
+              <i data-lucide="sunset" class="w-3.5 h-3.5 text-amber-300"></i> שקיעה ב-18:14
+            </span>
+            <span class="px-3 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5">
+              <i data-lucide="thermometer-sun" class="w-3.5 h-3.5 text-orange-300"></i> 31°C טרופי &amp; נעים
+            </span>
+            <span class="px-3 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5">
+              <i data-lucide="heart" class="w-3.5 h-3.5 text-rose-300"></i> שבועיים של חופש
+            </span>
+            <span class="px-3 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5">
+              <i data-lucide="bike" class="w-3.5 h-3.5 text-emerald-300"></i> טיולי קטנוע בין הדקלים
+            </span>
+          </div>
+        </div>
+
+        <!-- Vacation Countdown Widget & Sunset Tracker -->
+        <div class="bg-white/15 backdrop-blur-lg rounded-2xl p-5 sm:p-6 border border-white/20 text-center flex-shrink-0 shadow-lg lg:w-80">
+          <div class="text-xs uppercase tracking-wider text-white/80 font-semibold mb-2">ספירה לאחור לגואה 🌴</div>
+          
+          <div id="countdownBox" class="grid grid-cols-4 gap-2 text-center my-3">
+            <div class="bg-black/20 rounded-xl p-2">
+              <div id="cd-days" class="text-xl sm:text-2xl font-bold font-display">--</div>
+              <div class="text-[10px] text-white/70">ימים</div>
+            </div>
+            <div class="bg-black/20 rounded-xl p-2">
+              <div id="cd-hours" class="text-xl sm:text-2xl font-bold font-display">--</div>
+              <div class="text-[10px] text-white/70">שעות</div>
+            </div>
+            <div class="bg-black/20 rounded-xl p-2">
+              <div id="cd-minutes" class="text-xl sm:text-2xl font-bold font-display">--</div>
+              <div class="text-[10px] text-white/70">דקות</div>
+            </div>
+            <div class="bg-black/20 rounded-xl p-2">
+              <div id="cd-seconds" class="text-xl sm:text-2xl font-bold font-display">--</div>
+              <div class="text-[10px] text-white/70">שניות</div>
+            </div>
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-white/20 text-xs text-white/90 flex items-center justify-between">
+            <span class="flex items-center gap-1"><i data-lucide="clock" class="w-3.5 h-3.5 text-amber-300"></i> שעון גואה (IST):</span>
+            <span id="goaTimeDisplay" class="font-bold font-display">טוען...</span>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: VACATION MOOD & EXPERIENCE CURATOR  -->
+    <!-- ========================================== -->
+    <section id="section-vacation" class="space-y-8">
+      
+      <!-- Vacation Mood Filter / "מה מתחשק לנו עכשיו?" -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-card">
+        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
+          <div>
+            <div class="flex items-center gap-2 text-terracotta-600 text-sm font-semibold">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>מצב רוח לחופשה</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-bold text-neutral-800 font-serif-title mt-1">מה בא לנו לעשות היום?</h3>
+            <p class="text-sm text-neutral-500 mt-1">בחרו את הווייב שלכם וקבלו מיד את המקומות, הפינוקים והחופים המתאימים ביותר לשניכם</p>
+          </div>
+
+          <!-- Mood Pills -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterVacationVibe('all')" class="vibe-filter active-vibe px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-terracotta-500 text-white shadow-sm">
+              הכל 🌟
+            </button>
+            <button onclick="filterVacationVibe('chill')" class="vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200">
+              שלווה &amp; יוגה 🧘‍♀️
+            </button>
+            <button onclick="filterVacationVibe('sunset')" class="vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200">
+              קוקטיילים &amp; שקיעות 🍹
+            </button>
+            <button onclick="filterVacationVibe('foodie')" class="vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200">
+              קולינריה רומנטית 🍽️
+            </button>
+            <button onclick="filterVacationVibe('adventure')" class="vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200">
+              טיולי קטנוע &amp; הרפתקה 🛵
+            </button>
+          </div>
+        </div>
+
+        <!-- Curated Vacation Cards Grid -->
+        <div id="vacationVibeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Cards dynamically populated via JS -->
+        </div>
+      </div>
+
+      <!-- Quick Vacation Comparison: North vs. South Vibe -->
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        
+        <!-- North Goa Vibe Card -->
+        <div class="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-amber-50/80 via-white to-sand-100 border border-amber-200 shadow-card relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
+              <i data-lucide="compass" class="w-3.5 h-3.5"></i> צפון גואה • 05.10 - 11.10
+            </span>
+            <span class="text-xs text-neutral-400">Riva Beach Resort • מנדרם</span>
+          </div>
+
+          <h4 class="text-xl sm:text-2xl font-bold font-serif-title text-neutral-800 mb-2">שיק, בוהו ושקיעות קסומות</h4>
+          <p class="text-sm text-neutral-600 leading-relaxed mb-4">
+            חופי אשוום ומנדרם הרחבים, בתי קפה מעוצבים באסאגו, מסעדות שף מרהיבות (Gunpowder, La Plage), טיולי קטנוע קלילים וחופים עם ווייב אופנתי ונעים.
+          </p>
+
+          <div class="space-y-2 text-xs text-neutral-700">
+            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i> <span><strong>החוף של מעיין:</strong> חוף מנדרם הרגוע ממש ביציאה מהריזורט</span></div>
+            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i> <span><strong>פינוק שקיעה:</strong> מיץ אבטיח או קוקטייל צונן ב-La Plage באשוום</span></div>
+            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i> <span><strong>ארוחת ערב:</strong> דרום הודית גורמה בחצר קסומה ב-Gunpowder</span></div>
+          </div>
+        </div>
+
+        <!-- South Goa Vibe Card -->
+        <div class="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-ocean-50/80 via-white to-sand-100 border border-ocean-200 shadow-card relative overflow-hidden">
+          <div class="flex items-center justify-between mb-4">
+            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-ocean-100 text-ocean-800">
+              <i data-lucide="palmtree" class="w-3.5 h-3.5"></i> דרום גואה • 11.10 - 18.10
+            </span>
+            <span class="text-xs text-neutral-400">The White Resort • חוף אגונדה</span>
+          </div>
+
+          <h4 class="text-xl sm:text-2xl font-bold font-serif-title text-neutral-800 mb-2">שקט טהור, לגונות וטבע פראי</h4>
+          <p class="text-sm text-neutral-600 leading-relaxed mb-4">
+            בקתות בוטיק על קו המים באגונדה, שיט קיאקים בלגונת המים המתוקים בקולה ביץ', מפרץ הסהר הציורי של פלולם ושקיעות דוממות עם כוס יין ונרות.
+          </p>
+
+          <div class="space-y-2 text-xs text-neutral-700">
+            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-ocean-600 flex-shrink-0"></i> <span><strong>לישון מול הגלים:</strong> שקט מוחלט ב-The White Resort באגונדה</span></div>
+            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-ocean-600 flex-shrink-0"></i> <span><strong>רגע שיא זוגי:</strong> שיט קיאק פרטי בלגונה של חוף קולה (Cola Beach)</span></div>
+            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-ocean-600 flex-shrink-0"></i> <span><strong>אוכל בריא וטעים:</strong> ארוחת בראנץ' מושלמת ב-Zest Cafe</span></div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Vacation Polaroid Moments & Photo Memory Box -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-card">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <h3 class="text-2xl font-bold text-neutral-800 font-serif-title">גלריית ההשראה והרגעים שלנו 📷</h3>
+            <p class="text-sm text-neutral-500">תמונות מקוריות ונופים מהחופים שנבקר בהם</p>
+          </div>
+          <span class="text-xs text-terracotta-600 font-semibold bg-terracotta-50 px-3 py-1.5 rounded-full border border-terracotta-200">
+            חופי גואה מחכים לנו
+          </span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          
+          <div class="polaroid">
+            <img src="https://images.unsplash.com/photo-1512343879784-a960bf40e7f2?w=800&auto=format&fit=crop&q=80" alt="חוף פלולם" class="w-full h-44 object-cover rounded mb-2">
+            <div class="text-center">
+              <div class="font-serif-title font-bold text-neutral-800 text-sm">חוף פלולם • Palolem</div>
+              <div class="text-[11px] text-neutral-400">מפרץ הסהר, דקלים ומים רגועים</div>
+            </div>
+          </div>
+
+          <div class="polaroid">
+            <img src="https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=800&auto=format&fit=crop&q=80" alt="חוף אגונדה" class="w-full h-44 object-cover rounded mb-2">
+            <div class="text-center">
+              <div class="font-serif-title font-bold text-neutral-800 text-sm">חוף אגונדה • Agonda</div>
+              <div class="text-[11px] text-neutral-400">חול זהוב, שקט ושקיעות שקטות</div>
+            </div>
+          </div>
+
+          <div class="polaroid">
+            <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=800&auto=format&fit=crop&q=80" alt="לגונת קולה" class="w-full h-44 object-cover rounded mb-2">
+            <div class="text-center">
+              <div class="font-serif-title font-bold text-neutral-800 text-sm">לגונת קולה • Cola Beach</div>
+              <div class="text-[11px] text-neutral-400">לגונת מים מתוקים נשפכת לאוקיינוס</div>
+            </div>
+          </div>
+
+          <div class="polaroid">
+            <img src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=800&auto=format&fit=crop&q=80" alt="שקיעה בחוף מנדרם" class="w-full h-44 object-cover rounded mb-2">
+            <div class="text-center">
+              <div class="font-serif-title font-bold text-neutral-800 text-sm">מנדרם &amp; אשוום • צפון</div>
+              <div class="text-[11px] text-neutral-400">בתי קפה מעוצבים, יוגה ורוח קלה</div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: DETAILED DAY-BY-DAY ITINERARY       -->
+    <!-- ========================================== -->
+    <section id="section-itinerary" class="hidden space-y-6">
+      
+      <!-- Itinerary Header with Filter -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-card">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-palm-600 text-xs font-bold uppercase tracking-wider">
+              <i data-lucide="calendar" class="w-4 h-4"></i>
+              <span>מסלול החופשה המלא • 14 ימים</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-serif-title font-bold text-neutral-800 mt-1">יומן הימים של מעיין ואלירן</h3>
+            <p class="text-sm text-neutral-500 mt-1">תוכנית מפורטת אך רגועה — עם זמן איכות, מנוחה, שקיעות ואוכל טוב</p>
+          </div>
+
+          <!-- Region Filter buttons -->
+          <div class="flex items-center gap-2 bg-sand-100 p-1.5 rounded-2xl">
+            <button onclick="filterItinerary('all')" id="itin-filter-all" class="itin-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-neutral-900 shadow-sm transition-all">
+              הכל (14 ימים)
+            </button>
+            <button onclick="filterItinerary('north')" id="itin-filter-north" class="itin-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-all">
+              צפון גואה (שבוע 1)
+            </button>
+            <button onclick="filterItinerary('south')" id="itin-filter-south" class="itin-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-all">
+              דרום גואה (שבוע 2)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Itinerary Days Feed -->
+      <div id="itineraryDaysFeed" class="space-y-4">
+        <!-- Rendered via JavaScript -->
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: INTERACTIVE LEAFLET VACATION MAP   -->
+    <!-- ========================================== -->
+    <section id="section-map" class="hidden space-y-6">
+      
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-card">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-ocean-600 text-xs font-bold uppercase tracking-wider">
+              <i data-lucide="map" class="w-4 h-4"></i>
+              <span>מפה אינטראקטיבית</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-serif-title font-bold text-neutral-800 mt-1">החופים, הריזורטים והמסעדות של מעיין ואלירן</h3>
+            <p class="text-sm text-neutral-500 mt-1">לחצו על כל נקודה כדי לראות טיפים, תיאור רומנטי וקישור ישיר לניווט</p>
+          </div>
+
+          <!-- Map Category Filters -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterMapMarkers('all')" class="map-tag-btn active-map-tag px-3 py-1.5 rounded-xl text-xs font-semibold bg-ocean-600 text-white shadow-sm transition-all">
+              הכל
+            </button>
+            <button onclick="filterMapMarkers('hotel')" class="map-tag-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-sand-100 text-neutral-700 hover:bg-sand-200 transition-all">
+              🏨 מלונות וריזורטים
+            </button>
+            <button onclick="filterMapMarkers('beach')" class="map-tag-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-sand-100 text-neutral-700 hover:bg-sand-200 transition-all">
+              🏖️ חופים ולגונות
+            </button>
+            <button onclick="filterMapMarkers('food')" class="map-tag-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-sand-100 text-neutral-700 hover:bg-sand-200 transition-all">
+              🍹 מסעדות ושקיעות
+            </button>
+          </div>
+        </div>
+
+        <!-- Map Container -->
+        <div class="relative w-full h-[540px] rounded-2xl overflow-hidden border border-sand-200 shadow-inner">
+          <div id="goaMap" class="w-full h-full z-10"></div>
+          
+          <!-- Map Legend Overlay -->
+          <div class="absolute bottom-4 left-4 z-20 glass-card px-4 py-2.5 rounded-xl text-xs text-neutral-700 border border-sand-200 shadow-sm flex items-center gap-3">
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-amber-500 inline-block"></span> צפון גואה</span>
+            <span class="flex items-center gap-1.5"><span class="w-3 h-3 rounded-full bg-ocean-600 inline-block"></span> דרום גואה</span>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: COUPLE'S VACATION BUCKET LIST       -->
+    <!-- ========================================== -->
+    <section id="section-bucketlist" class="hidden space-y-6">
+      
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-card">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-sunset-500 text-xs font-bold uppercase tracking-wider">
+              <i data-lucide="check-check" class="w-4 h-4"></i>
+              <span>חוויות חובה • Couple's Goals</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-serif-title font-bold text-neutral-800 mt-1">הבאקט ליסט הזוגי של גואה</h3>
+            <p class="text-sm text-neutral-500 mt-1">סמנו חוויות שהשלמתם במהלך החופשה והוסיפו רעיונות ספונטניים יחד</p>
+          </div>
+
+          <!-- Progress Bar -->
+          <div class="bg-sand-100 p-3 rounded-2xl flex items-center gap-4 min-w-[220px]">
+            <div class="flex-1">
+              <div class="flex justify-between text-xs font-semibold text-neutral-700 mb-1">
+                <span>הספקנו:</span>
+                <span id="bucketProgressText">0 / 10</span>
+              </div>
+              <div class="w-full bg-sand-200 h-2 rounded-full overflow-hidden">
+                <div id="bucketProgressBar" class="bg-gradient-to-r from-terracotta-500 to-sunset-400 h-full w-0 transition-all duration-500"></div>
+              </div>
+            </div>
+            <span class="text-2xl">🥥</span>
+          </div>
+        </div>
+
+        <!-- Add Custom Bucket List Item Form -->
+        <div class="mb-6 flex gap-2">
+          <input type="text" id="newBucketInput" placeholder="הוסיפו חוויה נוספת שבא לכם לחוות בגואה..." class="flex-1 px-4 py-2.5 rounded-xl border border-sand-300 focus:outline-none focus:ring-2 focus:ring-terracotta-400 text-sm">
+          <button onclick="addBucketItem()" class="px-5 py-2.5 bg-terracotta-500 hover:bg-terracotta-600 text-white rounded-xl text-sm font-semibold transition-colors flex items-center gap-1.5">
+            <i data-lucide="plus" class="w-4 h-4"></i>
+            <span>הוסף</span>
+          </button>
+        </div>
+
+        <!-- Bucket List Items Grid -->
+        <div id="bucketListContainer" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Populated via JavaScript -->
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: GUIDE & RECOMMENDATIONS             -->
+    <!-- ========================================== -->
+    <section id="section-guide" class="hidden space-y-6">
+      
+      <!-- Lametayel & Curated Insider Tips -->
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-card space-y-8">
+        <div>
+          <div class="inline-flex items-center gap-1.5 text-terracotta-600 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="compass" class="w-4 h-4"></i>
+            <span>טיפים מנצחים לחופשה</span>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-serif-title font-bold text-neutral-800 mt-1">המדריך המקיף של מעיין &amp; אלירן לחופשה</h3>
+          <p class="text-sm text-neutral-500 mt-1">כל מה שצריך לדעת על התניידות, בריאות, קטנועים והחופים השונים</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          
+          <!-- Tip 1: Scooter & Transport -->
+          <div class="bg-sand-50 rounded-2xl p-5 border border-sand-200 space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-terracotta-100 text-terracotta-700 flex items-center justify-center">
+              <i data-lucide="bike" class="w-5 h-5"></i>
+            </div>
+            <h4 class="font-bold text-neutral-800 text-base">השכרת קטנוע בטוחה</h4>
+            <p class="text-xs text-neutral-600 leading-relaxed">
+              הקטנוע הוא מפתח החופש בגואה! המחיר הוגן (300-500 רופי ליום לקטנוע הונדה אקטיבה). צלמו תמיד סרטון 360° של הקטנוע לפני הלקיחה, סעו עם קסדה ורישיון בינלאומי, וזכרו שנהיגה בהודו היא בצד שמאל של הכביש.
+            </p>
+          </div>
+
+          <!-- Tip 2: Sunset & Evenings -->
+          <div class="bg-sand-50 rounded-2xl p-5 border border-sand-200 space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-sunset-100 text-sunset-600 flex items-center justify-center">
+              <i data-lucide="sunset" class="w-5 h-5"></i>
+            </div>
+            <h4 class="font-bold text-neutral-800 text-base">שקיעות 18:14</h4>
+            <p class="text-xs text-neutral-600 leading-relaxed">
+              השקיעה בגואה היא ריטואל יומי מקודש. תפסו מקום בשעה 17:30 בבר חוף רגוע, הזמינו שייק אננס או בירה Kingfisher מקומית קרה, ותיהנו מרגעי שקט בלתי נשכחים.
+            </p>
+          </div>
+
+          <!-- Tip 3: Food & Health -->
+          <div class="bg-sand-50 rounded-2xl p-5 border border-sand-200 space-y-3">
+            <div class="w-10 h-10 rounded-xl bg-palm-100 text-palm-600 flex items-center justify-center">
+              <i data-lucide="utensils" class="w-5 h-5"></i>
+            </div>
+            <h4 class="font-bold text-neutral-800 text-base">אוכל ושתייה</h4>
+            <p class="text-xs text-neutral-600 leading-relaxed">
+              שתו אך ורק מים מינרליים מבקבוקים סגורים. בגואה יש סצנה קולינרית מדהימה המשלבת טעמים פורטוגזיים עם קארי גואני קוקוס טרי. במסעדות המומלצות האוכל נקי, מפנק וטרי ביותר.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- Best Spots by Region Accordion -->
+        <div class="pt-4 border-t border-sand-200">
+          <h4 class="text-lg font-bold font-serif-title text-neutral-800 mb-4">המקומות שלא מפספסים לפי אזור</h4>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <div class="border border-sand-200 rounded-2xl p-5 bg-white">
+              <div class="flex items-center gap-2 text-amber-800 font-bold text-sm mb-3">
+                <i data-lucide="map-pin" class="w-4 h-4 text-amber-600"></i>
+                <span>צפון גואה (אשוום, מנדרם, אסאגו)</span>
+              </div>
+              <ul class="text-xs text-neutral-600 space-y-2">
+                <li>• <strong>Riva Beach Resort (מנדרם):</strong> הריזורט שלנו בצפון עם בריכה, ספא וחוף פתוח.</li>
+                <li>• <strong>Gunpowder (אסאגו):</strong> מסעדה מהוללת במבנה קולוניאלי עם מנות דרום הודו בלתי נשכחות.</li>
+                <li>• <strong>La Plage (אשוום):</strong> מוסד צרפתי-בוהמייני יוקרתי ממש על החול.</li>
+                <li>• <strong>Baba Au Rhum (אנג'ונה):</strong> מאפים צרפתיים מעולים, קפה איכותי ופיצות בחורשת במבוק.</li>
+              </ul>
+            </div>
+
+            <div class="border border-sand-200 rounded-2xl p-5 bg-white">
+              <div class="flex items-center gap-2 text-ocean-800 font-bold text-sm mb-3">
+                <i data-lucide="map-pin" class="w-4 h-4 text-ocean-600"></i>
+                <span>דרום גואה (אגונדה, פלולם, קולה)</span>
+              </div>
+              <ul class="text-xs text-neutral-600 space-y-2">
+                <li>• <strong>The White Resort (אגונדה):</strong> בקתות עץ לבנות, סטייל טהור ושקט מול האוקיינוס.</li>
+                <li>• <strong>Cola Beach &amp; Lagoon:</strong> לגונת מים מתוקים ירוקה הפוגשת חוף ים מבודד. שוכרים קיאק זוגי.</li>
+                <li>• <strong>Zest Cafe (אגונדה/פלולם):</strong> בראנצ'ים בריאים, שייקים מופלאים וקינוחים טבעוניים נהדרים.</li>
+                <li>• <strong>Dropadi (פלולם):</strong> דגים טריים ופירות ים על השולחנות שממש על קו המים בלילה.</li>
+              </ul>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 6: TOOLS, CURRENCY, PACKING & NOTES   -->
+    <!-- ========================================== -->
+    <section id="section-tools" class="hidden space-y-6">
+      
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Tool 1: Vacation Currency Converter (INR ⇄ ILS) -->
+        <div class="bg-white rounded-3xl p-6 border border-sand-200 shadow-card space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-terracotta-600 font-bold text-sm">
+              <i data-lucide="coins" class="w-4 h-4"></i>
+              <span>מחשבון פינוקים (רופי ⇄ שקל)</span>
+            </div>
+            <span class="text-[11px] bg-sand-100 text-neutral-500 px-2 py-0.5 rounded-full font-mono">100 ₹ ≈ 4.4 ₪</span>
+          </div>
+
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-neutral-500 block mb-1">סכום ברופי הודי (INR ₹)</label>
+              <input type="number" id="inrInput" value="1000" oninput="convertInrToIls()" class="w-full px-4 py-2.5 rounded-xl border border-sand-200 focus:outline-none focus:ring-2 focus:ring-terracotta-400 text-sm font-semibold">
+            </div>
+
+            <div>
+              <label class="text-xs text-neutral-500 block mb-1">שווי משוער בשקלים (ILS ₪)</label>
+              <input type="number" id="ilsInput" oninput="convertIlsToInr()" class="w-full px-4 py-2.5 rounded-xl border border-sand-200 focus:outline-none focus:ring-2 focus:ring-terracotta-400 text-sm font-semibold bg-sand-50">
+            </div>
+
+            <!-- Quick Vacation Cost Presets -->
+            <div class="pt-2 border-t border-sand-200">
+              <div class="text-[11px] text-neutral-400 mb-2">כמה זה עולה בחופשה בגואה?</div>
+              <div class="grid grid-cols-2 gap-2 text-xs">
+                <button onclick="setQuickInr(100)" class="text-right p-2 rounded-lg bg-sand-50 hover:bg-sand-100 transition-colors">
+                  <span class="block font-bold">100 ₹ (כ-4.4 ₪)</span>
+                  <span class="text-[10px] text-neutral-500">קוקוס טרי על החוף 🥥</span>
+                </button>
+                <button onclick="setQuickInr(180)" class="text-right p-2 rounded-lg bg-sand-50 hover:bg-sand-100 transition-colors">
+                  <span class="block font-bold">180 ₹ (כ-8 ₪)</span>
+                  <span class="text-[10px] text-neutral-500">בירה Kingfisher קרה 🍺</span>
+                </button>
+                <button onclick="setQuickInr(800)" class="text-right p-2 rounded-lg bg-sand-50 hover:bg-sand-100 transition-colors">
+                  <span class="block font-bold">800 ₹ (כ-35 ₪)</span>
+                  <span class="text-[10px] text-neutral-500">מסאז' איורוודי שעה 💆‍♀️</span>
+                </button>
+                <button onclick="setQuickInr(2200)" class="text-right p-2 rounded-lg bg-sand-50 hover:bg-sand-100 transition-colors">
+                  <span class="block font-bold">2,200 ₹ (כ-97 ₪)</span>
+                  <span class="text-[10px] text-neutral-500">ארוחת דגים זוגית עשירה 🦞</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tool 2: Packing Checklist -->
+        <div class="bg-white rounded-3xl p-6 border border-sand-200 shadow-card space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 text-palm-600 font-bold text-sm">
+              <i data-lucide="check-square" class="w-4 h-4"></i>
+              <span>רשימת ציוד וארגונים</span>
+            </div>
+            <span id="packingCount" class="text-[11px] bg-palm-50 text-palm-700 px-2 py-0.5 rounded-full font-bold">0/8</span>
+          </div>
+
+          <div class="flex gap-2">
+            <input type="text" id="newPackingInput" placeholder="הוסיפו פריט לרשימה..." class="flex-1 px-3 py-2 text-xs rounded-xl border border-sand-200 focus:outline-none focus:ring-2 focus:ring-palm-400">
+            <button onclick="addPackingItem()" class="px-3 py-2 bg-palm-600 text-white rounded-xl text-xs font-semibold hover:bg-palm-700 transition-colors">הוסף</button>
+          </div>
+
+          <div id="packingListContainer" class="space-y-2 max-h-[300px] overflow-y-auto pr-1">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+
+        <!-- Tool 3: Couple's Travel Journal & Notes -->
+        <div class="bg-white rounded-3xl p-6 border border-sand-200 shadow-card space-y-4 flex flex-col justify-between">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2 text-ocean-600 font-bold text-sm">
+                <i data-lucide="feather" class="w-4 h-4"></i>
+                <span>פנקס רשמים ורגעים יפים</span>
+              </div>
+              <span id="journalStatus" class="text-[10px] text-neutral-400">נשמר אוטומטית</span>
+            </div>
+            <p class="text-xs text-neutral-500">מקום לכתוב רשמים, המלצות שקיבלתם על הדרך, או סתם רגעים מתוקים לזכור לתמיד.</p>
+            <textarea id="travelNotesArea" oninput="saveTravelNotes()" rows="8" placeholder="כתבו כאן את הזיכרונות שלכם מגואה... 'השקיעה באשוום עם השייק מנגו הייתה בלתי נשכחת...'" class="w-full p-3 text-xs sm:text-sm rounded-xl border border-sand-200 focus:outline-none focus:ring-2 focus:ring-ocean-400 bg-sand-50/50 leading-relaxed"></textarea>
+          </div>
+
+          <div class="pt-2 flex justify-between items-center text-xs text-neutral-400 border-t border-sand-100">
+            <span>מעיין &amp; אלירן • גואה 2026</span>
+            <button onclick="copyJournalNotes()" class="text-ocean-600 hover:text-ocean-700 font-medium flex items-center gap-1">
+              <i data-lucide="copy" class="w-3.5 h-3.5"></i> העתק רשמים
+            </button>
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 7: RETURN FLIGHT LOGISTICS (18.10.2026)-->
+    <!-- ========================================== -->
+    <section id="section-flights" class="hidden space-y-6">
+      
+      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-card">
+        <div class="max-w-3xl mb-8">
+          <div class="inline-flex items-center gap-1.5 text-blue-600 text-xs font-bold uppercase tracking-wider">
+            <i data-lucide="plane-takeoff" class="w-4 h-4"></i>
+            <span>לוגיסטיקת סיום החופשה • 18.10.2026</span>
+          </div>
+          <h3 class="text-2xl sm:text-3xl font-serif-title font-bold text-neutral-800 mt-1">טיסות חזור חלקות ושקטות ממומבאי</h3>
+          <p class="text-sm text-neutral-500 mt-1">
+            כדי לסיים את החופשה ברוגע מוחלט בלי שום לחץ, הנה לוח הזמנים המדויק של שניכם ליום הטיסות חזור (גואה ➔ מומבאי ➔ תל אביב).
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          
+          <!-- Maayan's Flight Card -->
+          <div class="rounded-3xl p-6 sm:p-8 border border-rose-200 bg-gradient-to-br from-rose-50/50 via-white to-sand-50 relative overflow-hidden shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> מעיין • טיסת לילה
+              </span>
+              <span class="text-xs font-semibold text-rose-700 bg-white px-2.5 py-1 rounded-lg border border-rose-200">
+                טיסת חצות
+              </span>
+            </div>
+
+            <h4 class="text-xl font-bold font-serif-title text-neutral-800 mb-3">גואה ➔ מומבאי ➔ ישראל</h4>
+            
+            <div class="space-y-4 text-xs sm:text-sm text-neutral-700">
+              <div class="p-3 rounded-xl bg-white border border-rose-100 flex items-start gap-3">
+                <i data-lucide="clock" class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0"></i>
+                <div>
+                  <div class="font-bold">המראה מוקדמת ממומבאי: 00:05 (חצות)</div>
+                  <div class="text-xs text-neutral-500">טיסת המשך ישירה או קונקשן נוח חזרה הביתה</div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-white border border-rose-100 flex items-start gap-3">
+                <i data-lucide="navigation" class="w-4 h-4 text-rose-500 mt-0.5 flex-shrink-0"></i>
+                <div>
+                  <div class="font-bold">טיסת פנים מגואה למומבאי: שעות אחה"צ (17:00-18:00)</div>
+                  <div class="text-xs text-neutral-500">מאפשרת נחיתה נינוחה בטרמינל הבינלאומי (T2) ומעבר קל</div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-rose-50/70 border border-rose-200 text-rose-900 text-xs">
+                💡 <strong>טיפ חופשה:</strong> כדאי להזמין מראש מונית מאגונדה לשדה התעופה בדרום (Dabolim - GOI) לפחות 3 שעות לפני ההמראה הפנימית.
+              </div>
+            </div>
+          </div>
+
+          <!-- Eliran's Flight Card -->
+          <div class="rounded-3xl p-6 sm:p-8 border border-sky-200 bg-gradient-to-br from-sky-50/50 via-white to-sand-50 relative overflow-hidden shadow-sm">
+            <div class="flex items-center justify-between mb-4">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800">
+                <i data-lucide="user" class="w-3.5 h-3.5"></i> אלירן • טיסת בוקר
+              </span>
+              <span class="text-xs font-semibold text-sky-700 bg-white px-2.5 py-1 rounded-lg border border-sky-200">
+                המראה 06:40
+              </span>
+            </div>
+
+            <h4 class="text-xl font-bold font-serif-title text-neutral-800 mb-3">גואה ➔ מומבאי ➔ ישראל</h4>
+            
+            <div class="space-y-4 text-xs sm:text-sm text-neutral-700">
+              <div class="p-3 rounded-xl bg-white border border-sky-100 flex items-start gap-3">
+                <i data-lucide="clock" class="w-4 h-4 text-sky-500 mt-0.5 flex-shrink-0"></i>
+                <div>
+                  <div class="font-bold">המראה בינלאומית ממומבאי: 06:40 בבוקר</div>
+                  <div class="text-xs text-neutral-500">טיסת בוקר רעננה לישראל</div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-white border border-sky-100 flex items-start gap-3">
+                <i data-lucide="bed" class="w-4 h-4 text-sky-500 mt-0.5 flex-shrink-0"></i>
+                <div>
+                  <div class="font-bold">אופציה מומלצת: טיסת ערב מגואה ומנוחה במלון טרנזיט ב-T2</div>
+                  <div class="text-xs text-neutral-500">מלון Niranta או לאונג' בטרמינל 2 במומבאי למנוחה מלאה ומקלחת</div>
+                </div>
+              </div>
+
+              <div class="p-3 rounded-xl bg-sky-50/70 border border-sky-200 text-sky-900 text-xs">
+                💡 <strong>טיפ חופשה:</strong> מומלץ לבצע צ'ק-אין אונליין 24 שעות לפני הטיסה כדי לחסוך זמן בתור.
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+  </main>
+
+  <footer class="mt-16 border-t border-sand-200 bg-sand-100/60 py-8 text-center text-xs text-neutral-500 space-y-2">
+    <div class="flex items-center justify-center gap-2">
+      <span>מעיין &amp; אלירן</span>
+      <span>•</span>
+      <span>גואה 2026</span>
+      <span>•</span>
+      <span>יומן מסע וחופשה זוגית</span>
+    </div>
+    <p>שקיעות, שלווה, קוקוסים וים אינסופי 🌴</p>
+  </footer>
+
+  <!-- Custom Notification Toast Modal (No native alert) -->
+  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-32 transition-transform duration-300 ease-out">
+    <div class="bg-neutral-900/90 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-xl border border-neutral-700/50 flex items-center gap-3 text-xs sm:text-sm">
+      <span id="toastIcon">🌴</span>
+      <span id="toastMessage">הודעה</span>
+    </div>
+  </div>
+
+  <script>
+    /* =========================================================================
+       VACATION DATA & STATE INITIALIZATION
+       ========================================================================= */
+
+    // Vacation Experience Curated Data
+    const VACATION_VIBES = [
+      {
+        id: 'vibe-1',
+        title: 'שקיעה וקוקטייל ב-La Plage',
+        category: 'sunset',
+        region: 'north',
+        location: 'חוף אשוום (Ashwem Beach)',
+        badge: 'חובה בשקיעה 🌅',
+        image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?w=700&auto=format&fit=crop&q=80',
+        desc: 'מסעדת חוף צרפתית אלגנטית ומפורסמת. שולחנות עץ על החול הלבן, מוזיקת צ\'ילאאוט איכותית ושקיעות צבעוניות מהפנטות.',
+        highlight: 'להזמין: סביצ\'ה טרי או מנה צרפתית מעודנת + קוקטייל פירות טרופי.'
+      },
+      {
+        id: 'vibe-2',
+        title: 'שיט קיאקים בלגונת קולה (Cola Beach)',
+        category: 'adventure',
+        region: 'south',
+        location: 'לגונת קולה (דרום גואה)',
+        badge: 'חוויה זוגית רומנטית 🚣‍♀️',
+        image: 'https://images.unsplash.com/photo-1544735716-392fe2489ffa?w=700&auto=format&fit=crop&q=80',
+        desc: 'הלגונה המפורסמת שבה נחל מים מתוקים בצבע ירוק-אזמרגד פוגש את הגלים של הים הערבי. השכרת קיאק פרטי בין עצי הקוקוס.',
+        highlight: 'טיפ: להגיע בשעות הבוקר המוקדמות כשהמקום דומם לחלוטין.'
+      },
+      {
+        id: 'vibe-3',
+        title: 'ערב קסום בחצר של Gunpowder',
+        category: 'foodie',
+        region: 'north',
+        location: 'אסאגו (Assagao)',
+        badge: 'חוויה קולינרית 🌶️',
+        image: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=700&auto=format&fit=crop&q=80',
+        desc: 'בית מגורים קולוניאלי פורטוגזי משוחזר באסאגו. תאורת נורות חמה, שולחנות בחצר טרופית ומטבח דרום הודי גורמה עטור שבחים.',
+        highlight: 'להזמין: קארי דגים קרליטי, לחמי אפאם (Appam) חמים וקוקטייל ג\'ין ייחודי.'
+      },
+      {
+        id: 'vibe-4',
+        title: 'שלווה מוחלטת ב-The White Resort',
+        category: 'chill',
+        region: 'south',
+        location: 'חוף אגונדה (Agonda)',
+        badge: 'ריזורט החלומות שלנו 🏨',
+        image: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?w=700&auto=format&fit=crop&q=80',
+        desc: 'בקתות חוף לבנות מעוצבות בסגנון מינימליסטי על קו המים של אגונדה. בריכת אינפיניטי, שקט מוחלט ורחש הגלים בלילה.',
+        highlight: 'הכי כיף: להתעורר בבוקר ישר להליכה יחפה על החול הרחב.'
+      },
+      {
+        id: 'vibe-5',
+        title: 'בראנץ\' בריאות מפנק ב-Zest Cafe',
+        category: 'foodie',
+        region: 'south',
+        location: 'אגונדה / פלולם',
+        badge: 'קפה בוהו מושלם 🥑',
+        image: 'https://images.unsplash.com/photo-1525610553991-2bede1a236e2?w=700&auto=format&fit=crop&q=80',
+        desc: 'בית קפה פסטורלי המגיש קערות סמודי פירות טריים, קפה איכותי מעולה, טוסט אבוקדו ומאפים ללא גלוטן בגינה נעימה.',
+        highlight: 'חובה לנסות: שייק מנגו-פסיפלורה וקערת אסאי מקומית.'
+      },
+      {
+        id: 'vibe-6',
+        title: 'טיול קטנוע בשדות האורז ובתי הכפר',
+        category: 'adventure',
+        region: 'north',
+        location: 'אסאגו & סיולים',
+        badge: 'חופש טהור 🛵',
+        image: 'https://images.unsplash.com/photo-1558981806-ec527fa84c39?w=700&auto=format&fit=crop&q=80',
+        desc: 'רכיבה רגועה על קטנוע בכבישים השקטים המוקפים בדקלי ענק, כנסיות לבנות עתיקות ובתים צבעוניים עם עצירה לקפה במאפיית Baba Au Rhum.',
+        highlight: 'תחושת החופש הגואנית במיטבה.'
+      }
+    ];
+
+    // Day-by-Day Detailed Vacation Schedule (14 Days)
+    const VACATION_DAYS = [
+      {
+        day: 0,
+        date: "05.10.2026",
+        region: "north",
+        title: "צפון • נחיתה רכה למעיין & ריזורט מנדרם",
+        hotel: "Riva Beach Resort • Mandrem",
+        vibe: "מנוחה, בריכה ושייק ראשון 🥥",
+        morning: "נחיתה בגואה, מונית מסודרת לריזורט הבוטיק Riva Beach Resort במנדרם.",
+        afternoon: "התמקמות בחדר, טבילה רגועה בבריכה מול שפך הנהר לים, שייק מנגו קר ראשון.",
+        evening: "הליכה יחפה בחוף מנדרם הרחב, ארוחת ערב רגועה ושקטה בריזורט."
+      },
+      {
+        day: 1,
+        date: "06.10.2026",
+        region: "north",
+        title: "צפון • אלירן מגיע! איחוד זוגי וחגיגת שקיעה",
+        hotel: "Riva Beach Resort • Mandrem",
+        vibe: "חגיגה, חיבוק חם וקוקטייל ראשון יחד 🥂",
+        morning: "אלירן נוחת ומגיע למנדרם! קבלת פנים חמה, ארוחת בוקר זוגית בריזורט.",
+        afternoon: "התרעננות בבריכה, השכרת קטנוע נוח לטיולים בשבוע הקרוב.",
+        evening: "שקיעה ראשונה יחד על החוף באשוום, ארוחת ערב רומנטית לאור נרות."
+      },
+      {
+        day: 2,
+        date: "07.10.2026",
+        region: "north",
+        title: "צפון • רודטריפ אסאגו & מסעדת Gunpowder",
+        hotel: "Riva Beach Resort • Mandrem",
+        vibe: "בוהו שיק, בוטיקים ואוכל דרום-הודי מעולה 🛵",
+        morning: "נסיעת בוקר יפהפייה בין שדות האורז לאסאגו (Assagao), בירת הבוטיקים והעיצוב.",
+        afternoon: "שיטוט בין חנויות עיצוב מקומיות ועצירה לקפה ומאפה איכותי.",
+        evening: "ארוחת ערב מהוללת בחצר הקולוניאלית של Gunpowder (מומלץ להזמין מראש)."
+      },
+      {
+        day: 3,
+        date: "08.10.2026",
+        region: "north",
+        title: "צפון • חוף אשוום & ארוחת שקיעה ב-La Plage",
+        hotel: "Riva Beach Resort • Mandrem",
+        vibe: "שולחן על החול הלבן, יין ושקיעה צרפתית 🌅",
+        morning: "בוקר רגוע בריזורט, הליכה לחוף אשוום (Ashwem) החולי והרחב.",
+        afternoon: "רביצה על מיטות שיזוף מפנקות, טבילה במים החמימים, ספר טוב ומוזיקה.",
+        evening: "שקיעה בלתי נשכחת ב-La Plage ממש על קו המים — אחד מרגעי השיא בצפון."
+      },
+      {
+        day: 4,
+        date: "09.10.2026",
+        region: "north",
+        title: "צפון • פיצה בבאמבו של Baba Au Rhum",
+        hotel: "Riva Beach Resort • Mandrem",
+        vibe: "קפה משובח, נופי אנג'ונה ומוזיקה נעימה 🍕",
+        morning: "רכיבה דרומה לכיוון אנג'ונה. ביקור ב-Baba Au Rhum לארוחת בראנץ' וקפה.",
+        afternoon: "מבט על המצוקים של ואגאטור ומבצר צ'אפורה (Chapora Fort) היפהפה.",
+        evening: "חזרה למנדרם, מסאז' איורוודי זוגי בריזורט להרגעת הגוף."
+      },
+      {
+        day: 5,
+        date: "10.10.2026",
+        region: "north",
+        title: "צפון • ארמבול & עץ הבניאן המפורסם",
+        hotel: "Riva Beach Resort • Mandrem",
+        vibe: "אווירה היפית אותנטית וצ'יל מוחלט 🧘‍♂️",
+        morning: "גיחה קצרה צפונה לארמבול (Arambol), הליכה דרך השוק הצבעוני לעץ הבניאן.",
+        afternoon: "טבילה בלגונת המים המתוקים של ארמבול (Sweet Water Lake).",
+        evening: "מעגל מתופפים בשקיעה על החוף וארוחת דגים טריים."
+      },
+      {
+        day: 6,
+        date: "11.10.2026",
+        region: "south",
+        title: "מעבר לדרום • הנסיעה היפה & The White Resort באגונדה",
+        hotel: "The White Resort • Agonda Beach",
+        vibe: "כניסה לעולם אחר: שקט טהור ובקתות לבנות 🤍",
+        morning: "צ'ק-אאוט ממנדרם. נסיעה נוחה ברכב ממוזג דרומה (כשעתיים וחצי) דרך גשר זוארי.",
+        afternoon: "צ'ק-אין בריזורט החלומות: The White Resort בחוף אגונדה. בקתה מול הגלים.",
+        evening: "התאהבות מיידית באגונדה: שקט מוחלט, אין מוזיקה רועשת, רק ים פתוח."
+      },
+      {
+        day: 7,
+        date: "12.10.2026",
+        region: "south",
+        title: "דרום • חוף אגונדה & בראנץ' ב-Zest Cafe",
+        hotel: "The White Resort • Agonda Beach",
+        vibe: "סמודי בולס, הליכה ארוכה ויוגה מול הים 🥑",
+        morning: "הליכת בוקר יחפה של 3 קילומטרים על החול הרך של אגונדה.",
+        afternoon: "בראנץ' בריא ומפנק ב-Zest Cafe באגונדה. קפה מעולה וקינוחים טריים.",
+        evening: "שקיעה אינטימית ממרפסת הבקתה עם כוס יין."
+      },
+      {
+        day: 8,
+        date: "13.10.2026",
+        region: "south",
+        title: "דרום • לגונת קולה (Cola Beach) ושיט קיאק",
+        hotel: "The White Resort • Agonda Beach",
+        vibe: "לגונת אזמרגד ודקלים נשפכים למים 🚣‍♂️",
+        morning: "נסיעה קצרה לקולה ביץ'. ירידה בשביל הדקלים אל הלגונה הקסומה.",
+        afternoon: "השכרת קיאק זוגי ושיט שקט במעלה הנחל המוצל בעצי קוקוס.",
+        evening: "חזרה לאגונדה וארוחת קארי גואני מקומי ב-Fatima Corner."
+      },
+      {
+        day: 9,
+        date: "14.10.2026",
+        region: "south",
+        title: "דרום • מפרץ פלולם & דגים ב-Dropadi",
+        hotel: "The White Resort • Agonda Beach",
+        vibe: "מפרץ הסהר הציורי ונרות על המים 🕯️",
+        morning: "נסיעה של 15 דקות לחוף פלולם (Palolem Beach), מפרץ הסהר עם הדקלים הנטויים.",
+        afternoon: "מים שקטים אידיאליים לשחייה, שיטוט בין חנויות הבגדים והבדים על החוף.",
+        evening: "שולחן על קו הגלים במסעדת Dropadi בפלולם. דג ים שלם על הגריל."
+      },
+      {
+        day: 10,
+        date: "15.10.2026",
+        region: "south",
+        title: "דרום • מבצר קאבו דה ראמה & צוקי הטורקיז",
+        hotel: "The White Resort • Agonda Beach",
+        vibe: "נוף דרמטי של האוקיינוס מגובה הצוק 🏰",
+        morning: "רכיבה צפונה למבצר העתיק Cabo de Rama עם תצפית עוצרת נשימה למרחבי הים.",
+        afternoon: "עצירה ב-The Cape Goa לאספרסו וקינוח מעל המצוק.",
+        evening: "חזרה לריזורט באגונדה ומנוחה בבריכה מול השקיעה."
+      },
+      {
+        day: 11,
+        date: "16.10.2026",
+        region: "south",
+        title: "דרום • חוף הצבים גלגיבגה (Galgibaga Beach)",
+        hotel: "The White Resort • Agonda Beach",
+        vibe: "החוף הכי פראי ושקט בכל גואה 🐢",
+        morning: "נסיעה דרומה לחוף גלגיבגה – שמורת טבע בתולית להטלת צבי ים.",
+        afternoon: "אפס מלונות מסחריים, חורשות אורנים ודקלים. ארוחת צהריים במסעדת Surya המקומית.",
+        evening: "ערב שקט בבקתה באגונדה."
+      },
+      {
+        day: 12,
+        date: "17.10.2026",
+        region: "south",
+        title: "דרום • יום פרידה אחרון & ארוחת סיום חגיגית",
+        hotel: "The White Resort • Agonda Beach",
+        vibe: "ספיגת השקט, חיבוק אחרון לים וסיכום רגעים 🌴",
+        morning: "שחייה אחרונה בגלי האוקיינוס של אגונדה, איסוף צדפים ומזכרות.",
+        afternoon: "טיפול ספא ועיסוי זוגי מפנק, אריזה בנחת בלי לחץ.",
+        evening: "ארוחת ערב חגיגית אחרונה על החוף: הרמת כוסית לחופשה המושלמת שלנו!"
+      },
+      {
+        day: 13,
+        date: "18.10.2026",
+        region: "south",
+        title: "יום הטיסות חזור • גואה ➔ מומבאי ➔ ישראל",
+        hotel: "טיסות חזור (מעיין חצות, אלירן בוקר)",
+        vibe: "סיום חלק ורגוע של חופשת החלומות ✈️",
+        morning: "ארוחת בוקר אחרונה מול הים באגונדה, צ'ק אאוט.",
+        afternoon: "נסיעה מסודרת לשדה התעופה בדרום גואה (Dabolim - GOI).",
+        evening: "טיסה פנימית למומבאי לקראת טיסות ההמשך לארץ (מעיין בחצות 00:05, אלירן 06:40 בבוקר)."
+      }
+    ];
+
+    // Vacation Bucket List Default Items
+    const DEFAULT_BUCKET_LIST = [
+      { id: 'b1', text: 'לשתות שייק אננס וקוקטייל בשקיעה ב-La Plage (אשוום)', done: true },
+      { id: 'b2', text: 'לשכור קיאק זוגי בלגונת המים המתוקים בקולה ביץ\'', done: false },
+      { id: 'b3', text: 'ארוחת שף דרום-הודית בחצר הקסומה של Gunpowder', done: false },
+      { id: 'b4', text: 'שחיית בוקר מוקדמת בחוף אגונדה ישר מהבקתה', done: false },
+      { id: 'b5', text: 'קפה ומאפה צרפתי בגינת הבמבוק של Baba Au Rhum', done: false },
+      { id: 'b6', text: 'בראנץ\' בריא וסמודי בול ב-Zest Cafe', done: false },
+      { id: 'b7', text: 'טיול קטנוע זוגי בין שדות האורז וכנסיות אסאגו', done: false },
+      { id: 'b8', text: 'ארוחת דגים טריים לאור נרות על המים בפלולם (Dropadi)', done: false },
+      { id: 'b9', text: 'טיפול עיסוי איורוודי זוגי בשמנים טבעיים', done: false },
+      { id: 'b10', text: 'תצפית שקיעה דרמטית ממבצר קאבו דה ראמה', done: false }
+    ];
+
+    // Packing Items
+    const DEFAULT_PACKING = [
+      { id: 'p1', text: 'דרכונים בתוקף (מעל 6 חודשים) + צילומים', done: true },
+      { id: 'p2', text: 'ויזה אלקטרונית להודו (eVisa) מודפסת ומגובה בטלפון', done: true },
+      { id: 'p3', text: 'רישיון נהיגה בינלאומי + ישראלי תקף לקטנוע', done: true },
+      { id: 'p4', text: 'ביטוח נסיעות מורחב (כולל ספורט אתגרי / דו-גלגלי)', done: true },
+      { id: 'p5', text: 'קרם Odomos נגד יתושים (או רכישה מיידית בבית מרקחת מקומי)', done: false },
+      { id: 'p6', text: 'בגדי ים, משקפי שמש וכובעים רחבי שוליים', done: false },
+      { id: 'p7', text: 'קרם הגנה לפנים ולגוף (SPF 50)', done: false },
+      { id: 'p8', text: 'מטען נייד חזק (Power Bank) + מתאם שקעים הודי', done: false }
+    ];
+
+    // Map Locations (Beaches, Hotels, Restaurants)
+    const MAP_LOCATIONS = [
+      {
+        name: 'Riva Beach Resort (מנדרם)',
+        category: 'hotel',
+        region: 'north',
+        lat: 15.6678,
+        lng: 73.7145,
+        desc: 'הריזורט שלנו בצפון גואה: בריכות, ספא, גינה טרופית ויציאה לחוף מנדרם.',
+        color: '#D97706'
+      },
+      {
+        name: 'The White Resort (חוף אגונדה)',
+        category: 'hotel',
+        region: 'south',
+        lat: 15.0442,
+        lng: 73.9875,
+        desc: 'בקתות העץ הלבנות שלנו על קו החוף באגונדה. שקט ורומנטיקה ללא מתחרים.',
+        color: '#1D7287'
+      },
+      {
+        name: 'חוף אשוום & מסעדת La Plage',
+        category: 'beach',
+        region: 'north',
+        lat: 15.6570,
+        lng: 73.7190,
+        desc: 'חוף חולי מרהיב, מים רגועים ומסעדת השקיעה הצרפתית האייקונית.',
+        color: '#D97706'
+      },
+      {
+        name: 'מסעדת Gunpowder (אסאגו)',
+        category: 'food',
+        region: 'north',
+        lat: 15.5898,
+        lng: 73.7745,
+        desc: 'חצר קולוניאלית קסומה ואוכל דרום הודי גורמה משובח.',
+        color: '#D97706'
+      },
+      {
+        name: 'Baba Au Rhum (אנג\'ונה)',
+        category: 'food',
+        region: 'north',
+        lat: 15.5788,
+        lng: 73.7540,
+        desc: 'קפה, מאפים צרפתיים ופיצות מעולות בחורשת במבוק.',
+        color: '#D97706'
+      },
+      {
+        name: 'לגונת קולה (Cola Beach & Lagoon)',
+        category: 'beach',
+        region: 'south',
+        lat: 15.0590,
+        lng: 73.9740,
+        desc: 'לגונת המים המתוקים היפהפייה. שיט קיאקים וטבע פראי.',
+        color: '#1D7287'
+      },
+      {
+        name: 'חוף פלולם & מסעדת Dropadi',
+        category: 'beach',
+        region: 'south',
+        lat: 15.0100,
+        lng: 74.0232,
+        desc: 'מפרץ הסהר האייקוני, שולחנות על החוף וארוחות דגים טריים.',
+        color: '#1D7287'
+      },
+      {
+        name: 'Zest Cafe (אגונדה)',
+        category: 'food',
+        region: 'south',
+        lat: 15.0455,
+        lng: 73.9880,
+        desc: 'בית הקפה הבוהמייני של הדרום: סמודי בולס, קפה בריאות ואווירה קלילה.',
+        color: '#1D7287'
+      },
+      {
+        name: 'מבצר קאבו דה ראמה (Cabo de Rama)',
+        category: 'beach',
+        region: 'south',
+        lat: 15.0880,
+        lng: 73.9210,
+        desc: 'מבצר עתיק על צוק דרמטי מעל האוקיינוס הערבי. נוף פנורמי מושלם.',
+        color: '#1D7287'
+      },
+      {
+        name: 'שדה התעופה דאבולים (GOI Airport)',
+        category: 'hotel',
+        region: 'south',
+        lat: 15.3808,
+        lng: 73.8313,
+        desc: 'שדה התעופה המרכזי בדרום גואה לטיסות הפנים למומבאי ב-18.10.',
+        color: '#4F46E5'
+      }
+    ];
+
+    /* =========================================================================
+       AUDIO AMBIENCE (Web Audio API Synthesized Ocean Waves)
+       ========================================================================= */
+    let audioCtx = null;
+    let isAmbiencePlaying = false;
+    let waveNoiseNode = null;
+    let waveGainNode = null;
+    let waveFilterNode = null;
+    let waveLfo = null;
+
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+    }
+
+    function toggleAmbience() {
+      initAudio();
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      if (isAmbiencePlaying) {
+        stopOceanAmbience();
+      } else {
+        startOceanAmbience();
+      }
+    }
+
+    function startOceanAmbience() {
+      try {
+        // Create brown noise buffer for realistic warm ocean waves
+        const bufferSize = audioCtx.sampleRate * 5;
+        const noiseBuffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+        const output = noiseBuffer.getChannelData(0);
+        let lastOut = 0.0;
+        for (let i = 0; i < bufferSize; i++) {
+          const white = Math.random() * 2 - 1;
+          output[i] = (lastOut + (0.02 * white)) / 1.02;
+          lastOut = output[i];
+          output[i] *= 3.5; // Gain boost
+        }
+
+        waveNoiseNode = audioCtx.createBufferSource();
+        waveNoiseNode.buffer = noiseBuffer;
+        waveNoiseNode.loop = true;
+
+        waveFilterNode = audioCtx.createBiquadFilter();
+        waveFilterNode.type = 'lowpass';
+        waveFilterNode.frequency.setValueAtTime(320, audioCtx.currentTime);
+
+        waveGainNode = audioCtx.createGain();
+        waveGainNode.gain.setValueAtTime(0.01, audioCtx.currentTime);
+        waveGainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 3);
+
+        // LFO for rhythmic slow wave crashing
+        waveLfo = audioCtx.createOscillator();
+        const lfoGain = audioCtx.createGain();
+        waveLfo.frequency.setValueAtTime(0.12, audioCtx.currentTime); // ~8 sec ocean swell
+        lfoGain.gain.setValueAtTime(220, audioCtx.currentTime);
+
+        waveLfo.connect(lfoGain);
+        lfoGain.connect(waveFilterNode.frequency);
+
+        waveNoiseNode.connect(waveFilterNode);
+        waveFilterNode.connect(waveGainNode);
+        waveGainNode.connect(audioCtx.destination);
+
+        waveNoiseNode.start();
+        waveLfo.start();
+
+        isAmbiencePlaying = true;
+        document.getElementById('ambientStatus').className = 'w-2 h-2 rounded-full bg-emerald-500 animate-ping';
+        document.getElementById('ambientBtnText').textContent = 'גלי ים פועלים 🌊';
+        showToast('הפעלנו צלילי ים וגלים רגועים לחופשה 🌊', '🌴');
+      } catch (err) {
+        console.error("Audio error:", err);
+      }
+    }
+
+    function stopOceanAmbience() {
+      if (waveGainNode) {
+        waveGainNode.gain.linearRampToValueAtTime(0.001, audioCtx.currentTime + 1.5);
+        setTimeout(() => {
+          if (waveNoiseNode) {
+            waveNoiseNode.stop();
+            waveNoiseNode.disconnect();
+          }
+          if (waveLfo) {
+            waveLfo.stop();
+            waveLfo.disconnect();
+          }
+        }, 1600);
+      }
+      isAmbiencePlaying = false;
+      document.getElementById('ambientStatus').className = 'w-2 h-2 rounded-full bg-neutral-300';
+      document.getElementById('ambientBtnText').textContent = 'צלילי ים ושלווה';
+      showToast('צלילי הים הושתקו', '🔇');
+    }
+
+    /* =========================================================================
+       COUNTDOWN & GOA LOCAL TIME CLOCK
+       ========================================================================= */
+    function updateCountdownAndClock() {
+      // Goa Trip Target Date: October 5, 2026, 12:00:00 (Goa Time UTC+5:30)
+      const tripDate = new Date("2026-10-05T06:30:00Z").getTime();
+      const now = new Date().getTime();
+      const diff = tripDate - now;
+
+      if (diff > 0) {
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+        document.getElementById("cd-days").textContent = days;
+        document.getElementById("cd-hours").textContent = String(hours).padStart(2, '0');
+        document.getElementById("cd-minutes").textContent = String(minutes).padStart(2, '0');
+        document.getElementById("cd-seconds").textContent = String(seconds).padStart(2, '0');
+      } else {
+        document.getElementById("countdownBox").innerHTML = `
+          <div class="col-span-4 py-2 text-center text-sm font-bold text-amber-200">
+            🌴 החופשה התחילה! תיהנו מכל רגע בגואה! 🥂
+          </div>
+        `;
+      }
+
+      // Goa IST Clock (UTC+5.5)
+      try {
+        const goaTimeStr = new Intl.DateTimeFormat('he-IL', {
+          timeZone: 'Asia/Kolkata',
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          hour12: false
+        }).format(new Date());
+        document.getElementById("goaTimeDisplay").textContent = goaTimeStr + " (IST)";
+      } catch (e) {
+        document.getElementById("goaTimeDisplay").textContent = "18:14 (שקיעה)";
+      }
+    }
+
+    setInterval(updateCountdownAndClock, 1000);
+    updateCountdownAndClock();
+
+    /* =========================================================================
+       TAB SWITCHING LOGIC
+       ========================================================================= */
+    const TABS = ['vacation', 'itinerary', 'map', 'bucketlist', 'guide', 'tools', 'flights'];
+
+    function switchTab(tabId) {
+      TABS.forEach(t => {
+        const section = document.getElementById(`section-${t}`);
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (section) {
+          if (t === tabId) {
+            section.classList.remove('hidden');
+          } else {
+            section.classList.add('hidden');
+          }
+        }
+        if (btn) {
+          if (t === tabId) {
+            btn.className = "tab-button active-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all text-terracotta-700 bg-white shadow-sm border border-sand-200";
+          } else {
+            btn.className = "tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60";
+          }
+        }
+      });
+
+      if (tabId === 'map') {
+        setTimeout(initMapIfNeeded, 200);
+      }
+
+      // Scroll smoothly to top of active section on mobile
+      window.scrollTo({ top: 180, behavior: 'smooth' });
+    }
+
+    /* =========================================================================
+       VACATION VIBES SECTION RENDERING & FILTERING
+       ========================================================================= */
+    function renderVacationVibes(filter = 'all') {
+      const container = document.getElementById('vacationVibeGrid');
+      if (!container) return;
+
+      const filtered = filter === 'all' 
+        ? VACATION_VIBES 
+        : VACATION_VIBES.filter(v => v.category === filter);
+
+      container.innerHTML = filtered.map(item => `
+        <div class="bg-sand-50 rounded-2xl border border-sand-200 overflow-hidden hover:shadow-warm transition-all duration-300 flex flex-col justify-between group">
+          <div>
+            <div class="relative h-48 overflow-hidden">
+              <img src="${item.image}" alt="${item.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+              <div class="absolute top-3 right-3 bg-white/90 backdrop-blur-md px-3 py-1 rounded-full text-xs font-bold text-neutral-800 shadow-sm">
+                ${item.badge}
+              </div>
+              <div class="absolute bottom-3 right-3 bg-black/60 backdrop-blur-sm text-white px-2.5 py-0.5 rounded-lg text-[11px]">
+                ${item.location}
+              </div>
+            </div>
+
+            <div class="p-5 space-y-2">
+              <h4 class="font-bold text-neutral-800 text-lg font-serif-title">${item.title}</h4>
+              <p class="text-xs text-neutral-600 leading-relaxed">${item.desc}</p>
+            </div>
+          </div>
+
+          <div class="p-5 pt-0">
+            <div class="p-3 rounded-xl bg-white border border-sand-200 text-xs text-terracotta-700 font-medium">
+              ✨ ${item.highlight}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterVacationVibe(category) {
+      document.querySelectorAll('.vibe-filter').forEach(btn => {
+        btn.className = "vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200";
+      });
+      event.target.className = "vibe-filter active-vibe px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-terracotta-500 text-white shadow-sm";
+      renderVacationVibes(category);
+    }
+
+    /* =========================================================================
+       ITINERARY DAYS FEED RENDERING & FILTERING
+       ========================================================================= */
+    function renderItinerary(filter = 'all') {
+      const container = document.getElementById('itineraryDaysFeed');
+      if (!container) return;
+
+      const filtered = filter === 'all'
+        ? VACATION_DAYS
+        : VACATION_DAYS.filter(d => d.region === filter);
+
+      container.innerHTML = filtered.map(d => `
+        <div class="bg-white rounded-2xl border border-sand-200 p-5 sm:p-6 shadow-sm hover:border-sand-300 transition-colors">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 mb-4 border-b border-sand-100">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 rounded-xl ${d.region === 'north' ? 'bg-amber-100 text-amber-800' : 'bg-ocean-100 text-ocean-800'} flex items-center justify-center font-bold text-sm">
+                ${d.day === 0 ? '0' : d.day}
+              </div>
+              <div>
+                <h4 class="font-bold text-neutral-800 text-base sm:text-lg">${d.title}</h4>
+                <div class="text-xs text-neutral-400">${d.date} • ${d.hotel}</div>
+              </div>
+            </div>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${d.region === 'north' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-ocean-50 text-ocean-700 border border-ocean-200'}">
+              ${d.vibe}
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-xs sm:text-sm text-neutral-600">
+            <div class="p-3 rounded-xl bg-sand-50/70 border border-sand-100">
+              <span class="font-bold text-neutral-800 block mb-1">☀️ בוקר</span>
+              ${d.morning}
+            </div>
+            <div class="p-3 rounded-xl bg-sand-50/70 border border-sand-100">
+              <span class="font-bold text-neutral-800 block mb-1">🌤️ צהריים</span>
+              ${d.afternoon}
+            </div>
+            <div class="p-3 rounded-xl bg-sand-50/70 border border-sand-100">
+              <span class="font-bold text-neutral-800 block mb-1">🌅 שקיעה & ערב</span>
+              ${d.evening}
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterItinerary(region) {
+      document.querySelectorAll('.itin-btn').forEach(btn => {
+        btn.className = "itin-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-medium text-neutral-600 hover:text-neutral-900 transition-all";
+      });
+      const activeBtn = document.getElementById(`itin-filter-${region}`);
+      if (activeBtn) {
+        activeBtn.className = "itin-btn px-4 py-2 rounded-xl text-xs sm:text-sm font-bold bg-white text-neutral-900 shadow-sm transition-all";
+      }
+      renderItinerary(region);
+    }
+
+    /* =========================================================================
+       COUPLE'S BUCKET LIST LOGIC
+       ========================================================================= */
+    let bucketItems = JSON.parse(localStorage.getItem('goa_bucket_list') || 'null') || DEFAULT_BUCKET_LIST;
+
+    function renderBucketList() {
+      const container = document.getElementById('bucketListContainer');
+      if (!container) return;
+
+      container.innerHTML = bucketItems.map((item, idx) => `
+        <div onclick="toggleBucketItem('${item.id}')" class="cursor-pointer p-4 rounded-2xl border transition-all duration-200 flex items-start gap-3 select-none ${item.done ? 'bg-emerald-50/60 border-emerald-200 text-emerald-900' : 'bg-sand-50 border-sand-200 hover:bg-sand-100 text-neutral-800'}">
+          <div class="mt-0.5 w-5 h-5 rounded-lg border flex items-center justify-center flex-shrink-0 transition-colors ${item.done ? 'bg-emerald-500 border-emerald-600 text-white' : 'border-sand-400 bg-white'}">
+            ${item.done ? '<i data-lucide="check" class="w-3.5 h-3.5"></i>' : ''}
+          </div>
+          <div class="flex-1 text-xs sm:text-sm font-medium ${item.done ? 'line-through text-neutral-400' : ''}">
+            ${item.text}
+          </div>
+        </div>
+      `).join('');
+
+      // Update Lucide icons inside dynamically rendered items
+      lucide.createIcons();
+
+      // Update progress
+      const completed = bucketItems.filter(i => i.done).length;
+      const total = bucketItems.length;
+      const pct = total > 0 ? Math.round((completed / total) * 100) : 0;
+      
+      document.getElementById('bucketProgressText').textContent = `${completed} / ${total}`;
+      document.getElementById('bucketProgressBar').style.width = `${pct}%`;
+
+      localStorage.setItem('goa_bucket_list', JSON.stringify(bucketItems));
+    }
+
+    function toggleBucketItem(id) {
+      bucketItems = bucketItems.map(item => {
+        if (item.id === id) {
+          const newStatus = !item.done;
+          if (newStatus) {
+            showToast('כל הכבוד! חוויה נוספת הושלמה בהצלחה ✨', '🥥');
+          }
+          return { ...item, done: newStatus };
+        }
+        return item;
+      });
+      renderBucketList();
+    }
+
+    function addBucketItem() {
+      const input = document.getElementById('newBucketInput');
+      const val = input.value.trim();
+      if (!val) return;
+
+      bucketItems.unshift({
+        id: 'b_' + Date.now(),
+        text: val,
+        done: false
+      });
+      input.value = '';
+      renderBucketList();
+      showToast('החוויה נוספה לבאקט ליסט שלכם 🌴', '📝');
+    }
+
+    /* =========================================================================
+       PACKING CHECKLIST LOGIC
+       ========================================================================= */
+    let packingItems = JSON.parse(localStorage.getItem('goa_packing_list') || 'null') || DEFAULT_PACKING;
+
+    function renderPackingList() {
+      const container = document.getElementById('packingListContainer');
+      if (!container) return;
+
+      container.innerHTML = packingItems.map(item => `
+        <div onclick="togglePackingItem('${item.id}')" class="cursor-pointer p-2.5 rounded-xl border flex items-center justify-between text-xs transition-colors ${item.done ? 'bg-palm-50 border-palm-200 text-palm-800' : 'bg-sand-50 border-sand-200 hover:bg-sand-100 text-neutral-700'}">
+          <div class="flex items-center gap-2">
+            <span class="w-4 h-4 rounded border flex items-center justify-center ${item.done ? 'bg-palm-600 border-palm-600 text-white' : 'border-sand-400 bg-white'}">
+              ${item.done ? '✓' : ''}
+            </span>
+            <span class="${item.done ? 'line-through text-neutral-400' : 'font-medium'}">${item.text}</span>
+          </div>
+          <button onclick="event.stopPropagation(); deletePackingItem('${item.id}')" class="text-neutral-300 hover:text-rose-500 p-1">×</button>
+        </div>
+      `).join('');
+
+      const completed = packingItems.filter(i => i.done).length;
+      document.getElementById('packingCount').textContent = `${completed}/${packingItems.length}`;
+      localStorage.setItem('goa_packing_list', JSON.stringify(packingItems));
+    }
+
+    function togglePackingItem(id) {
+      packingItems = packingItems.map(i => i.id === id ? { ...i, done: !i.done } : i);
+      renderPackingList();
+    }
+
+    function addPackingItem() {
+      const input = document.getElementById('newPackingInput');
+      const val = input.value.trim();
+      if (!val) return;
+      packingItems.push({ id: 'p_' + Date.now(), text: val, done: false });
+      input.value = '';
+      renderPackingList();
+    }
+
+    function deletePackingItem(id) {
+      packingItems = packingItems.filter(i => i.id !== id);
+      renderPackingList();
+    }
+
+    /* =========================================================================
+       CURRENCY CONVERTER LOGIC (INR ⇄ ILS)
+       ========================================================================= */
+    const INR_TO_ILS_RATE = 0.0441; // 1 INR ~ 0.0441 ILS (100 INR ~ 4.41 ILS)
+
+    function convertInrToIls() {
+      const inr = parseFloat(document.getElementById('inrInput').value) || 0;
+      document.getElementById('ilsInput').value = (inr * INR_TO_ILS_RATE).toFixed(1);
+    }
+
+    function convertIlsToInr() {
+      const ils = parseFloat(document.getElementById('ilsInput').value) || 0;
+      document.getElementById('inrInput').value = Math.round(ils / INR_TO_ILS_RATE);
+    }
+
+    function setQuickInr(amount) {
+      document.getElementById('inrInput').value = amount;
+      convertInrToIls();
+      showToast(`חושב שווי של ${amount} רופי הודי`, '💰');
+    }
+
+    /* =========================================================================
+       TRAVEL NOTES & JOURNAL LOGIC
+       ========================================================================= */
+    function loadTravelNotes() {
+      const notes = localStorage.getItem('goa_couple_notes') || '';
+      const area = document.getElementById('travelNotesArea');
+      if (area) area.value = notes;
+    }
+
+    function saveTravelNotes() {
+      const area = document.getElementById('travelNotesArea');
+      if (area) {
+        localStorage.setItem('goa_couple_notes', area.value);
+        const status = document.getElementById('journalStatus');
+        status.textContent = 'נשמר!';
+        setTimeout(() => { status.textContent = 'נשמר אוטומטית'; }, 2000);
+      }
+    }
+
+    function copyJournalNotes() {
+      const area = document.getElementById('travelNotesArea');
+      if (!area || !area.value.trim()) {
+        showToast('אין עדיין טקסט להעתקה בפנקס', '✏️');
+        return;
+      }
+      
+      const textToCopy = `רשמים מגואה - מעיין & אלירן:\n\n${area.value}`;
+      
+      // Fallback safe clipboard copying
+      const tempInput = document.createElement('textarea');
+      tempInput.value = textToCopy;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      document.execCommand('copy');
+      document.body.removeChild(tempInput);
+
+      showToast('הרשמים הועתקו ללוח בהצלחה!', '📋');
+    }
+
+    /* =========================================================================
+       LEAFLET INTERACTIVE MAP IMPLEMENTATION
+       ========================================================================= */
+    let leafletMap = null;
+    let markersLayer = null;
+
+    function initMapIfNeeded() {
+      if (leafletMap) {
+        leafletMap.invalidateSize();
+        return;
+      }
+
+      // Center map between North Goa (Mandrem) and South Goa (Agonda/Palolem)
+      leafletMap = L.map('goaMap', {
+        zoomControl: true,
+        scrollWheelZoom: false
+      }).setView([15.3500, 73.8500], 10);
+
+      // Clean tile layer
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(leafletMap);
+
+      markersLayer = L.layerGroup().addTo(leafletMap);
+      renderMapMarkers('all');
+    }
+
+    function renderMapMarkers(filter = 'all') {
+      if (!markersLayer) return;
+      markersLayer.clearLayers();
+
+      const filtered = filter === 'all' 
+        ? MAP_LOCATIONS 
+        : MAP_LOCATIONS.filter(m => m.category === filter);
+
+      filtered.forEach(loc => {
+        // Custom circle marker
+        const marker = L.circleMarker([loc.lat, loc.lng], {
+          radius: loc.category === 'hotel' ? 10 : 8,
+          fillColor: loc.color,
+          color: '#ffffff',
+          weight: 2,
+          opacity: 1,
+          fillOpacity: 0.95
+        });
+
+        const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${loc.lat},${loc.lng}`;
+
+        const popupContent = `
+          <div class="text-right p-1 max-w-[220px]">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-neutral-400 mb-0.5">
+              ${loc.region === 'north' ? 'צפון גואה' : 'דרום גואה'}
+            </div>
+            <div class="font-bold text-neutral-900 text-sm mb-1">${loc.name}</div>
+            <div class="text-xs text-neutral-600 mb-2 leading-snug">${loc.desc}</div>
+            <a href="${googleMapsUrl}" target="_blank" class="inline-flex items-center gap-1 text-[11px] font-bold text-terracotta-600 hover:text-terracotta-700 bg-sand-100 hover:bg-sand-200 px-2.5 py-1 rounded-lg transition-colors">
+              <span>נווט ב-Google Maps</span> ↗
+            </a>
+          </div>
+        `;
+
+        marker.bindPopup(popupContent);
+        markersLayer.addLayer(marker);
+      });
+    }
+
+    function filterMapMarkers(cat) {
+      document.querySelectorAll('.map-tag-btn').forEach(btn => {
+        btn.className = "map-tag-btn px-3 py-1.5 rounded-xl text-xs font-medium bg-sand-100 text-neutral-700 hover:bg-sand-200 transition-all";
+      });
+      event.target.className = "map-tag-btn active-map-tag px-3 py-1.5 rounded-xl text-xs font-semibold bg-ocean-600 text-white shadow-sm transition-all";
+      renderMapMarkers(cat);
+    }
+
+    /* =========================================================================
+       CUSTOM TOAST NOTIFICATION MODAL
+       ========================================================================= */
+    let toastTimeout = null;
+
+    function showToast(message, icon = '🌴') {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMessage').textContent = message;
+      document.getElementById('toastIcon').textContent = icon;
+
+      toast.classList.remove('translate-y-32');
+      toast.classList.add('translate-y-0');
+
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => {
+        toast.classList.remove('translate-y-0');
+        toast.classList.add('translate-y-32');
+      }, 3500);
+    }
+
+    /* =========================================================================
+       WINDOW ONLOAD INITIALIZATION
+       ========================================================================= */
+    window.onload = function() {
+      lucide.createIcons();
+      renderVacationVibes('all');
+      renderItinerary('all');
+      renderBucketList();
+      renderPackingList();
+      convertInrToIls();
+      loadTravelNotes();
+    };
+  </script>
+</body>
+</html>
