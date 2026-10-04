@@ -130,22 +130,9 @@
       border: 1px solid rgba(255, 255, 255, 0.65);
     }
 
-    /* Polaroid photo styling */
-    .polaroid {
-      background: white;
-      padding: 10px 10px 22px 10px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
-      border-radius: 8px;
-      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.3s ease;
-    }
-    .polaroid:hover {
-      transform: translateY(-4px) rotate(0.8deg);
-      box-shadow: 0 14px 30px rgba(0, 0, 0, 0.12);
-    }
-
     /* Print styles */
     @media print {
-      header, #ambientBtn, #offlineBanner, .no-print {
+      header, #ambientBtn, #offlineBanner, .no-print, #mobileBottomNav {
         display: none !important;
       }
       body {
@@ -159,7 +146,7 @@
   </style>
 </head>
 
-<body class="min-h-screen bg-sand-50 selection:bg-terracotta-200 selection:text-terracotta-700 antialiased overflow-x-hidden pb-12">
+<body class="min-h-screen bg-sand-50 selection:bg-terracotta-200 selection:text-terracotta-700 antialiased overflow-x-hidden pb-24 md:pb-12">
 
   <!-- Offline Network Status Bar -->
   <div id="offlineBanner" class="hidden bg-amber-500 text-white text-xs sm:text-sm font-semibold py-1.5 px-4 text-center transition-all sticky top-0 z-[60] shadow-md flex items-center justify-center gap-2">
@@ -168,11 +155,11 @@
   </div>
 
   <!-- Top Contact & Direct Quick Bar -->
-  <div class="bg-gradient-to-r from-neutral-900 via-neutral-800 to-terracotta-900 text-white py-1.5 px-4 text-xs no-print">
+  <div class="bg-gradient-to-r from-neutral-900 via-neutral-800 to-terracotta-900 text-white py-1.5 px-3 sm:px-4 text-xs no-print">
     <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-2">
       
       <!-- My Indian Phone Number -->
-      <div class="flex items-center gap-2 font-mono">
+      <div class="flex items-center gap-2 font-mono text-[11px] sm:text-xs">
         <span class="inline-flex items-center gap-1 text-amber-300 font-semibold font-sans">
           <i data-lucide="phone-call" class="w-3.5 h-3.5"></i> הטלפון שלי:
         </span>
@@ -183,14 +170,14 @@
       </div>
 
       <!-- Quick Hotel Phones -->
-      <div class="flex flex-wrap items-center gap-4 text-[11px] text-neutral-300">
-        <div class="flex items-center gap-1.5">
-          <span class="text-amber-400 font-bold">Riva (מנדרם):</span>
+      <div class="flex flex-wrap items-center gap-3 sm:gap-4 text-[11px] text-neutral-300">
+        <div class="flex items-center gap-1">
+          <span class="text-amber-400 font-bold">Riva:</span>
           <a href="tel:+918322997665" class="hover:text-white font-mono">+91 832 299 7665</a>
         </div>
-        <span class="hidden sm:inline opacity-40">|</span>
-        <div class="flex items-center gap-1.5">
-          <span class="text-ocean-300 font-bold">The White (אגונדה):</span>
+        <span class="opacity-40">|</span>
+        <div class="flex items-center gap-1">
+          <span class="text-ocean-300 font-bold">The White:</span>
           <a href="tel:+919011059990" class="hover:text-white font-mono">+91 90110 59990</a>
         </div>
       </div>
@@ -200,29 +187,29 @@
 
   <!-- Top Navigation & Mood Ribbon -->
   <header class="sticky top-0 z-50 glass-card border-b border-sand-200 shadow-sm transition-all duration-300">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-      <div class="flex items-center justify-between h-16 sm:h-20">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-14 sm:h-20">
         
         <!-- Logo & Couple Tag -->
-        <div class="flex items-center gap-3">
-          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-2xl bg-gradient-to-tr from-terracotta-500 to-sunset-400 flex items-center justify-center text-white shadow-warm flex-shrink-0 transform hover:rotate-6 transition-transform">
-            <i data-lucide="palmtree" class="w-6 h-6"></i>
+        <div class="flex items-center gap-2.5 sm:gap-3">
+          <div class="w-9 h-9 sm:w-12 sm:h-12 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-terracotta-500 to-sunset-400 flex items-center justify-center text-white shadow-warm flex-shrink-0">
+            <i data-lucide="palmtree" class="w-5 h-5 sm:w-6 sm:h-6"></i>
           </div>
           <div>
-            <div class="flex items-center gap-2">
-              <h1 class="text-xl sm:text-2xl font-bold font-serif-title tracking-wide text-neutral-800">מעיין &amp; אלירן</h1>
-              <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-terracotta-100 text-terracotta-700">
+            <div class="flex items-center gap-1.5 sm:gap-2">
+              <h1 class="text-lg sm:text-2xl font-bold font-serif-title tracking-wide text-neutral-800">מעיין &amp; אלירן</h1>
+              <span class="inline-flex items-center px-1.5 py-0.5 sm:px-2 rounded-full text-[10px] sm:text-xs font-semibold bg-terracotta-100 text-terracotta-700">
                 גואה 2026 🌴
               </span>
             </div>
-            <p class="text-xs text-neutral-500 hidden sm:block">05.10.2026 – 18.10.2026 • 14 ימי חופשה, שקיעות ושקט מוחלט</p>
+            <p class="text-[11px] text-neutral-500 hidden sm:block">05.10.2026 – 18.10.2026 • 14 ימי חופשה, שקיעות ושקט מוחלט</p>
           </div>
         </div>
 
         <!-- Quick Controls & Clocks Preview -->
         <div class="flex items-center gap-2 sm:gap-3">
           <!-- Ambient Tropical Sound Toggle -->
-          <button id="ambientBtn" onclick="toggleAmbience()" aria-label="הפעל צלילי ים" title="הפעל צלילי גלי ים טרופיים לחופשה" class="flex items-center gap-1.5 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium bg-ocean-50 text-ocean-800 border border-ocean-100 hover:bg-ocean-100 transition-colors shadow-sm active:scale-95">
+          <button id="ambientBtn" onclick="toggleAmbience()" aria-label="הפעל צלילי ים" title="הפעל צלילי גלי ים טרופיים לחופשה" class="flex items-center gap-1.5 px-2.5 py-1.5 sm:px-3.5 sm:py-2 rounded-xl text-xs sm:text-sm font-medium bg-ocean-50 text-ocean-800 border border-ocean-100 hover:bg-ocean-100 transition-colors shadow-sm active:scale-95">
             <i data-lucide="waves" class="w-4 h-4 text-ocean-500"></i>
             <span id="ambientBtnText" class="hidden md:inline">צלילי ים ושלווה</span>
             <span id="ambientStatus" class="w-2 h-2 rounded-full bg-neutral-300"></span>
@@ -239,128 +226,46 @@
     </div>
 
     <!-- Sub-Navbar Navigation Tabs -->
-    <div class="bg-sand-100/80 border-t border-sand-200 overflow-x-auto no-scrollbar scroll-smooth">
-      <div class="max-w-7xl mx-auto px-4 flex space-x-reverse space-x-2 py-2">
-        <button onclick="switchTab('vacation')" id="tab-btn-vacation" class="tab-button active-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all text-terracotta-700 bg-white shadow-sm border border-sand-200">
+    <div class="bg-sand-100/90 border-t border-sand-200 overflow-x-auto no-scrollbar scroll-smooth">
+      <div class="max-w-7xl mx-auto px-3 sm:px-4 flex space-x-reverse space-x-1.5 sm:space-x-2 py-2">
+        <button onclick="switchTab('vacation')" id="tab-btn-vacation" class="tab-button active-tab flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-terracotta-700 bg-white shadow-sm border border-sand-200">
           <i data-lucide="sun" class="w-4 h-4 text-sunset-500"></i>
           <span>חופשה &amp; מצב רוח</span>
         </button>
-        <button onclick="switchTab('itinerary')" id="tab-btn-itinerary" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+        <button onclick="switchTab('itinerary')" id="tab-btn-itinerary" class="tab-button flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
           <i data-lucide="calendar" class="w-4 h-4 text-palm-500"></i>
           <span>יומן מסלול &amp; שקיעות</span>
         </button>
-        <button onclick="switchTab('hotels')" id="tab-btn-hotels" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+        <button onclick="switchTab('hotels')" id="tab-btn-hotels" class="tab-button flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
           <i data-lucide="building-2" class="w-4 h-4 text-amber-600"></i>
           <span>מלונות &amp; כתובות 🏨</span>
         </button>
-        <button onclick="switchTab('departures')" id="tab-btn-departures" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+        <button onclick="switchTab('departures')" id="tab-btn-departures" class="tab-button flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
           <i data-lucide="clock" class="w-4 h-4 text-red-500"></i>
-          <span>מתי לצאת לשדה 🚗</span>
+          <span>מתי לצאת &amp; צ׳ק-אין ⏰</span>
         </button>
-        <button onclick="switchTab('map')" id="tab-btn-map" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+        <button onclick="switchTab('map')" id="tab-btn-map" class="tab-button flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
           <i data-lucide="map-pin" class="w-4 h-4 text-ocean-600"></i>
           <span>מפת החופים והמלונות</span>
         </button>
-        <button onclick="switchTab('bucketlist')" id="tab-btn-bucketlist" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+        <button onclick="switchTab('bucketlist')" id="tab-btn-bucketlist" class="tab-button flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
           <i data-lucide="sparkles" class="w-4 h-4 text-sunset-400"></i>
           <span>באקט ליסט זוגי</span>
         </button>
-        <button onclick="switchTab('tools')" id="tab-btn-tools" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+        <button onclick="switchTab('tools')" id="tab-btn-tools" class="tab-button flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
           <i data-lucide="pocket" class="w-4 h-4 text-neutral-600"></i>
           <span>ארנק, ציוד וטיפים</span>
         </button>
-        <button onclick="switchTab('flights')" id="tab-btn-flights" class="tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
+        <button onclick="switchTab('flights')" id="tab-btn-flights" class="tab-button flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60">
           <i data-lucide="plane" class="w-4 h-4 text-blue-600"></i>
-          <span>לוח טיסות &amp; כרטיסים ✈️</span>
+          <span>לוח טיסות &amp; צ׳ק-אין ✈️</span>
         </button>
       </div>
     </div>
   </header>
 
   <!-- Main Content Container -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-8">
-
-    <!-- Hero Vacation Banner with Dual Live Clocks & Sunset Tracker -->
-    <section class="relative rounded-3xl overflow-hidden shadow-float border border-sand-200 bg-gradient-to-br from-terracotta-500 via-sunset-500 to-ocean-800 text-white">
-      <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
-      <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-white/10 blur-2xl"></div>
-      <div class="absolute -left-20 -top-20 w-80 h-80 rounded-full bg-terracotta-400/20 blur-3xl"></div>
-
-      <div class="relative z-10 p-6 sm:p-10 lg:p-12 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-8">
-        
-        <div class="space-y-4 max-w-2xl">
-          <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/20 backdrop-blur-md text-white text-xs sm:text-sm font-medium">
-            <span>✨</span>
-            <span>גואה קוראת לנו: קוקוס על החוף, רוח ים וזמן רק של שנינו</span>
-          </div>
-
-          <h2 class="text-3xl sm:text-5xl font-serif-title font-bold tracking-tight leading-tight">
-            החופשה הרומנטית בגואה
-            <span class="block text-sunset-200 text-2xl sm:text-3xl font-light mt-1">צפון שיקי ובוהמייני • דרום בתולי ושליו</span>
-          </h2>
-
-          <p class="text-white/90 text-sm sm:text-base leading-relaxed">
-            מריזורט הבוטיק על החוף במנדרם (Riva Beach) וקפה בוהו באסאגו, ועד לשקט המוחלט של הבקתות הלבנות באגונדה (The White Resort) ומי הטורקיז של לגונת קולה.
-          </p>
-
-          <!-- Vacation Mood Highlights Tags -->
-          <div class="flex flex-wrap gap-2 pt-2">
-            <span class="px-3 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5 font-bold">
-              <i data-lucide="sunset" class="w-3.5 h-3.5 text-amber-300"></i> שקיעה היום: 18:23
-            </span>
-            <span class="px-3 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5">
-              <i data-lucide="thermometer-sun" class="w-3.5 h-3.5 text-orange-300"></i> 31°C טרופי &amp; נעים
-            </span>
-            <span class="px-3 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5 font-mono">
-              <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-300"></i> הטלפון שלי: +15105717
-            </span>
-          </div>
-        </div>
-
-        <!-- DUAL LIVE CLOCKS WIDGET (Israel & Goa side-by-side) -->
-        <div class="bg-white/15 backdrop-blur-lg rounded-2xl p-5 sm:p-6 border border-white/20 text-center flex-shrink-0 shadow-lg lg:w-96">
-          <div class="text-xs uppercase tracking-wider text-white/80 font-semibold mb-3 flex items-center justify-center gap-1.5">
-            <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-300"></i>
-            <span>שעונים בזמן אמת (ישראל &amp; גואה)</span>
-          </div>
-          
-          <div class="grid grid-cols-2 gap-3 text-center my-2">
-            <!-- Israel Time -->
-            <div class="bg-black/25 rounded-2xl p-3 border border-white/10">
-              <div class="text-[11px] text-amber-200 font-semibold flex items-center justify-center gap-1 mb-1">
-                <span>🇮🇱 ישראל</span>
-              </div>
-              <div id="israelClock" class="text-xl sm:text-2xl font-bold font-display text-white tracking-wide">--:--:--</div>
-              <div class="text-[10px] text-white/70 mt-0.5">שעון מקומי (IDT)</div>
-            </div>
-
-            <!-- Goa Time -->
-            <div class="bg-black/25 rounded-2xl p-3 border border-white/10">
-              <div class="text-[11px] text-sunset-200 font-semibold flex items-center justify-center gap-1 mb-1">
-                <span>🇮🇳 גואה (הודו)</span>
-              </div>
-              <div id="goaClock" class="text-xl sm:text-2xl font-bold font-display text-white tracking-wide">--:--:--</div>
-              <div class="text-[10px] text-white/70 mt-0.5">שעון הודו (IST +2.5h)</div>
-            </div>
-          </div>
-
-          <!-- Time Difference & Sunset Ribbon -->
-          <div class="mt-3 pt-2.5 border-t border-white/20 text-xs text-white/90 flex items-center justify-between">
-            <span class="text-amber-200 font-medium">הפרש שעות: גואה +2.5 שעות</span>
-            <span class="flex items-center gap-1 font-semibold text-sunset-200">
-              <i data-lucide="sunset" class="w-3.5 h-3.5"></i> שקיעות: ~18:15
-            </span>
-          </div>
-
-          <!-- Countdown -->
-          <div class="mt-3 bg-black/20 rounded-xl p-2 flex items-center justify-between text-xs">
-            <span class="text-white/80">ספירה לאחור:</span>
-            <span id="countdownInline" class="font-mono font-bold text-amber-300">טוען...</span>
-          </div>
-        </div>
-
-      </div>
-    </section>
+  <main class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 py-4 sm:py-8 space-y-6 sm:space-y-8">
 
     <!-- ======================================================== -->
     <!-- TAB: HOTEL DETAILS & CONTACTS (Riva Beach & The White)   -->
@@ -531,10 +436,179 @@
     </section>
 
     <!-- ======================================================== -->
-    <!-- TAB: WHEN TO LEAVE FOR AIRPORT (Recommendations & Plan)  -->
+    <!-- TAB: WHEN TO LEAVE FOR AIRPORT & CHECK-IN TIMELINE       -->
     <!-- ======================================================== -->
     <section id="section-departures" class="tab-content hidden space-y-6">
       
+      <!-- CHECK-IN MASTER HUB -->
+      <div class="bg-gradient-to-br from-blue-900 via-indigo-950 to-neutral-900 text-white rounded-3xl p-6 sm:p-8 shadow-card border border-blue-800/50 space-y-6">
+        <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-5">
+          <div>
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/20 text-blue-300 text-xs font-semibold backdrop-blur-sm border border-blue-400/30">
+              <i data-lucide="bell-ring" class="w-3.5 h-3.5 animate-bounce"></i>
+              <span>מרכז צ׳ק-אין אונליין וקישורים ישירים</span>
+            </div>
+            <h3 class="text-2xl sm:text-3xl font-serif-title font-bold text-white mt-2">מתי נפתח הצ׳ק-אין לכל טיסה?</h3>
+            <p class="text-xs sm:text-sm text-neutral-300 mt-1 max-w-2xl">
+              אל תחכו לתור בשדה! עשו צ'ק-אין אונליין ברגע שנפתח החלון, בחרו מושבים והורידו כרטיסי עלייה למטוס (Boarding Pass) לטלפון.
+            </p>
+          </div>
+          <div class="flex items-center gap-2 text-xs bg-white/10 px-3.5 py-2 rounded-2xl border border-white/15 self-start">
+            <i data-lucide="info" class="w-4 h-4 text-amber-300 flex-shrink-0"></i>
+            <span>צ׳ק-אין באיתיחאד: 30 שעות לפני • אייר אינדיה ואינדיגו: 48 שעות לפני</span>
+          </div>
+        </div>
+
+        <!-- Check-in Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          
+          <!-- Check-in 1: Maayan Outbound Air India -->
+          <div class="rounded-2xl bg-white/10 backdrop-blur-md p-4 border border-white/15 flex flex-col justify-between space-y-3 hover:bg-white/15 transition-all">
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-500 text-white">Air India (הלוך)</span>
+                <span class="text-[10px] text-amber-300 font-mono">48 שעות לפני</span>
+              </div>
+              <h5 class="text-sm font-bold text-white">מעיין • דהראדון ➔ גואה</h5>
+              <div class="text-[11px] text-neutral-300">טיסה: 05.10.2026 ב-10:25 בבוקר</div>
+              
+              <div class="p-2.5 rounded-xl bg-black/30 border border-white/10 space-y-1 text-xs">
+                <div class="text-amber-300 font-semibold flex items-center gap-1">
+                  <i data-lucide="clock" class="w-3 h-3"></i>
+                  <span>נפתח: יום שבת 03.10 ב-10:25</span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-neutral-300 pt-1">
+                  <span>PNR: <strong class="font-mono text-white select-all">8WFCNF</strong></span>
+                  <button onclick="copyToClipboard('8WFCNF', 'קוד PNR של מעיין הועתק!')" class="text-amber-300 hover:text-amber-200">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                  </button>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-neutral-300">
+                  <span>שם משפחה: <strong class="text-white select-all">YAARI</strong></span>
+                  <button onclick="copyToClipboard('YAARI', 'שם המשפחה YAARI הועתק!')" class="text-amber-300 hover:text-amber-200">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <a href="https://www.airindia.com/in/en/manage/web-checkin.html" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-red-600 hover:bg-red-500 text-white font-bold text-xs shadow-md transition-colors">
+              <span>צ׳ק-אין ב-Air India</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
+          <!-- Check-in 2: Eliran Outbound Etihad -->
+          <div class="rounded-2xl bg-white/10 backdrop-blur-md p-4 border border-white/15 flex flex-col justify-between space-y-3 hover:bg-white/15 transition-all">
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-600 text-white">Etihad Airways</span>
+                <span class="text-[10px] text-amber-300 font-mono">30 שעות לפני</span>
+              </div>
+              <h5 class="text-sm font-bold text-white">אלירן • תל אביב ➔ מומבאי</h5>
+              <div class="text-[11px] text-neutral-300">המראה: 06.10.2026 ב-07:45 בבוקר</div>
+
+              <div class="p-2.5 rounded-xl bg-black/30 border border-white/10 space-y-1 text-xs">
+                <div class="text-amber-300 font-semibold flex items-center gap-1">
+                  <i data-lucide="clock" class="w-3 h-3"></i>
+                  <span>נפתח: יום א׳ 04.10 ב-01:45 בלילה</span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-neutral-300 pt-1">
+                  <span>PNR: <strong class="font-mono text-white select-all">7UEXZY</strong></span>
+                  <button onclick="copyToClipboard('7UEXZY', 'קוד PNR של אלירן הועתק!')" class="text-amber-300 hover:text-amber-200">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                  </button>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-neutral-300">
+                  <span>שם משפחה: <strong class="text-white select-all">OR</strong></span>
+                  <button onclick="copyToClipboard('OR', 'שם המשפחה OR הועתק!')" class="text-amber-300 hover:text-amber-200">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <a href="https://www.etihad.com/en/manage/check-in" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-900 font-bold text-xs shadow-md transition-colors">
+              <span>צ׳ק-אין ב-Etihad</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
+          <!-- Check-in 3: Eliran Connecting IndiGo BOM-GOI -->
+          <div class="rounded-2xl bg-white/10 backdrop-blur-md p-4 border border-white/15 flex flex-col justify-between space-y-3 hover:bg-white/15 transition-all">
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-indigo-600 text-white">IndiGo 6E 5106</span>
+                <span class="text-[10px] text-amber-300 font-mono">48 שעות לפני</span>
+              </div>
+              <h5 class="text-sm font-bold text-white">אלירן • מומבאי ➔ גואה</h5>
+              <div class="text-[11px] text-neutral-300">טיסה פנימית: 06.10 ב-22:10 בלילה</div>
+
+              <div class="p-2.5 rounded-xl bg-black/30 border border-white/10 space-y-1 text-xs">
+                <div class="text-amber-300 font-semibold flex items-center gap-1">
+                  <i data-lucide="clock" class="w-3 h-3"></i>
+                  <span>נפתח: יום א׳ 04.10 ב-22:10 בלילה</span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-neutral-300 pt-1">
+                  <span>טיסה: <strong class="font-mono text-white">6E 5106</strong></span>
+                  <span>טרמינל 1 (T1)</span>
+                </div>
+                <div class="text-[11px] text-neutral-300">
+                  צ'ק-אין לפי PNR כרטיס או מספר טיסה
+                </div>
+              </div>
+            </div>
+
+            <a href="https://www.goindigo.in/web-check-in.html" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs shadow-md transition-colors">
+              <span>צ׳ק-אין ב-IndiGo</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
+          <!-- Check-in 4: Return Flights (Maayan & Eliran) -->
+          <div class="rounded-2xl bg-white/10 backdrop-blur-md p-4 border border-white/15 flex flex-col justify-between space-y-3 hover:bg-white/15 transition-all">
+            <div class="space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-rose-600 text-white">Etihad (חזור)</span>
+                <span class="text-[10px] text-amber-300 font-mono">30 שעות לפני</span>
+              </div>
+              <h5 class="text-sm font-bold text-white">חזור • מומבאי ➔ נתב״ג</h5>
+              <div class="text-[11px] text-neutral-300">מעיין (05:00) | אלירן (11:15) ב-18.10</div>
+
+              <div class="p-2.5 rounded-xl bg-black/30 border border-white/10 space-y-1 text-xs">
+                <div class="text-amber-300 font-semibold flex items-center gap-1">
+                  <i data-lucide="clock" class="w-3 h-3"></i>
+                  <span>מעיין: נפתח ב-16.10 ב-23:00</span>
+                </div>
+                <div class="text-amber-300 font-semibold flex items-center gap-1">
+                  <i data-lucide="clock" class="w-3 h-3"></i>
+                  <span>אלירן: נפתח ב-17.10 ב-05:15</span>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-neutral-300 pt-1">
+                  <span>מעיין PNR: <strong class="font-mono text-white">7CKAVD</strong></span>
+                  <button onclick="copyToClipboard('7CKAVD', 'קוד PNR של מעיין לחזור הועתק!')" class="text-amber-300 hover:text-amber-200">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                  </button>
+                </div>
+                <div class="flex items-center justify-between text-[11px] text-neutral-300">
+                  <span>אלירן PNR: <strong class="font-mono text-white">8YDKJG</strong></span>
+                  <button onclick="copyToClipboard('8YDKJG', 'קוד PNR של אלירן לחזור הועתק!')" class="text-amber-300 hover:text-amber-200">
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <a href="https://www.etihad.com/en/manage/check-in" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-amber-500 hover:bg-amber-400 text-neutral-900 font-bold text-xs shadow-md transition-colors">
+              <span>צ׳ק-אין חזור ב-Etihad</span>
+              <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+            </a>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Departure Timelines -->
       <div class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-card space-y-6">
         <div>
           <div class="inline-flex items-center gap-1.5 text-red-600 text-xs font-bold uppercase tracking-wider">
@@ -560,9 +634,14 @@
                   <div class="text-xs text-neutral-500">טיסת Etihad Airways • המראה ב-07:45 בבוקר (טרמינל 3)</div>
                 </div>
               </div>
-              <span class="text-xs font-bold text-blue-800 bg-blue-50 border border-blue-200 px-3 py-1 rounded-xl">
-                התייצבות מומלצת: 04:15 לפנות בוקר
-              </span>
+              <div class="flex flex-wrap items-center gap-2">
+                <a href="https://www.etihad.com/en/manage/check-in" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-blue-700 bg-blue-100 hover:bg-blue-200 px-2.5 py-1 rounded-xl transition-colors inline-flex items-center gap-1">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> צ׳ק-אין אונליין
+                </a>
+                <span class="text-xs font-bold text-blue-800 bg-blue-50 border border-blue-200 px-3 py-1 rounded-xl">
+                  התייצבות מומלצת: 04:15 לפנות בוקר
+                </span>
+              </div>
             </div>
 
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
@@ -572,12 +651,15 @@
               </div>
               <div class="p-3 bg-white rounded-xl border border-sand-200">
                 <span class="font-bold text-neutral-800 block mb-1">🏢 הגעה לטרמינל 3</span>
-                <strong>04:15 לפנות בוקר</strong> (3.5 שעות לפני ההמראה לצורך צ'ק-אין וביטחון).
+                <strong>04:15 לפנות בוקר</strong> (3.5 שעות לפני ההמראה לצורך בידוק ודלפקים).
               </div>
               <div class="p-3 bg-white rounded-xl border border-sand-200">
                 <span class="font-bold text-neutral-800 block mb-1">🛫 המראה וחיבור</span>
-                המראה 07:45, נחיתה במומבאי 19:05 וטיסת המשך קצרה לגואה.
+                המראה 07:45, נחיתה במומבאי 19:05 (T2), מעבר לטרמינל 1 לטיסת IndiGo 6E 5106 (22:10), ונחיתה בגואה ב-23:30.
               </div>
+            </div>
+            <div class="p-3 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 leading-relaxed">
+              ⚠️ <strong>שימו לב למעבר טרמינל במומבאי (BOM):</strong> טיסת Etihad נוחתת בטרמינל 2 (T2) ב-19:05. טיסת הפנים של IndiGo (6E 5106) ממריאה מטרמינל 1 (T1) ב-22:10. יש לכם 3 שעות ו-5 דקות — זמן מצוין לאיסוף כבודה, מעבר שאטל/מונית מ-T2 ל-T1 (כ-15–20 דקות) ובידוק מהיר.
             </div>
           </div>
 
@@ -591,9 +673,14 @@
                   <div class="text-xs text-neutral-500">Air India AI2745 • נחיתה בשדה דאבולים (GOI) ב-16:50</div>
                 </div>
               </div>
-              <span class="text-xs font-bold text-red-800 bg-red-100 border border-red-200 px-3 py-1 rounded-xl">
-                משך הנסיעה לריזורט: כ-1 שעה ו-45 דקות
-              </span>
+              <div class="flex items-center gap-2">
+                <a href="https://www.airindia.com/in/en/manage/web-checkin.html" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-red-700 bg-red-100 hover:bg-red-200 px-2.5 py-1 rounded-xl transition-colors inline-flex items-center gap-1">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> צ׳ק-אין אונליין
+                </a>
+                <span class="text-xs font-bold text-red-800 bg-red-100 border border-red-200 px-3 py-1 rounded-xl">
+                  משך הנסיעה לריזורט: כ-1 שעה ו-45 דקות
+                </span>
+              </div>
             </div>
 
             <div class="text-xs text-neutral-700 leading-relaxed space-y-1.5">
@@ -613,9 +700,14 @@
                   <div class="text-xs text-neutral-600">Etihad Airways (PNR: 7CKAVD) • מומבאי CSMIA טרמינל 2 ➔ נתב"ג</div>
                 </div>
               </div>
-              <span class="text-xs font-bold text-rose-800 bg-rose-100 border border-rose-300 px-3 py-1 rounded-xl">
-                חובה להיות בטרמינל 2 ב-02:00 בלילה!
-              </span>
+              <div class="flex items-center gap-2">
+                <a href="https://www.etihad.com/en/manage/check-in" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-rose-700 bg-rose-100 hover:bg-rose-200 px-2.5 py-1 rounded-xl transition-colors inline-flex items-center gap-1">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> צ׳ק-אין אונליין
+                </a>
+                <span class="text-xs font-bold text-rose-800 bg-rose-100 border border-rose-300 px-3 py-1 rounded-xl">
+                  חובה להיות בטרמינל 2 ב-02:00 בלילה!
+                </span>
+              </div>
             </div>
 
             <div class="p-4 bg-white rounded-xl border border-rose-200 text-xs sm:text-sm text-neutral-800 space-y-2">
@@ -643,9 +735,14 @@
                   <div class="text-xs text-neutral-500">Etihad Airways (PNR: 8YDKJG) • מומבאי CSMIA טרמינל 2 ➔ נתב"ג</div>
                 </div>
               </div>
-              <span class="text-xs font-bold text-sky-800 bg-sky-100 border border-sky-200 px-3 py-1 rounded-xl">
-                התייצבות בטרמינל 2: 08:15 בבוקר
-              </span>
+              <div class="flex items-center gap-2">
+                <a href="https://www.etihad.com/en/manage/check-in" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-sky-700 bg-sky-100 hover:bg-sky-200 px-2.5 py-1 rounded-xl transition-colors inline-flex items-center gap-1">
+                  <i data-lucide="check" class="w-3.5 h-3.5"></i> צ׳ק-אין אונליין
+                </a>
+                <span class="text-xs font-bold text-sky-800 bg-sky-100 border border-sky-200 px-3 py-1 rounded-xl">
+                  התייצבות בטרמינל 2: 08:15 בבוקר
+                </span>
+              </div>
             </div>
 
             <div class="text-xs text-neutral-700 leading-relaxed space-y-1.5">
@@ -664,91 +761,114 @@
     <!-- ========================================== -->
     <!-- TAB: VACATION MOOD & EXPERIENCE CURATOR    -->
     <!-- ========================================== -->
-    <section id="section-vacation" class="tab-content space-y-8">
+    <section id="section-vacation" class="tab-content space-y-6 sm:space-y-8">
       
-      <!-- Vacation Mood Filter -->
-      <div class="bg-white rounded-3xl p-6 sm:p-8 border border-sand-200 shadow-card">
-        <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
-          <div>
-            <div class="flex items-center gap-2 text-terracotta-600 text-sm font-semibold">
-              <i data-lucide="sparkles" class="w-4 h-4"></i>
-              <span>מצב רוח לחופשה</span>
+      <!-- Hero Vacation Banner with Dual Live Clocks & Sunset Tracker -->
+      <div class="relative rounded-2xl sm:rounded-3xl overflow-hidden shadow-float border border-sand-200 bg-gradient-to-br from-terracotta-500 via-sunset-500 to-ocean-800 text-white">
+        <div class="absolute inset-0 opacity-15 bg-[radial-gradient(#fff_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        <div class="absolute -right-20 -bottom-20 w-80 h-80 rounded-full bg-white/10 blur-2xl"></div>
+        <div class="absolute -left-20 -top-20 w-80 h-80 rounded-full bg-terracotta-400/20 blur-3xl"></div>
+
+        <div class="relative z-10 p-5 sm:p-10 lg:p-12 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 sm:gap-8">
+          
+          <div class="space-y-3 sm:space-y-4 max-w-2xl">
+            <div class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/20 backdrop-blur-md text-white text-xs sm:text-sm font-medium">
+              <span>✨</span>
+              <span>קוקוס על החוף, רוח ים וזמן רק של שנינו</span>
             </div>
-            <h3 class="text-2xl sm:text-3xl font-bold text-neutral-800 font-serif-title mt-1">מה בא לנו לעשות היום?</h3>
-            <p class="text-sm text-neutral-500 mt-1">בחרו את הווייב שלכם וקבלו מיד את המקומות, הפינוקים והחופים המתאימים ביותר לשניכם</p>
+
+            <h2 class="text-2xl sm:text-5xl font-serif-title font-bold tracking-tight leading-tight">
+              החופשה הרומנטית בגואה
+              <span class="block text-sunset-200 text-lg sm:text-3xl font-light mt-1">צפון שיקי ובוהמייני • דרום בתולי ושליו</span>
+            </h2>
+
+            <p class="text-white/90 text-xs sm:text-base leading-relaxed">
+              מריזורט הבוטיק על החוף במנדרם (Riva Beach) וקפה בוהו באסאגו, ועד לשקט המוחלט של הבקתות הלבנות באגונדה (The White Resort) ומי הטורקיז של לגונת קולה.
+            </p>
+
+            <!-- Vacation Mood Highlights Tags -->
+            <div class="flex flex-wrap gap-2 pt-1 sm:pt-2">
+              <span class="px-2.5 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5 font-bold">
+                <i data-lucide="sunset" class="w-3.5 h-3.5 text-amber-300"></i> שקיעה היום: 18:23
+              </span>
+              <span class="px-2.5 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5">
+                <i data-lucide="thermometer-sun" class="w-3.5 h-3.5 text-orange-300"></i> 31°C טרופי &amp; נעים
+              </span>
+              <span class="px-2.5 py-1 rounded-xl bg-black/20 text-xs text-white backdrop-blur-sm flex items-center gap-1.5 font-mono">
+                <i data-lucide="phone" class="w-3.5 h-3.5 text-emerald-300"></i> הטלפון שלי: +15105717
+              </span>
+            </div>
           </div>
 
-          <!-- Mood Pills -->
-          <div class="flex flex-wrap gap-2">
-            <button onclick="filterVacationVibe('all')" class="vibe-filter active-vibe px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-terracotta-500 text-white shadow-sm">
-              הכל 🌟
-            </button>
-            <button onclick="filterVacationVibe('chill')" class="vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200">
-              שלווה &amp; יוגה 🧘‍♀️
-            </button>
-            <button onclick="filterVacationVibe('sunset')" class="vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200">
-              קוקטיילים &amp; שקיעות 🍹
-            </button>
-            <button onclick="filterVacationVibe('foodie')" class="vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200">
-              קולינריה רומנטית 🍽️
-            </button>
-            <button onclick="filterVacationVibe('adventure')" class="vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200">
-              טיולי קטנוע &amp; הרפתקה 🛵
-            </button>
-          </div>
-        </div>
+          <!-- DUAL LIVE CLOCKS WIDGET -->
+          <div class="bg-white/15 backdrop-blur-lg rounded-2xl p-4 sm:p-6 border border-white/20 text-center flex-shrink-0 shadow-lg lg:w-96">
+            <div class="text-[11px] sm:text-xs uppercase tracking-wider text-white/80 font-semibold mb-2.5 flex items-center justify-center gap-1.5">
+              <i data-lucide="clock" class="w-3.5 h-3.5 text-amber-300"></i>
+              <span>שעונים בזמן אמת (ישראל &amp; גואה)</span>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-2.5 text-center my-1.5">
+              <!-- Israel Time -->
+              <div class="bg-black/25 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 border border-white/10">
+                <div class="text-[10px] sm:text-[11px] text-amber-200 font-semibold flex items-center justify-center gap-1 mb-0.5">
+                  <span>🇮🇱 ישראל</span>
+                </div>
+                <div id="israelClock" class="text-lg sm:text-2xl font-bold font-display text-white tracking-wide">--:--:--</div>
+                <div class="text-[9px] sm:text-[10px] text-white/70 mt-0.5">שעון מקומי (IDT)</div>
+              </div>
 
-        <!-- Curated Vacation Cards Grid -->
-        <div id="vacationVibeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <!-- Populated via JS -->
+              <!-- Goa Time -->
+              <div class="bg-black/25 rounded-xl sm:rounded-2xl p-2.5 sm:p-3 border border-white/10">
+                <div class="text-[10px] sm:text-[11px] text-sunset-200 font-semibold flex items-center justify-center gap-1 mb-0.5">
+                  <span>🇮🇳 גואה (הודו)</span>
+                </div>
+                <div id="goaClock" class="text-lg sm:text-2xl font-bold font-display text-white tracking-wide">--:--:--</div>
+                <div class="text-[9px] sm:text-[10px] text-white/70 mt-0.5">שעון הודו (IST +2.5h)</div>
+              </div>
+            </div>
+
+            <!-- Time Difference & Sunset Ribbon -->
+            <div class="mt-2.5 pt-2 border-t border-white/20 text-xs text-white/90 flex items-center justify-between">
+              <span class="text-amber-200 font-medium">הפרש: גואה +2.5 שעות</span>
+              <span class="flex items-center gap-1 font-semibold text-sunset-200">
+                <i data-lucide="sunset" class="w-3.5 h-3.5"></i> שקיעות: ~18:15
+              </span>
+            </div>
+
+            <!-- Countdown -->
+            <div class="mt-2.5 bg-black/20 rounded-xl p-2 flex items-center justify-between text-xs">
+              <span class="text-white/80">ספירה לאחור:</span>
+              <span id="countdownInline" class="font-mono font-bold text-amber-300">טוען...</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
-      <!-- Quick Vacation Comparison: North vs. South Vibe -->
-      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
-        <!-- North Goa Vibe Card -->
-        <div class="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-amber-50/80 via-white to-sand-100 border border-amber-200 shadow-card relative overflow-hidden">
-          <div class="flex items-center justify-between mb-4">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-800">
-              <i data-lucide="compass" class="w-3.5 h-3.5"></i> צפון גואה • 05.10 - 11.10
-            </span>
-            <span class="text-xs text-neutral-500 font-mono">Riva Beach Resort • טלפון: 0832-2997665</span>
+      <!-- Vacation Mood & Vibes Grid Section -->
+      <div class="bg-white rounded-2xl sm:rounded-3xl p-5 sm:p-8 border border-sand-200 shadow-card space-y-6">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-terracotta-600 text-xs font-bold uppercase tracking-wider">
+              <i data-lucide="compass" class="w-4 h-4"></i>
+              <span>חוויות ומקומות אהובים</span>
+            </div>
+            <h3 class="text-2xl font-serif-title font-bold text-neutral-800 mt-1">מקומות השראה ושקיעה לחופשה</h3>
           </div>
 
-          <h4 class="text-xl sm:text-2xl font-bold font-serif-title text-neutral-800 mb-2">שיק, בוהו ושקיעות קסומות</h4>
-          <p class="text-sm text-neutral-600 leading-relaxed mb-4">
-            חופי אשוום ומנדרם הרחבים, בתי קפה מעוצבים באסאגו, מסעדות שף מרהיבות (Gunpowder, La Plage), טיולי קטנוע קלילים וחופים עם ווייב אופנתי ונעים.
-          </p>
-
-          <div class="space-y-2 text-xs text-neutral-700">
-            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i> <span><strong>החוף של מעיין:</strong> חוף מנדרם הרגוע ממש ביציאה מהריזורט</span></div>
-            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i> <span><strong>פינוק שקיעה:</strong> מיץ אבטיח או קוקטייל צונן ב-La Plage באשוום</span></div>
-            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-emerald-600 flex-shrink-0"></i> <span><strong>ארוחת ערב:</strong> דרום הודית גורמה בחצר קסומה ב-Gunpowder</span></div>
+          <!-- Category filter buttons -->
+          <div class="flex flex-wrap gap-2">
+            <button onclick="filterVacationVibe('all')" class="vibe-filter active-vibe px-3 py-1.5 rounded-xl text-xs font-semibold bg-terracotta-500 text-white shadow-sm transition-all">הכל</button>
+            <button onclick="filterVacationVibe('sunset')" class="vibe-filter px-3 py-1.5 rounded-xl text-xs font-semibold bg-sand-100 text-neutral-700 hover:bg-sand-200 transition-all">🌅 שקיעות</button>
+            <button onclick="filterVacationVibe('foodie')" class="vibe-filter px-3 py-1.5 rounded-xl text-xs font-semibold bg-sand-100 text-neutral-700 hover:bg-sand-200 transition-all">🍽️ קולינריה</button>
+            <button onclick="filterVacationVibe('chill')" class="vibe-filter px-3 py-1.5 rounded-xl text-xs font-semibold bg-sand-100 text-neutral-700 hover:bg-sand-200 transition-all">🧘‍♀️ שלווה</button>
+            <button onclick="filterVacationVibe('adventure')" class="vibe-filter px-3 py-1.5 rounded-xl text-xs font-semibold bg-sand-100 text-neutral-700 hover:bg-sand-200 transition-all">🛵 הרפתקה</button>
           </div>
         </div>
 
-        <!-- South Goa Vibe Card -->
-        <div class="rounded-3xl p-6 sm:p-8 bg-gradient-to-br from-ocean-50/80 via-white to-sand-100 border border-ocean-200 shadow-card relative overflow-hidden">
-          <div class="flex items-center justify-between mb-4">
-            <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-ocean-100 text-ocean-800">
-              <i data-lucide="palmtree" class="w-3.5 h-3.5"></i> דרום גואה • 11.10 - 18.10
-            </span>
-            <span class="text-xs text-neutral-500 font-mono">The White Resort • טלפון: 090110-59990</span>
-          </div>
-
-          <h4 class="text-xl sm:text-2xl font-bold font-serif-title text-neutral-800 mb-2">שקט טהור, לגונות וטבע פראי</h4>
-          <p class="text-sm text-neutral-600 leading-relaxed mb-4">
-            בקתות בוטיק על קו המים באגונדה, שיט קיאקים בלגונת המים המתוקים בקולה ביץ', מפרץ הסהר הציורי של פלולם ושקיעות דוממות עם כוס יין ונרות.
-          </p>
-
-          <div class="space-y-2 text-xs text-neutral-700">
-            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-ocean-600 flex-shrink-0"></i> <span><strong>לישון מול הגלים:</strong> שקט מוחלט ב-The White Resort באגונדה</span></div>
-            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-ocean-600 flex-shrink-0"></i> <span><strong>רגע שיא זוגי:</strong> שיט קיאק פרטי בלגונה של חוף קולה (Cola Beach)</span></div>
-            <div class="flex items-center gap-2"><i data-lucide="check-circle" class="w-4 h-4 text-ocean-600 flex-shrink-0"></i> <span><strong>אוכל בריא וטעים:</strong> ארוחת בראנץ' מושלמת ב-Zest Cafe</span></div>
-          </div>
+        <div id="vacationVibeGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <!-- Populated via JS -->
         </div>
-
       </div>
 
     </section>
@@ -1047,15 +1167,15 @@
           <div class="max-w-3xl">
             <div class="inline-flex items-center gap-1.5 text-blue-600 text-xs font-bold uppercase tracking-wider">
               <i data-lucide="plane-takeoff" class="w-4 h-4"></i>
-              <span>לוח טיסות וכרטיסים רשמיים • אלירן &amp; מעיין</span>
+              <span>לוח טיסות, צ׳ק-אין וכרטיסים רשמיים • אלירן &amp; מעיין</span>
             </div>
-            <h3 class="text-2xl sm:text-3xl font-serif-title font-bold text-neutral-800 mt-1">פרטי הטיסות, מספרי הזמנה וזמני מעבר</h3>
+            <h3 class="text-2xl sm:text-3xl font-serif-title font-bold text-neutral-800 mt-1">פרטי הטיסות, מספרי הזמנה וקישורי צ׳ק-אין ישירים</h3>
             <p class="text-sm text-neutral-500 mt-1">
-              כל נתוני הטיסות מעודכנים לפי כרטיסי הטיסה: כרטיס Air India של מעיין מדהראדון לגואה, כרטיס Etihad של מעיין בחזור (05:00 בבוקר), וכרטיסי Etihad Airways של אלירן.
+              בכל כרטיס טיסה מופיעים כפתור צ'ק-אין ישיר לאתר חברת התעופה הרלוונטית, זמני פתיחת חלון הצ'ק-אין, וכפתורי העתקה מהירה של מספרי ה-PNR ושמות המשפחה.
             </p>
           </div>
 
-          <div class="flex items-center gap-2 self-start">
+          <div class="flex flex-wrap items-center gap-2 self-start">
             <button onclick="switchTab('departures')" class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-red-50 text-red-700 border border-red-200 text-xs font-semibold hover:bg-red-100 transition-colors">
               <i data-lucide="clock" class="w-3.5 h-3.5"></i>
               <span>לוח זמני יציאה לשדה</span>
@@ -1072,7 +1192,7 @@
 
           <!-- Section: Maayan's Outbound Flight (Air India) -->
           <div class="space-y-4">
-            <div class="flex items-center justify-between pb-2 border-b border-sand-200">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-2 border-b border-sand-200">
               <div class="flex items-center gap-2">
                 <span class="w-8 h-8 rounded-xl bg-red-100 text-red-700 flex items-center justify-center font-bold text-xs">AI</span>
                 <div>
@@ -1080,14 +1200,46 @@
                   <div class="text-xs text-neutral-500">Air India • כרטיס אלקטרוני: 098 2186786425 • כבודה: 25 ק"ג • מושב 09A</div>
                 </div>
               </div>
-              <span class="text-xs font-mono font-bold text-red-700 bg-red-50 border border-red-200 px-3 py-1 rounded-xl">
-                PNR: 8WFCNF
-              </span>
+              <div class="flex items-center gap-2">
+                <a href="https://www.airindia.com/in/en/manage/web-checkin.html" target="_blank" rel="noopener noreferrer" class="px-3 py-1.5 rounded-xl bg-red-600 hover:bg-red-700 text-white font-bold text-xs shadow-sm transition-all inline-flex items-center gap-1.5">
+                  <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+                  <span>צ׳ק-אין Air India</span>
+                </a>
+                <span class="text-xs font-mono font-bold text-red-700 bg-red-50 border border-red-200 px-3 py-1 rounded-xl">
+                  PNR: 8WFCNF
+                </span>
+              </div>
             </div>
 
             <!-- Maayan's 2-Leg Journey Card -->
             <div class="rounded-3xl p-6 sm:p-7 border border-red-200 bg-gradient-to-br from-red-50/40 via-white to-amber-50/30 relative shadow-sm space-y-6">
               
+              <!-- Check-In Alert Box for Maayan Outbound -->
+              <div class="p-3.5 rounded-2xl bg-white border border-red-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs shadow-xs">
+                <div class="space-y-0.5">
+                  <div class="flex items-center gap-1.5 text-red-700 font-bold">
+                    <i data-lucide="bell" class="w-4 h-4 text-red-600"></i>
+                    <span>תזכורת צ׳ק-אין Air India (נפתח 48 שעות לפני ההמראה)</span>
+                  </div>
+                  <p class="text-neutral-600 text-[11px]">
+                    חלון הצ'ק-אין נפתח: <strong>יום שבת, 03.10.2026 בשעה 10:25 בבוקר</strong>.
+                  </p>
+                </div>
+                <div class="flex items-center gap-2">
+                  <button onclick="copyToClipboard('8WFCNF', 'קוד PNR הועתק!')" class="px-2.5 py-1 bg-sand-100 hover:bg-sand-200 rounded-lg text-neutral-700 font-mono text-xs flex items-center gap-1 transition-colors" title="העתק PNR">
+                    <span>PNR: 8WFCNF</span>
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                  </button>
+                  <button onclick="copyToClipboard('YAARI', 'שם המשפחה YAARI הועתק!')" class="px-2.5 py-1 bg-sand-100 hover:bg-sand-200 rounded-lg text-neutral-700 font-sans text-xs flex items-center gap-1 transition-colors" title="העתק שם משפחה">
+                    <span>שם: YAARI</span>
+                    <i data-lucide="copy" class="w-3 h-3"></i>
+                  </button>
+                  <a href="https://www.airindia.com/in/en/manage/web-checkin.html" target="_blank" rel="noopener noreferrer" class="px-3 py-1 bg-red-600 hover:bg-red-700 text-white rounded-lg font-bold text-xs flex items-center gap-1 transition-colors">
+                    <span>בצע צ׳ק-אין ↗</span>
+                  </a>
+                </div>
+              </div>
+
               <!-- Leg 1: Dehradun to Mumbai -->
               <div class="space-y-3">
                 <div class="flex items-center justify-between">
@@ -1179,7 +1331,7 @@
                 <span class="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold text-xs">EO</span>
                 <div>
                   <h4 class="font-bold text-neutral-900 text-base">כרטיסי הטיסה של אלירן (Mr Eliran Or)</h4>
-                  <div class="text-xs text-neutral-500">טיסות סדירות עם עצירה אחת • Etihad Airways</div>
+                  <div class="text-xs text-neutral-500">טיסות סדירות • Etihad Airways &amp; IndiGo</div>
                 </div>
               </div>
               <span class="text-xs text-neutral-500 font-mono">טלפון: +15105717</span>
@@ -1188,59 +1340,149 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               
               <!-- Eliran Outbound Flight Card -->
-              <div class="rounded-3xl p-6 sm:p-7 border border-emerald-200 bg-gradient-to-br from-emerald-50/50 via-white to-sand-50 relative shadow-sm">
-                <div class="flex items-center justify-between mb-4">
+              <div class="rounded-3xl p-6 sm:p-7 border border-emerald-200 bg-gradient-to-br from-emerald-50/50 via-white to-sand-50 relative shadow-sm space-y-5">
+                <div class="flex items-center justify-between pb-2 border-b border-emerald-100">
                   <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800">
-                    <i data-lucide="plane-takeoff" class="w-3.5 h-3.5"></i> הלוך: תל אביב ➔ מומבאי
+                    <i data-lucide="plane-takeoff" class="w-3.5 h-3.5"></i> הלוך: תל אביב ➔ גואה (דרך מומבאי)
                   </span>
-                  <span class="text-xs font-mono font-bold text-neutral-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-200 shadow-xs">
-                    PNR: 7UEXZY
-                  </span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-mono font-bold text-neutral-700 bg-white px-2.5 py-1 rounded-lg border border-emerald-200 shadow-xs">
+                      PNR: 7UEXZY
+                    </span>
+                    <button onclick="copyToClipboard('7UEXZY', 'PNR 7UEXZY הועתק!')" class="text-neutral-500 hover:text-emerald-700 p-1" title="העתק PNR">
+                      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
                 </div>
 
-                <div class="flex items-center justify-between my-4 px-2">
-                  <div class="text-right">
-                    <div class="text-2xl font-bold font-display text-neutral-900">07:45</div>
-                    <div class="text-xs font-bold text-neutral-700">TLV • נתב״ג</div>
-                    <div class="text-[11px] text-neutral-400">טרמינל 3 • יום ג', 06.10</div>
+                <!-- Check-in alert for Etihad Outbound -->
+                <div class="p-3 bg-white rounded-xl border border-emerald-200 text-xs space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-emerald-900 flex items-center gap-1">
+                      <i data-lucide="bell" class="w-3.5 h-3.5 text-emerald-600"></i>
+                      צ׳ק-אין Etihad: נפתח ב-04.10 ב-01:45 בלילה
+                    </span>
+                    <a href="https://www.etihad.com/en/manage/check-in" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-emerald-700 hover:text-emerald-800 underline">
+                      אתר Etihad ↗
+                    </a>
                   </div>
-                  <div class="flex flex-col items-center px-4">
-                    <span class="text-[11px] text-neutral-500 font-medium">8 שעות ו-50 דק'</span>
-                    <div class="w-24 sm:w-32 h-0.5 bg-emerald-300 relative my-1.5">
-                      <div class="absolute -top-1.5 right-1/2 transform translate-x-1/2 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white"></div>
+                  <div class="text-[11px] text-neutral-500">
+                    פרטי כניסה לצ'ק-אין: PNR: <span class="font-mono font-bold text-neutral-700 select-all">7UEXZY</span> | שם משפחה: <span class="font-bold text-neutral-700 select-all">OR</span>
+                  </div>
+                </div>
+
+                <!-- Leg 1: TLV to BOM -->
+                <div class="space-y-1">
+                  <div class="text-[11px] font-bold text-neutral-500 uppercase tracking-wider">מקטע 1 • טיסה בינלאומית (Etihad Airways)</div>
+                  <div class="flex items-center justify-between px-2">
+                    <div class="text-right">
+                      <div class="text-xl sm:text-2xl font-bold font-display text-neutral-900">07:45</div>
+                      <div class="text-xs font-bold text-neutral-700">TLV • נתב״ג</div>
+                      <div class="text-[11px] text-neutral-400">טרמינל 3 • 06.10</div>
                     </div>
-                    <span class="text-[10px] text-emerald-700 font-semibold bg-emerald-100/70 px-2 py-0.5 rounded-full">עצירה אחת (1 stop)</span>
-                  </div>
-                  <div class="text-left">
-                    <div class="text-2xl font-bold font-display text-neutral-900">19:05</div>
-                    <div class="text-xs font-bold text-neutral-700">BOM • מומבאי</div>
-                    <div class="text-[11px] text-neutral-400">טרמינל 2 • יום ג', 06.10</div>
+                    <div class="flex flex-col items-center px-4">
+                      <span class="text-[10px] text-neutral-500 font-medium">8 שעות ו-50 דק'</span>
+                      <div class="w-20 sm:w-28 h-0.5 bg-emerald-300 relative my-1">
+                        <div class="absolute -top-1.5 right-1/2 transform translate-x-1/2 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white"></div>
+                      </div>
+                      <span class="text-[9px] text-emerald-700 font-semibold bg-emerald-100/70 px-2 py-0.5 rounded-full">עצירה אחת (1 stop)</span>
+                    </div>
+                    <div class="text-left">
+                      <div class="text-xl sm:text-2xl font-bold font-display text-neutral-900">19:05</div>
+                      <div class="text-xs font-bold text-neutral-700">BOM • מומבאי</div>
+                      <div class="text-[11px] text-neutral-500 font-bold">טרמינל 2 (T2)</div>
+                    </div>
                   </div>
                 </div>
 
-                <div class="mt-4 p-3 rounded-xl bg-white/90 border border-emerald-100 text-xs text-neutral-600 space-y-1.5">
+                <!-- Layover & Terminal Transfer Badge -->
+                <div class="p-2.5 rounded-xl bg-amber-50 border border-amber-200 text-xs text-amber-900 flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <i data-lucide="arrow-left-right" class="w-4 h-4 text-amber-600 flex-shrink-0"></i>
+                    <span><strong>קונקשן 3:05 שעות + מעבר מטרמינל 2 לטרמינל 1:</strong> מעבר שאטל/מונית פנימי במומבאי</span>
+                  </div>
+                  <span class="font-mono font-bold text-amber-800 hidden sm:inline">19:05 ➔ 22:10</span>
+                </div>
+
+                <!-- Leg 2: BOM T1 to GOI (IndiGo 6E 5106) -->
+                <div class="space-y-1">
+                  <div class="flex items-center justify-between">
+                    <div class="text-[11px] font-bold text-indigo-700 uppercase tracking-wider flex items-center gap-1">
+                      <span>מקטע 2 • טיסת פנים IndiGo</span>
+                      <span class="font-mono bg-indigo-50 border border-indigo-200 text-indigo-800 px-1.5 py-0.2 rounded font-bold">6E 5106</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                      <a href="https://www.goindigo.in/web-check-in.html" target="_blank" rel="noopener noreferrer" class="text-[11px] font-bold text-indigo-600 hover:text-indigo-800 underline">
+                        צ׳ק-אין IndiGo ↗
+                      </a>
+                      <span class="text-[11px] text-neutral-500 font-medium">שעה ו-20 דק' ישירה</span>
+                    </div>
+                  </div>
+                  <div class="flex items-center justify-between px-2">
+                    <div class="text-right">
+                      <div class="text-xl sm:text-2xl font-bold font-display text-neutral-900">22:10</div>
+                      <div class="text-xs font-bold text-neutral-700">BOM • מומבאי</div>
+                      <div class="text-[11px] text-indigo-600 font-bold">טרמינל 1 (T1)</div>
+                    </div>
+                    <div class="flex flex-col items-center px-4">
+                      <span class="text-[10px] text-neutral-500 font-mono">IndiGo 6E 5106</span>
+                      <div class="w-20 sm:w-28 h-0.5 bg-indigo-300 relative my-1">
+                        <div class="absolute -top-1.5 right-1/2 transform translate-x-1/2 w-3 h-3 rounded-full bg-indigo-500 border-2 border-white"></div>
+                      </div>
+                      <span class="text-[9px] text-indigo-700 font-semibold bg-indigo-50 px-2 py-0.5 rounded-full">Non-stop ישירה</span>
+                    </div>
+                    <div class="text-left">
+                      <div class="text-xl sm:text-2xl font-bold font-display text-neutral-900">23:30</div>
+                      <div class="text-xs font-bold text-neutral-700">GOI • גואה</div>
+                      <div class="text-[11px] text-neutral-400">Dabolim Airport</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-xl bg-white/90 border border-emerald-100 text-xs text-neutral-600 space-y-1">
                   <div class="flex items-center justify-between">
                     <span>נוסע: <strong>Mr Eliran Or</strong></span>
-                    <span class="text-emerald-700 font-medium">הגעה מומלצת לנתב"ג: 04:15</span>
+                    <span class="text-emerald-700 font-bold">נחיתה בגואה: 23:30 בלילה</span>
                   </div>
                   <div class="text-[11px] text-neutral-500 pt-1 border-t border-neutral-100">
-                    💡 <strong>המשך לגואה:</strong> נחיתה ב-19:05 בטרמינל 2, טיסת פנים קצרה (שעה אחת) לגואה ואיחוד מושלם עם מעיין במנדרם!
+                    🌴 <strong>הגעה לריזורט:</strong> איסוף כבודה ב-GOI ומונית ישירה ל-Riva Beach Resort במנדרם (הגעה בסביבות 01:15 בלילה לפגישה עם מעיין!).
                   </div>
                 </div>
               </div>
 
               <!-- Eliran Return Flight Card -->
-              <div class="rounded-3xl p-6 sm:p-7 border border-sky-200 bg-gradient-to-br from-sky-50/50 via-white to-sand-50 relative shadow-sm">
-                <div class="flex items-center justify-between mb-4">
+              <div class="rounded-3xl p-6 sm:p-7 border border-sky-200 bg-gradient-to-br from-sky-50/50 via-white to-sand-50 relative shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
                   <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-800">
                     <i data-lucide="plane-landing" class="w-3.5 h-3.5"></i> חזור: מומבאי ➔ תל אביב
                   </span>
-                  <span class="text-xs font-mono font-bold text-neutral-700 bg-white px-2.5 py-1 rounded-lg border border-sky-200 shadow-xs">
-                    PNR: 8YDKJG
-                  </span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-mono font-bold text-neutral-700 bg-white px-2.5 py-1 rounded-lg border border-sky-200 shadow-xs">
+                      PNR: 8YDKJG
+                    </span>
+                    <button onclick="copyToClipboard('8YDKJG', 'PNR 8YDKJG הועתק!')" class="text-neutral-500 hover:text-sky-700 p-1" title="העתק PNR">
+                      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
                 </div>
 
-                <div class="flex items-center justify-between my-4 px-2">
+                <!-- Check-in alert for Return -->
+                <div class="p-3 bg-white rounded-xl border border-sky-200 text-xs space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-sky-900 flex items-center gap-1">
+                      <i data-lucide="bell" class="w-3.5 h-3.5 text-sky-600"></i>
+                      צ׳ק-אין חזור: נפתח ב-17.10 ב-05:15 בבוקר
+                    </span>
+                    <a href="https://www.etihad.com/en/manage/check-in" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-sky-700 hover:text-sky-800 underline">
+                      אתר Etihad ↗
+                    </a>
+                  </div>
+                  <div class="text-[11px] text-neutral-500">
+                    פרטי כניסה לצ'ק-אין: PNR: <span class="font-mono font-bold text-neutral-700 select-all">8YDKJG</span> | שם משפחה: <span class="font-bold text-neutral-700 select-all">OR</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between my-2 px-2">
                   <div class="text-right">
                     <div class="text-2xl font-bold font-display text-neutral-900">11:15</div>
                     <div class="text-xs font-bold text-neutral-700">BOM • מומבאי</div>
@@ -1260,10 +1502,10 @@
                   </div>
                 </div>
 
-                <div class="mt-4 p-3 rounded-xl bg-white/90 border border-sky-100 text-xs text-neutral-600 space-y-1.5">
+                <div class="p-3 rounded-xl bg-white/90 border border-sky-100 text-xs text-neutral-600 space-y-1">
                   <div class="flex items-center justify-between">
                     <span>נוסע: <strong>Mr Eliran Or</strong></span>
-                    <span class="text-sky-700 font-medium">התייצבות ב-BOM: 08:15</span>
+                    <span class="text-sky-700 font-medium">התייצבות ב-BOM: 08:15 בבוקר</span>
                   </div>
                   <div class="text-[11px] text-neutral-500 pt-1 border-t border-neutral-100">
                     💡 <strong>שעה נוחה:</strong> המראה ב-11:15 ונחיתה בארץ בשעות אחה"צ (16:50). מומלץ להגיע לשדה במומבאי ב-08:15.
@@ -1287,17 +1529,38 @@
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
               
               <!-- Maayan Return Card -->
-              <div class="rounded-3xl p-6 sm:p-7 border border-rose-200 bg-gradient-to-br from-rose-50/50 via-white to-sand-50 relative shadow-sm">
-                <div class="flex items-center justify-between mb-4">
+              <div class="rounded-3xl p-6 sm:p-7 border border-rose-200 bg-gradient-to-br from-rose-50/50 via-white to-sand-50 relative shadow-sm space-y-4">
+                <div class="flex items-center justify-between">
                   <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-rose-100 text-rose-800">
                     <i data-lucide="plane-takeoff" class="w-3.5 h-3.5"></i> מעיין • טיסת בוקר מוקדמת (05:00)
                   </span>
-                  <span class="text-xs font-mono font-bold text-rose-700 bg-white px-2.5 py-1 rounded-lg border border-rose-200 shadow-xs">
-                    PNR: 7CKAVD
-                  </span>
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-mono font-bold text-rose-700 bg-white px-2.5 py-1 rounded-lg border border-rose-200 shadow-xs">
+                      PNR: 7CKAVD
+                    </span>
+                    <button onclick="copyToClipboard('7CKAVD', 'PNR 7CKAVD הועתק!')" class="text-neutral-500 hover:text-rose-700 p-1" title="העתק PNR">
+                      <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                    </button>
+                  </div>
                 </div>
 
-                <div class="flex items-center justify-between my-4 px-2">
+                <!-- Check-in alert for Maayan Return -->
+                <div class="p-3 bg-white rounded-xl border border-rose-200 text-xs space-y-1.5">
+                  <div class="flex items-center justify-between">
+                    <span class="font-bold text-rose-900 flex items-center gap-1">
+                      <i data-lucide="bell" class="w-3.5 h-3.5 text-rose-600"></i>
+                      צ׳ק-אין חזור: נפתח ביום ו׳ 16.10 ב-23:00 בלילה
+                    </span>
+                    <a href="https://www.etihad.com/en/manage/check-in" target="_blank" rel="noopener noreferrer" class="text-xs font-bold text-rose-700 hover:text-rose-800 underline">
+                      אתר Etihad ↗
+                    </a>
+                  </div>
+                  <div class="text-[11px] text-neutral-500">
+                    פרטי כניסה לצ'ק-אין: PNR: <span class="font-mono font-bold text-neutral-700 select-all">7CKAVD</span> | שם משפחה: <span class="font-bold text-neutral-700 select-all">YAARI</span>
+                  </div>
+                </div>
+
+                <div class="flex items-center justify-between my-2 px-2">
                   <div class="text-right">
                     <div class="text-2xl font-bold font-display text-neutral-900">05:00</div>
                     <div class="text-xs font-bold text-neutral-700">BOM • מומבאי</div>
@@ -1356,8 +1619,32 @@
     <p>שקיעות, שלווה, קוקוסים וים אינסופי 🌴</p>
   </footer>
 
+  <!-- MOBILE BOTTOM APP NAVIGATION BAR -->
+  <nav id="mobileBottomNav" class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-lg border-t border-sand-200 shadow-float px-2 py-1.5 flex items-center justify-around no-print safe-area-bottom">
+    <button onclick="switchTab('vacation')" id="m-tab-vacation" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-terracotta-600 transition-colors">
+      <i data-lucide="sun" class="w-5 h-5"></i>
+      <span class="text-[10px] font-bold mt-0.5">חופשה</span>
+    </button>
+    <button onclick="switchTab('itinerary')" id="m-tab-itinerary" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-neutral-500 hover:text-neutral-900 transition-colors">
+      <i data-lucide="calendar" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-0.5">יומן מסלול</span>
+    </button>
+    <button onclick="switchTab('hotels')" id="m-tab-hotels" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-neutral-500 hover:text-neutral-900 transition-colors">
+      <i data-lucide="building-2" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-0.5">מלונות</span>
+    </button>
+    <button onclick="switchTab('departures')" id="m-tab-departures" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-neutral-500 hover:text-neutral-900 transition-colors">
+      <i data-lucide="clock" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-0.5">מתי לצאת</span>
+    </button>
+    <button onclick="switchTab('flights')" id="m-tab-flights" class="flex flex-col items-center justify-center py-1 px-2 rounded-xl text-neutral-500 hover:text-neutral-900 transition-colors">
+      <i data-lucide="plane" class="w-5 h-5"></i>
+      <span class="text-[10px] font-medium mt-0.5">טיסות</span>
+    </button>
+  </nav>
+
   <!-- Custom Notification Toast Modal -->
-  <div id="toastNotification" class="fixed bottom-6 right-6 z-50 transform translate-y-32 transition-transform duration-300 ease-out no-print">
+  <div id="toastNotification" class="fixed bottom-20 md:bottom-6 right-4 sm:right-6 z-50 transform translate-y-32 transition-transform duration-300 ease-out no-print">
     <div class="bg-neutral-900/90 backdrop-blur-md text-white px-5 py-3 rounded-2xl shadow-xl border border-neutral-700/50 flex items-center gap-3 text-xs sm:text-sm">
       <span id="toastIcon">🌴</span>
       <span id="toastMessage">הודעה</span>
@@ -1369,7 +1656,6 @@
        VACATION DATA & STATE INITIALIZATION
        ========================================================================= */
 
-    // High quality SVG data URIs for 100% offline fallback image rendering
     function getSvgFallback(label) {
       const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400" viewBox="0 0 600 400">
         <defs>
@@ -1478,12 +1764,12 @@
         date: "06.10.2026",
         region: "north",
         sunset: "18:22",
-        title: "צפון • אלירן מגיע לגואה! איחוד מרגש בריזורט",
+        title: "צפון • אלירן מגיע לגואה! נחיתת לילה ואיחוד בריזורט",
         hotel: "Riva Beach Resort • Mandrem",
-        vibe: "חיבוק חם, קוקטייל ראשון יחד 🥂",
+        vibe: "נחיתה ב-23:30, איחוד מרגש בריזורט 🥂",
         morning: "אלירן מתייצב בנתב\"ג ב-04:15, המראה ב-07:45 בטיסת Etihad (PNR: 7UEXZY). מעיין פותחת בוקר שלו בחוף מנדרם.",
-        afternoon: "אלירן נוחת במומבאי ב-19:05 וממשיך בטיסת פנים קצרה ישירות לגואה.",
-        evening: "המפגש המיוחל ב-Riva Beach Resort! שקיעה ב-18:22, קוקטייל צונן על שפת הבריכה ותחילת החופשה יחד."
+        afternoon: "אלירן נוחת במומבאי T2 ב-19:05, עובר לטרמינל 1 ועולה על טיסת IndiGo 6E 5106 הממריאה ב-22:10.",
+        evening: "נחיתה בגואה (GOI) ב-23:30 בלילה! נסיעה קצרה במונית ל-Riva Beach Resort במנדרם והאיחוד המרגש עם מעיין 🌴"
       },
       {
         day: 2,
@@ -1769,7 +2055,6 @@
     function updateDualClocks() {
       const now = new Date();
 
-      // Israel Clock (Asia/Jerusalem)
       try {
         const ilStr = new Intl.DateTimeFormat('he-IL', {
           timeZone: 'Asia/Jerusalem',
@@ -1782,7 +2067,6 @@
         if (ilEl) ilEl.textContent = ilStr;
       } catch(e){}
 
-      // Goa Clock (Asia/Kolkata - UTC+5:30)
       try {
         const goaStr = new Intl.DateTimeFormat('he-IL', {
           timeZone: 'Asia/Kolkata',
@@ -1795,7 +2079,6 @@
         if (goaEl) goaEl.textContent = goaStr;
       } catch(e){}
 
-      // Inline countdown calculation
       const tripDate = new Date("2026-10-05T06:30:00Z").getTime();
       const diff = tripDate - now.getTime();
       const cdEl = document.getElementById('countdownInline');
@@ -1803,7 +2086,6 @@
         if (diff > 0) {
           const days = Math.floor(diff / (1000 * 60 * 60 * 24));
           const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-          const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
           cdEl.textContent = `עוד ${days} ימים ו-${hours} שעות`;
         } else {
           cdEl.textContent = 'החופשה התחילה! תיהנו 🌴';
@@ -1815,7 +2097,7 @@
     updateDualClocks();
 
     /* =========================================================================
-       OFFLINE ENGINE & SERVICE WORKER REGISTRATION
+       OFFLINE ENGINE
        ========================================================================= */
     function setupOfflineEngine() {
       function updateNetStatus() {
@@ -1824,11 +2106,11 @@
         const offlineMap = document.getElementById('offlineMapFallback');
 
         if (!isOnline) {
-          banner.classList.remove('hidden');
+          if (banner) banner.classList.remove('hidden');
           if (offlineMap) offlineMap.classList.remove('hidden');
           showToast('מצב אופליין פעיל. כל הנתונים, הטלפונים והשקיעות שמורים במכשיר!', '📴');
         } else {
-          banner.classList.add('hidden');
+          if (banner) banner.classList.add('hidden');
         }
       }
 
@@ -1942,6 +2224,8 @@
       TABS.forEach(t => {
         const section = document.getElementById(`section-${t}`);
         const btn = document.getElementById(`tab-btn-${t}`);
+        const mobileBtn = document.getElementById(`m-tab-${t}`);
+
         if (section) {
           if (t === tabId) {
             section.classList.remove('hidden');
@@ -1949,11 +2233,20 @@
             section.classList.add('hidden');
           }
         }
+
         if (btn) {
           if (t === tabId) {
-            btn.className = "tab-button active-tab flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all text-terracotta-700 bg-white shadow-sm border border-sand-200";
+            btn.className = "tab-button active-tab flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold whitespace-nowrap transition-all text-terracotta-700 bg-white shadow-sm border border-sand-200";
           } else {
-            btn.className = "tab-button flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60";
+            btn.className = "tab-button flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-xl text-xs sm:text-sm font-medium whitespace-nowrap transition-all text-neutral-600 hover:text-neutral-900 hover:bg-white/60";
+          }
+        }
+
+        if (mobileBtn) {
+          if (t === tabId) {
+            mobileBtn.className = "flex flex-col items-center justify-center py-1 px-2 rounded-xl text-terracotta-600 font-bold transition-colors";
+          } else {
+            mobileBtn.className = "flex flex-col items-center justify-center py-1 px-2 rounded-xl text-neutral-500 hover:text-neutral-900 font-medium transition-colors";
           }
         }
       });
@@ -1962,7 +2255,7 @@
         setTimeout(initMapIfNeeded, 200);
       }
 
-      window.scrollTo({ top: 180, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
     /* =========================================================================
@@ -2010,10 +2303,10 @@
 
     function filterVacationVibe(category) {
       document.querySelectorAll('.vibe-filter').forEach(btn => {
-        btn.className = "vibe-filter px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200";
+        btn.className = "vibe-filter px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-sand-100 text-neutral-700 hover:bg-sand-200";
       });
       if (event && event.target) {
-        event.target.className = "vibe-filter active-vibe px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all bg-terracotta-500 text-white shadow-sm";
+        event.target.className = "vibe-filter active-vibe px-3 py-1.5 rounded-xl text-xs font-semibold transition-all bg-terracotta-500 text-white shadow-sm";
       }
       renderVacationVibes(category);
     }
@@ -2083,7 +2376,7 @@
     }
 
     /* =========================================================================
-       BUCKET LIST & CHECKLIST LOGIC
+       BUCKET LIST LOGIC
        ========================================================================= */
     let bucketItems = [];
     try {
